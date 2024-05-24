@@ -1,30 +1,60 @@
 
-import { useQuery } from "react-query";
+import { useQuery,useQueryClient,useMutation} from "react-query";
 import { getOneDocInCollection,updateDocument,deleteDocument} from "../firebaseModel.js";
 import { useForm ,Controller } from "react-hook-form";
 import { ErrorMessage } from '@hookform/error-message';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import { useState, useEffect} from "react";
-import { checkEmail , checkPhoneNumber,checkPersonalNumber} from "../utilities.js";
+import {serviceOptions,titleOptions, checkEmail , checkPhoneNumber,checkPersonalNumber} from "../utilities.js";
+import { useLocation,useNavigate} from "react-router-dom";
 
-export default function MemberInfo(props){
+export default function MemberInfo(){
+  const location = useLocation();
+  const navigate = useNavigate();
+  const memberID  = location.state;
+  console.log(memberID)
+
     const [isEditTriggered, setEditTrigered] = useState(false)
 
     const { register, formState: { errors }, handleSubmit, control,watch,setValue} = useForm({
         criteriaMode: "all",
       });
-    console.log(props.model)
+    // console.log(props.model)
 
     const {data:memberInfo,isLoading}= useQuery({
-        queryFn: () => getOneDocInCollection("STMinaKOUFData", props.model.memberToEditID),
+        queryFn: () => getOneDocInCollection("STMinaKOUFData", memberID),
         queryKey:"memberInfo"
     });
 
-    const onSubmit = (data) => {
-        // console.log(data)
-        updateDocument("STMinaKOUFData", props.model.memberToEditID , data );
-        window.location=window.location.hash="#/allMembers";}
+    const queryClient = useQueryClient();
+
+    const mutationUpdate = useMutation(
+      data => updateDocument("STMinaKOUFData", memberID, data),
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries("allMembers");
+          navigate('/allMembers', { replace: true });
+        },
+      }
+    );
+    const mutationDelete = useMutation(
+      ID => deleteDocument("STMinaKOUFData", ID),
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries("allMembers");
+          navigate('/allMembers', { replace: true });
+        }
+      }
+    )
+
+    function handleDeleteClick(){
+      mutationDelete.mutate(memberID);
+    }
+  
+    const onSubmit = data => {
+      mutationUpdate.mutate(data);
+    };
 
     const renderCheckboxes = (checkbox) => {
 
@@ -59,10 +89,6 @@ export default function MemberInfo(props){
 
       if (isLoading) {
         return <div>loading...</div>;
-    }
-    function handleDeleteClick(){
-        deleteDocument("STMinaKOUFData", props.model.memberToEditID );
-        window.location=window.location.hash="#/allMembers";
     }
 
     console.log(isEditTriggered)
@@ -281,7 +307,7 @@ export default function MemberInfo(props){
 
       <select  disabled={!isEditTriggered} {...register("Title", {required: 'title is required'})}>
                  <option value="">Select an option</option>
-                 {props.model.titleOptions.map(renderTitleOptions)}
+                 {titleOptions.map(renderTitleOptions)}
       </select><br/>
 
       <ErrorMessage errors={errors} name="Title">
@@ -296,7 +322,7 @@ export default function MemberInfo(props){
         }}
       </ErrorMessage><br/>
 
-      {props.model.serviceOptions.map(renderCheckboxes)}<br/>
+      {serviceOptions.map(renderCheckboxes)}<br/>
       <button type="submit">Save</button>
     </form>
 

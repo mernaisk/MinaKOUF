@@ -2,13 +2,18 @@ import { useQuery } from "react-query";
 import { getAllDocInCollection, getOneDocInCollection} from "../firebaseModel.js";
 import { filterMembers } from "../utilities.js";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
-export default function AllMembers(props) {
+
+export default function AllMembers() {
+  const navigate = useNavigate();
+
     const [nameToSearch,setNameToSearch] = useState("");
 
-    const { data: allMembers, isLoading } = useQuery({
+    const { data: allMembers, isLoading} = useQuery({
       queryFn: () => getAllDocInCollection("STMinaKOUFData"),
       queryKey: "allMembers",
+      gcTime: 0,
     });
 
     if (isLoading) {
@@ -21,8 +26,9 @@ export default function AllMembers(props) {
     function renderMembers(member) {
       function youthInfoACB(){
         console.log(member)
-        props.model.setMemberToEditID(member.Id)
-        window.location=window.location.hash="#/memberInfo"
+        navigate('/memberInfo', { state: member.Id });
+        // props.model.setMemberToEditID(member.Id)
+        // window.location=window.location.hash="#/memberInfo"
       }
         return (
             <div key={member.Id} onClick={youthInfoACB}>
@@ -32,14 +38,14 @@ export default function AllMembers(props) {
     }
 
     function backClickACB() {
-      window.location=window.location.hash="#/KOUF"
+      navigate('/KOUF');
     }
 
     function search(event){
       setNameToSearch(event.target.value)  
     }
     function addMember(){
-      window.location=window.location.hash="#/addMember"
+      navigate('/addMember');
 
     }
 

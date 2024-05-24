@@ -3,31 +3,34 @@ import { ErrorMessage } from '@hookform/error-message';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import { useState, useEffect} from "react";
-import { checkEmail , checkPhoneNumber,checkPersonalNumber} from "../utilities.js";
+import { checkEmail , checkPhoneNumber,checkPersonalNumber, serviceOptions, titleOptions} from "../utilities.js";
 import { addDocoment } from "../firebaseModel.js";
+import { useQueryClient, useMutation } from "react-query";
+import { useNavigate } from "react-router-dom";
 
-
-export default function AddMembers(props) {
+export default function AddMembers() {
 
   const { register, formState: { errors }, handleSubmit, control,watch} = useForm({
     criteriaMode: "all",
   });
 
   const datawatched = watch();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const mutationAdd =useMutation (
+    data => addDocoment("STMinaKOUFData", data ),{
+      onSuccess: () => {
+        queryClient.invalidateQueries("allMembers");
+        navigate('/allMembers', { replace: true });      }
+    }
+  )
   const onSubmit = (data) => {
-    addDocoment("STMinaKOUFData", data );
-    window.location=window.location.hash="#/allMembers";}
+  mutationAdd.mutate(data)
+  }
 
   useEffect(() => {
     console.log(datawatched)
-    
-    // if(selectedTitle == "Ungdom"){
-    //   setIsEmailRequrired(false);
-    //   console.log("its not required")
-    // }
-    // else{
-    //   setIsEmailRequrired(true)
-    //   console.log("it is required")}
   },[datawatched]);
 
 
@@ -247,7 +250,7 @@ export default function AddMembers(props) {
 
       <select {...register("Title", {required: 'title is required'})}>
                  <option value="">Select an option</option>
-                 {props.model.titleOptions.map(renderTitleOptions)}
+                 {titleOptions.map(renderTitleOptions)}
       </select><br/>
 
       <ErrorMessage errors={errors} name="Title">
@@ -262,7 +265,7 @@ export default function AddMembers(props) {
         }}
       </ErrorMessage><br/>
 
-      {props.model.serviceOptions.map(renderCheckboxes)}<br/>
+      {serviceOptions.map(renderCheckboxes)}<br/>
 
       <input type="submit" />
     </form>

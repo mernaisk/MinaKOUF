@@ -1,70 +1,71 @@
 import './App.css';
 import React from 'react';
-import Home from "./presenters/homePresenter";
+import Home from "./presenters/home.jsx";
 import Youth from "./presenters/youthPresenter";
-import KOUF from "./presenters/KOUFPresenter";
-import AllMembers from "./presenters/allMembers.jsx"
-// import Attendence from "./attendencePresenter.jsx";
-// import PersonInfo from "./personInfoPresenter.jsx";
+import KOUF from "./presenters/KOUF.jsx";
+import AllMembers from "./presenters/allMembers.jsx";
 import FeedBack from "./presenters/feedbackPresenter.jsx";
 import AddMember from "./presenters/addMember.jsx";
 import Suggestion from "./presenters/suggestionPresenter.jsx";
-import MemberInfo from "./presenters/memberInfo.jsx"
-import KOUFMembers from "./presenters/KOUFMembersPresenter.jsx";
-import {QueryClient, QueryClientProvider} from "react-query"
-import { createHashRouter , RouterProvider} from "react-router-dom";
+import MemberInfo from "./presenters/memberInfo.jsx";
+import TakeAttendence from "./presenters/takeAttendence.jsx"
+import { QueryClient, QueryClientProvider } from "react-query";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-//create q query client
+// Create a query client
 const queryClient = new QueryClient();
-//i need to wrap my whole application with a query client provider to have acsses to all the hooks that react query provide us
-export default function App(props) {
-  // console.log(props.model.membersConst[0].Street_name);
+
+// App component
+export default function App() {
   return (
-    <QueryClientProvider client = {queryClient}>
-        <RouterProvider router={makeRouter(props.model)}/>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={makeRouter()} />
     </QueryClientProvider>
   );
-};
+}
 
-function makeRouter(m){
-  return createHashRouter([
+// Router configuration
+function makeRouter() {
+  return createBrowserRouter([
     {
       path: "/",
-      element: <Home model={m} />,
+      element: <Home />,
     },
     {
       path: "/Home",
-      element: <Home model={m} />,
+      element: <Home />,
     },
     {
       path: "/youth",
-      element: <Youth model={m} />,
+      element: <Youth />,
     },
     {
       path: "/KOUF",
-      element: <KOUF model={m} />,
+      element: <KOUF />,
     },
     {
       path: "/feedback",
-      element: <FeedBack model={m}/>
+      element: <FeedBack />,
     },
     {
       path: "/suggestion",
-      element: <Suggestion model={m}/>
+      element: <Suggestion />,
     },
     {
       path: "/memberInfo",
-      element: <MemberInfo model={m}/>
+      element: <MemberInfo />,
     },
     {
       path: "/addMember",
-      element: <AddMember model={m}/>
+      element: <AddMember />,
     },
     {
       path: "/allMembers",
-      element: <AllMembers model={m}/>
+      element: <AllMembers />,
+    },
+    {
+      path: "/takeAttendence",
+      element: <TakeAttendence />,
     }
-
-  ])
+  ]);
 }
-

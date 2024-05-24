@@ -1,32 +1,68 @@
-import SuggestionsView from "../views/suggestionsView.jsx";
-import _default from "../data.js";
-import { observer } from "mobx-react-lite";
+
+export default function Suggestion(){
+    // var isSelected=false;
+    // var isInputfilled = false;
+    // function handleSelectChangeACB(event){
+    //     props.setOption(event.target.value);
+    //     isSelected = true
+    // }
+
+    // function handleSuggestionTextACB(event){
+    //     if(event.target.value == ""){
+    //         isInputfilled = false
+    //     }
+    //     else{
+    //         props.setText(event.target.value)
+    //         isInputfilled = true
+    //     }
+        
+
+    // }
+
+    // function handleSubmitButtonACB(){
+    //     if (!isSelected){
+    //         alert("No selected option")
+    //     }
+    //     else if(!isInputfilled){
+    //         alert("no input")
+    //     }
+    //     else{
+    //         props.setDate()
+    //         props.setType("suggestion")
+    //         sendMessage(props.youthMessage)
+    //         window.location=window.location.hash="#/youth"
+    //     }
+    // }
+
+    // function handleBackButtonACB(){
+    //     window.location=window.location.hash="#/youth"
+    // }
+
+    // function handleHomeButtonACB(){
+    //     window.location=window.location.hash="#/home"
+    // }
 
 
-export default observer(function Suggestion(props){
-    function changeOptionACB(option){
-        props.model.setOption(option)
-    }
-
-    function changeTextACB(text){
-        props.model.setText(text)
-    }
-
-    function changeDateACB(){
-        props.model.setDate()
-    }
-
-    function changeTypeACB(type){
-        props.model.setType(type)
-    }
+    // function addAttendence(){
+    //     props.addAttendence()
+    // }
 
 
-    return <SuggestionsView 
-    youthMessage={props.youthMessage}
-    setOption={changeOptionACB}
-    setText={changeTextACB}
-    setDate={changeDateACB}
-    setType={changeTypeACB}
-    
-    />;
-})
+    return(
+        <div>
+            {/* <button onClick={handleBackButtonACB}>Back</button>
+            <button onClick={handleHomeButtonACB}>Home</button>
+            <select onChange={handleSelectChangeACB}>
+                <option value="">Select an option</option>
+                <option value="topic">Topic</option>
+                <option value="activity">Activity</option>
+                <option value="other">other</option>
+            </select>
+            <textarea id="feedback" rows="4" cols="50" onChange={handleSuggestionTextACB}></textarea>
+            <button onClick={handleSubmitButtonACB}>Submit</button>
+            <button onClick={addAttendence}>click</button> */}
+
+        </div>
+
+    )
+}

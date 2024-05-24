@@ -69,5 +69,27 @@ function checkEmail(email){
   return validator.isEmail(email)
 }
 
+
+const titleOptions = [
+  "Ungdom",
+  "Teaternansvarig",
+  "Aktivitetsansvarig",
+  "Ordförande ",
+  "Mediaansvarig",
+  "Visordförande",
+  "Utbildningsansvaig",
+  "Kommunansvarig",
+  "Bildaansvarig",
+  "Sekreterare ",
+  "köransvarig"]
+
+const serviceOptions = [
+  "Teatern",
+  "Kören",
+  "Aktiviteter",
+  "Eftekad",
+  "Utbildning",
+]
+
 // Export the addMember function
-export { sendMessage ,filterMembers,sortAlphapidically,checkPhoneNumber,checkPersonalNumber,checkEmail};
+export { serviceOptions, titleOptions, sendMessage ,filterMembers,sortAlphapidically,checkPhoneNumber,checkPersonalNumber,checkEmail};

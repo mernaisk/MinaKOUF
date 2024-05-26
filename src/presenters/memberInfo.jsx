@@ -16,6 +16,7 @@ export default function MemberInfo(){
   console.log(memberID)
 
     const [isEditTriggered, setEditTrigered] = useState(false)
+    // const [mystylingclassname, setmystylingclassname] = useState("styleoption1")
 
     const { register, formState: { errors }, handleSubmit, control,watch,setValue} = useForm({
         criteriaMode: "all",
@@ -34,7 +35,7 @@ export default function MemberInfo(){
       {
         onSuccess: () => {
           queryClient.invalidateQueries("allMembers");
-          navigate('/allMembers', { replace: true });
+          navigate('/allMembers');
         },
       }
     );
@@ -43,7 +44,7 @@ export default function MemberInfo(){
       {
         onSuccess: () => {
           queryClient.invalidateQueries("allMembers");
-          navigate('/allMembers', { replace: true });
+          navigate('/allMembers');
         }
       }
     )
@@ -52,7 +53,8 @@ export default function MemberInfo(){
       mutationDelete.mutate(memberID);
     }
   
-    const onSubmit = data => {
+    function onSubmit(data){
+      console.log(data)
       mutationUpdate.mutate(data);
     };
 
@@ -60,7 +62,7 @@ export default function MemberInfo(){
 
         return (
           <label><br/>
-            <input  disabled={!isEditTriggered} type="checkbox" {...register("Service")} value={checkbox} defaultChecked={false}/>
+            <input  disabled={!isEditTriggered} type="checkbox" {...register("Service")} value={checkbox} />
             {checkbox}
           </label> 
         );
@@ -72,7 +74,7 @@ export default function MemberInfo(){
           )
       }
 
-    useEffect(() => {
+    // useEffect(() => {
         if (memberInfo) {
           setValue("FirstName", memberInfo.FirstName);
           setValue("LastName", memberInfo.LastName);
@@ -85,20 +87,27 @@ export default function MemberInfo(){
           setValue("Title", memberInfo.Title);
           setValue("Service", memberInfo.Service);
         }
-      }, [memberInfo, setValue]);
+      // }, [memberInfo, setValue]);
 
       if (isLoading) {
         return <div>loading...</div>;
     }
 
-    console.log(isEditTriggered)
+    // console.log(isEditTriggered)
+    function handleEditClick(){
+      setEditTrigered(!isEditTriggered)
+      // if(isEditTriggered){
+      //   setmystylingclassname("styleoption2")
+      // }
+    }
 
     return(
         <div>
+          {/* <Link to="/KOUF"> KOUF </Link> */}
         {isEditTriggered ? (
         <button onClick={handleDeleteClick}>Delete</button>
         ) : (
-        <button onClick={() => setEditTrigered(!isEditTriggered)}>Edit</button>
+        <button onClick={handleEditClick}>Edit</button>
       )}
               <br/>
 
@@ -108,7 +117,7 @@ export default function MemberInfo(){
         {...register("FirstName", {
           required: "First name is required.",
           pattern: {
-            value: /^[a-zA-Z]+$/,
+            value: /^[a-zA-Z]+$/, //space and streck
             message: "This input is letters only."
           },
           maxLength: {
@@ -146,6 +155,7 @@ export default function MemberInfo(){
         })}
         placeholder="Last Name" 
         disabled={!isEditTriggered}
+        // className= {mystylingclassname}
       /><br/>
 
       <ErrorMessage errors={errors} name="LastName">
@@ -244,7 +254,7 @@ export default function MemberInfo(){
           required: "post number is required." ,
           pattern: {
             value: /\d{5}/,
-            message: "invalid post number"
+            message: "invalid post number. It should be 5 digits"
           },
         })}
         /><br/>
@@ -322,7 +332,8 @@ export default function MemberInfo(){
         }}
       </ErrorMessage><br/>
 
-      {serviceOptions.map(renderCheckboxes)}<br/>
+      {serviceOptions.map(renderCheckboxes)}<br/> 
+      {/* inget option */}
       <button type="submit">Save</button>
     </form>
 

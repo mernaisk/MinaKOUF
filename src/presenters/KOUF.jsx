@@ -9,11 +9,25 @@ export default function KOUF(){
     function navigateToTakeAttendence(){
         navigate("/TakeAttendence")
     }
+    function navigateToStartKOUFMeeting(){
+
+    }
+
+    function navigateToDownloadReport(){
+
+    }
+    function navigateToCreateEvents(){
+        
+    }
+
     return(
         <div >
             <Link to="/Home">back</Link> <br/>
             <button onClick={navigateToAllMembers}>All Members</button><br/>
             <button onClick={navigateToTakeAttendence}>Take attendence</button>
+            <button onClick={navigateToStartKOUFMeeting}>Start KOUF meeting</button>
+            <button onClink={navigateToDownloadReport}>Download Report</button>
+            <button onClick={navigateToCreateEvents}>Create events</button>
         </div>
 
     )

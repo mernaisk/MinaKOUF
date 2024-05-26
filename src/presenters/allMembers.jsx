@@ -13,22 +13,18 @@ export default function AllMembers() {
     const { data: allMembers, isLoading} = useQuery({
       queryFn: () => getAllDocInCollection("STMinaKOUFData"),
       queryKey: "allMembers",
-      gcTime: 0,
     });
 
     if (isLoading) {
         return <div>loading...</div>;
     }
-    // getOneDocInCollection("STMinaKOUFData", "y1H0yGTn5CYnwnFar8mv");
 
     const filteredMembers = filterMembers(allMembers, nameToSearch);
 
     function renderMembers(member) {
+      console.log(member)
       function youthInfoACB(){
-        console.log(member)
         navigate('/memberInfo', { state: member.Id });
-        // props.model.setMemberToEditID(member.Id)
-        // window.location=window.location.hash="#/memberInfo"
       }
         return (
             <div key={member.Id} onClick={youthInfoACB}>

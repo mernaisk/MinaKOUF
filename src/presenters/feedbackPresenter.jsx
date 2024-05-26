@@ -1,6 +1,5 @@
 import FeedbackView from "../views/feedbackView.jsx";
 //utilites
-import _default from "../data.js";
 import { observer } from "mobx-react-lite";
 
 

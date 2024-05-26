@@ -9,6 +9,7 @@ import AddMember from "./presenters/addMember.jsx";
 import Suggestion from "./presenters/suggestionPresenter.jsx";
 import MemberInfo from "./presenters/memberInfo.jsx";
 import TakeAttendence from "./presenters/takeAttendence.jsx"
+import AttendenceDetails from './presenters/attendenceSheetDetails.jsx';
 import { QueryClient, QueryClientProvider } from "react-query";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -66,6 +67,10 @@ function makeRouter() {
     {
       path: "/takeAttendence",
       element: <TakeAttendence />,
+    },
+    {
+      path: "/attendenceSheetDetails",
+      element: <AttendenceDetails/>,
     }
   ]);
 }

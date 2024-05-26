@@ -2,18 +2,16 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
 import Popup from "reactjs-popup";
-// import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
-// import { MobileDatePicker } from '@mui/x-date-pickers';
-// or
-// import { MobileDatePicker } from '@mui/x-date-pickers-pro';
 import { useMutation, useQuery,useQueryClient} from "react-query";
 import { addDocoment, getAllDocInCollection } from "../firebaseModel";
+import { useNavigate  } from "react-router-dom";
 
 
 export default function TakeAttendence(){
     const [startDate, setStartDate] = useState(new Date());
     const [isCreateDisabled, setIsCreateDisabled] = useState(true);
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const mutationAdd = useMutation (
         data => addDocoment("STMinaKOUFAttendence", data),{
@@ -33,10 +31,14 @@ export default function TakeAttendence(){
     }
 
     function renderSubmitted(report){
+        function handleButtonPressed(){
+            console.log(report)
+            navigate("/attendenceSheetDetails", {state: report.Id})
+        }
+
         if(report.isSubmitted){
             return(
-                <div><button>{report.date}</button></div>
-                
+                <div><button onClick={handleButtonPressed}>{report.date}</button></div>
             )
         }
         return 

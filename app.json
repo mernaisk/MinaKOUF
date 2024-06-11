@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "st_mina_kouf",
-    "slug": "st_mina_kouf",
+    "name": "STMINAKOUF",
+    "slug": "STMINAKOUF",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -13,10 +13,10 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.kouf.app"
+      "supportsTablet": true
     },
     "android": {
+      "package": "com.stminakouf.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -32,6 +32,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "d2061ff2-c351-4995-a09c-a890491a5f2a"
+      }
     }
   }
 }

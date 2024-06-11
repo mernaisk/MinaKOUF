@@ -2,8 +2,18 @@ import { View, Text, StyleSheet } from 'react-native';
 import React from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Dropdown } from 'react-native-element-dropdown';
+import { useController } from 'react-hook-form';
 
-const oneSelect = ({ onChange, value }, { placeholder, data, isDisabled}) => {
+
+const OneSelectController = ({name, control, rules, defaultValue='', ...props}) => {
+  const {
+    field: {onChange, onBlur, value },
+    fieldState:{error}}= useController({
+      name,
+      control,
+      rules,
+      defaultValue})
+  
   const renderItem = item => {
     return (
       <View style={styles.item}>
@@ -21,29 +31,34 @@ const oneSelect = ({ onChange, value }, { placeholder, data, isDisabled}) => {
   };
 
   return (
-    <Dropdown
-      disable={false}
-      style={styles.dropdown}
-      placeholderStyle={styles.placeholderStyle}
-      selectedTextStyle={styles.selectedTextStyle}
-      inputSearchStyle={styles.inputSearchStyle}
-      iconStyle={styles.iconStyle}
-      data={data}
-      maxHeight={200}
-      labelField="label"
-      valueField="value"
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      renderLeftIcon={() => (
-        <AntDesign style={styles.icon} color="black" name="Safety" size={20} disabled={true} />
-      )}
-      renderItem={renderItem}
-    />
+    <View>
+
+      <Dropdown
+        {...props}
+        onBlur={onBlur}
+        style={styles.dropdown}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        inputSearchStyle={styles.inputSearchStyle}
+        iconStyle={styles.iconStyle}
+        maxHeight={200}
+        labelField="label"
+        valueField="value"
+        value={value}
+        onChange={onChange}
+        renderLeftIcon={() => (
+          <AntDesign style={styles.icon} color="black" name="Safety" size={20} />
+        )}
+        renderItem={renderItem}
+      />
+
+      {error && <Text style={{ color: 'red' }}>{error.message}</Text>}
+
+      </View>
   );
 };
 
-export default oneSelect;
+export default OneSelectController;
 
 const styles = StyleSheet.create({
     container: { padding: 16 },

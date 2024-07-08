@@ -16,7 +16,10 @@ export default function RootLayout() {
           <Stack.Screen name="index" />
           <Stack.Screen name="addMember"/>
           <Stack.Screen name="editMember"/>
-
+          <Stack.Screen name="sheetDetails"/>
+          <Stack.Screen name="createAttendenceSheet"/>
+          <Stack.Screen name="editAttendenceSheet"/>
+          <Stack.Screen name="createEvent"/>
         </Stack>
     </QueryClientProvider>
 

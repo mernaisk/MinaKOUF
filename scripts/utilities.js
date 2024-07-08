@@ -15,16 +15,28 @@ function filterMembers(allMembers, searchString) {
 }
 
 function sortAlphapidically(filteredMembers) {
-  const sortedMembers = filteredMembers.sort(function (a, b) {
-    if (a.FirstName < b.FirstName) {
-      return -1;
-    }
-    if (a.FirstName > b.FirstName) {
-      return 1;
-    }
-    return 0;
-  });
-  return sortedMembers;
+  if(filteredMembers){
+    const sortedMembers = filteredMembers.sort(function (a, b) {
+      if (a.FirstName < b.FirstName) {
+        return -1;
+      }
+      if (a.FirstName > b.FirstName) {
+        return 1;
+      }
+      return 0;
+    });
+    return sortedMembers;
+  }
+  else{
+    return filteredMembers;
+  }
+
+}
+
+function sortDate(sheets){
+  // console.log(sheets)
+  // console.log("sorted sheet",sheets.sort((a, b) => a?.date - b?.date))
+  return sheets.sort((a, b) => a?.date - b?.date);
 }
 
 function checkPhoneNumber(phone) {
@@ -69,6 +81,16 @@ function checkEmail(email) {
   return validator.isEmail(email);
 }
 
+function getLeadersNames(leaders){
+  const leadersOptions= []
+  const addLeaderOption = (object) => {
+    let leader = {label:object.FirstName + " " + object.LastName, value:object}
+    leadersOptions.push(leader)
+  }
+  leaders?.map(addLeaderOption)
+  return leadersOptions
+}
+
 const titleOptions = [
   { label: "Ungdom", value: "Ungdom" },
   { label: "Teaternansvarig", value: "Teaternansvarig" },
@@ -91,8 +113,17 @@ const serviceOptions = [
   { label: "Utbildning", value: "Utbildning " },
 ];
 
+const attendenceOptions = [
+  { label: "Meeting", value: "Meeting" },
+  { label: "Activity", value: "Activity" },
+  { label: "Conference", value: "Conference" },
+  { label: "Koral", value: "Koral" },
+  { label: "Teater", value: "Teater" },
+];
+
 // Export the addMember function
 export {
+  sortDate,
   checkServiceOptions,
   serviceOptions,
   titleOptions,
@@ -102,4 +133,6 @@ export {
   checkPhoneNumber,
   checkPersonalNumber,
   checkEmail,
+  getLeadersNames,
+  attendenceOptions,
 };

@@ -33,13 +33,13 @@ export default InputController;
 
 const styles = StyleSheet.create({
 
-    top: 80,
-    marginTop: 20,
-    fontSize: 30,
-    backgroundColor: "white",
+    // top: 80,
+    // marginTop: 20,
+    // fontSize: 30,
+    backgroundColor: "grey",
     borderColor: "#000000",
-    borderWidth: 1,
-    borderRadius: 5,
+    // borderWidth: 1,
+    // borderRadius: 5,
 
 });
 

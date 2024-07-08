@@ -1,15 +1,141 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import React from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useQuery } from "@tanstack/react-query";
+import { getAllDocInCollection } from "@/firebase/firebaseModel";
+import { router } from "expo-router";
+import { sortDate } from "@/scripts/utilities";
 
 const attendence = () => {
+  const { data: allAttendenceSheets, isLoading } = useQuery({
+    queryFn: () => getAllDocInCollection("STMinaKOUFAttendence"),
+    queryKey: ["allAttendenceSheets"],
+  });
+  if (isLoading) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color="#00ff00" />
+      </View>
+    );
+  }
+  const sortedSheets = sortDate(allAttendenceSheets);
+
+  const IdsCount = (sheetDetails: any) => {
+    return sheetDetails?.IDS ? Object.keys(sheetDetails.IDS).length : 0;
+  };
+
+  function datePressed(item:any){
+    // console.log("item is ",item)
+    router.push({ pathname: "/editAttendenceSheet", params:{sheetID: item.Id}})
+  }
+
   return (
     <SafeAreaView>
-      <Text>attendence</Text>
+      <View>
+        <Text>Attendence sheets</Text>
+      </View>
+
+      <TouchableOpacity
+        onPress={() => router.push({ pathname: "/createAttendenceSheet" })}
+      >
+        <Text>create</Text>
+      </TouchableOpacity>
+
+      <View style={styles.hearderContent}>
+        <Text style={styles.header}>Date</Text>
+        <Text style={styles.header}>amount</Text>
+        <Text style={styles.header}>name</Text>
+        <Text style={styles.header}>type</Text>
+      </View>
+
+      <FlatList
+        data={sortedSheets}
+        keyExtractor={(item) => item.Id}
+        renderItem={({ item }) => (
+          
+          <View style={styles.row}>
+            <TouchableOpacity onPress={() => datePressed(item)} style={styles.cell}>
+              <Text>{item.date}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => {}} style={styles.cell}>
+              <Text>{IdsCount(item)}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => {}} style={styles.cell}>
+              <Text>{item?.leader?.label}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => {}} style={styles.cell}>
+              <Text>{item?.type?.label}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        ListEmptyComponent={() => (
+          <View>
+            <Text>No items to display</Text>
+          </View>
+        )}
+        style={styles.list}
+      ></FlatList>
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default attendence
+export default attendence;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  button: {
+    marginTop: 10,
+    fontSize: 30,
+    backgroundColor: "#DDDDDD",
+  },
+  list: {
+    // top: 20,
+  },
+  buttonText: {
+    color: "black",
+    textAlign: "center",
+    fontSize: 30,
+  },
+  hearderContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 20,
+    backgroundColor: "6AB7E2",
+    fontWeight: "bold",
+  },
+  header: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginHorizontal: 4,
+    marginVertical: 5,
+    elevation: 1,
+    borderRadius: 10,
+    borderBottomWidth: 3,
+    // borderColor: "black",
+    padding: 20,
+  },
+  cell: {
+    flex: 1,
+    textAlign: "left",
+  },
+});

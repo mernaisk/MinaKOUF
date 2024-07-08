@@ -1,3 +1,4 @@
+
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
@@ -15,3 +16,5 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts", "app/(KOUFtabs)/_layout.tsx", "app/(KOUFtabs)/KOUFindex.tsx", "tsx", "scripts/utilities.js",  ]
   }
+
+  

@@ -1,11 +1,14 @@
-import { View, Text,StyleSheet } from 'react-native'
+import { View, Text,StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import * as ImagePicker from "expo-image-picker"
+import { router } from 'expo-router'
 
 const events = () => {
   return (
     <SafeAreaView>
       <Text style={styles.titleContainer}>events</Text>
+      <TouchableOpacity onPress={() => router.push({pathname:"/createEvent"})}><Text>create new event</Text></TouchableOpacity>
     </SafeAreaView>
   )
 }

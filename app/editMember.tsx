@@ -1,4 +1,10 @@
-import { StyleSheet, Text, View, ActivityIndicator,TouchableOpacity} from 'react-native'
+import {
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { useForm } from "react-hook-form";
 import InputController from "../components/InputController.jsx";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,120 +25,99 @@ import {
   updateDocument,
 } from "../firebase/firebaseModel.js";
 import { useNavigation } from "expo-router";
-import AwesomeAlert from 'react-native-awesome-alerts'
-// import CustomAlertDialog from "../components/CustomAlertDialog.jsx";
+import AwesomeAlert from "react-native-awesome-alerts";
 
 const editMember = () => {
-    const { control, handleSubmit, setValue, watch } = useForm();
-    const { memberId } = useLocalSearchParams();
-    const queryClient = useQueryClient();
-    const navigation = useNavigation();
-    const [isDataChanged, setIsDataChanged] = useState(false);
-    const [isAlertVisible, setIsAlertVisible] = useState(false);
 
-    const { data: memberInfo, isLoading } = useQuery({
-        queryFn: () => getOneDocInCollection("STMinaKOUFData", memberId),
-        queryKey: ["memberInfo", memberId],
-      });
-    
-    const mutationUpdate = useMutation({
+  const { memberId } = useLocalSearchParams();
+  const [memberINFO, setMemberINFO] =useState({});
+
+  const queryClient = useQueryClient();
+
+  const { data: memberInfo, isLoading,isSuccess } = useQuery({
+    queryFn: () => getOneDocInCollection("STMinaKOUFData", memberId),
+    queryKey: ["memberInfo", memberId],
+  },
+);
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { isDirty, touchedFields },
+  } = useForm({
+    defaultValues: {
+      FirstName:  "",
+      LastName:  "",
+      PersonalNumber: "",
+      PhoneNumber: "",
+      StreetName: "",
+      PostNumber: "",
+      city: "",
+      Email: "",
+      Title: "",
+      Service: "",
+    },
+  });
+  
+
+  const navigation = useNavigation();
+
+  const [isAlertVisible, setIsAlertVisible] = useState(false);
+
+  const mutationUpdate = useMutation({
     mutationFn: (data) => updateDocument("STMinaKOUFData", memberId, data),
     onError: (error) => {
-        console.error("Error updating document:", error);
+      console.error("Error updating document:", error);
     },
-    });
-    const watchedValues = watch();
+    onSuccess: (data:any) => {
+      reset(data); 
+      queryClient.refetchQueries();
+    },
+  });
 
-    // useEffect(() => {
-    //     if(memberInfo){
-    //       const isChanged = Object.keys(watchedValues).some((key) => {
-    //         // console.log("key is:", key);
-    //         // console.log("watched value is:", watchedValues[key]);
-    //         // console.log("initial value is:", memberInfo[key]);
-    //         if (Array.isArray(watchedValues[key])) {
-    //           console.log("array detected");
-    //           return (
-    //             JSON.stringify(watchedValues[key]) !== JSON.stringify(memberInfo[key])
-    //           );
-    //         }
-    //         return watchedValues[key] !== memberInfo[key];
-    //       });
-    //       console.log("watched value is:", watchedValues);
-    //       console.log("initial value is:", memberInfo);
-    //       console.log(isChanged);
-    //       setIsDataChanged(isChanged);
-    //     }
-    
-    // }),[memberInfo];
+  const handleBackPress = () => {
+    if (isDirty) {
+      setIsAlertVisible(true);
+    } else {
+      navigation.goBack();
+    }
+  };
 
-    useEffect(() => {
-      if (memberInfo) {
-          const isChanged = Object.keys(watchedValues).some((key) => {
-              if (Array.isArray(watchedValues[key])) {
-                  return (
-                      JSON.stringify(watchedValues[key]) !== JSON.stringify(memberInfo[key])
-                  );
-              }
-              return watchedValues[key] !== memberInfo[key];
-          });
-          console.log(isChanged)
-          setIsDataChanged(isChanged);
-      }
-  }, [watchedValues, memberInfo]);
- 
-    const handleBackPress = () => {
-      if(isDataChanged){
-        setIsAlertVisible(true)
-      }
-      else{
-        navigation.goBack();
-      }
-        
-    };
-    
-    
-      useEffect(() => {
-        if (memberInfo) {
-          setValue("FirstName", memberInfo.FirstName);
-          setValue("LastName", memberInfo.LastName);
-          setValue("PersonalNumber", memberInfo.PersonalNumber);
-          setValue("PhoneNumber", memberInfo.PhoneNumber);
-          setValue("StreetName", memberInfo.StreetName);
-          setValue("PostNumber", memberInfo.PostNumber);
-          setValue("city", memberInfo.city);
-          setValue("Email", memberInfo.Email);
-          // setValue("Title", memberInfo.Title);
-          // setValue("Service", memberInfo.Service);
-        }
-      }, [memberInfo, setValue]);
-    
+  useEffect(() => {
+    if (isSuccess && memberInfo) {
+      reset({
+        FirstName: memberInfo.FirstName || "",
+        LastName: memberInfo.LastName || "",
+        PersonalNumber: memberInfo.PersonalNumber || "",
+        PhoneNumber: memberInfo.PhoneNumber || "",
+        StreetName: memberInfo.StreetName || "",
+        PostNumber: memberInfo.PostNumber || "",
+        city: memberInfo.city || "",
+        Email: memberInfo.Email || "",
+        Title: memberInfo.Title || "",
+        Service: memberInfo.Service || "",
+      });
+    }
+  }, [isSuccess, memberInfo]);
 
-      if (isLoading) {
-        return (
-            <ActivityIndicator size="large" color="#00ff00" />
-        );
-      }
-    
-      const onSubmit = (data:any) => {
-        console.log("button is pressed")
-        setIsDataChanged(false);
-        queryClient.invalidateQueries({ queryKey: ['allMembers'] });
-        queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
-        mutationUpdate.mutate(data);
-      };
+  if (isLoading) {
+    return <ActivityIndicator size="large" color="#00ff00" />;
+  }
+
+  const onSubmit = (data: any) => {
+    console.log("button is pressed");
+    mutationUpdate.mutate(data);
+  };
+  console.log(isDirty);
   return (
     <SafeAreaView>
-
-      <TouchableOpacity
-        onPress={handleBackPress}
-      >
+      <TouchableOpacity onPress={handleBackPress}>
         <Text>Back</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        disabled={!isDataChanged}
-        onPress={handleSubmit(onSubmit)}
-      >
+      <TouchableOpacity disabled={!isDirty} onPress={handleSubmit(onSubmit)}>
         <Text>save</Text>
       </TouchableOpacity>
 
@@ -183,6 +168,14 @@ const editMember = () => {
         placeholder="YYYYMMDD-XXXX"
       />
 
+      <InputController
+        name="PhoneNumber"
+        control={control}
+        rules={{
+          required: "phone number is required.",
+        }}
+        placeholder="Phone number (ex. +46739352363)"
+      />
 
       <InputController
         name="StreetName"
@@ -232,15 +225,9 @@ const editMember = () => {
         }}
         placeholder="Email"
       />
-      {/* <PhoneInputController
-          name="PhoneNumber"
-          control={control}
-          rules={{
-          required: "Phone number is required.",
-          }}
-      /> */}
 
-      {/* <OneSelectController
+
+      <OneSelectController
         name="Title"
         control={control}
         rules={{
@@ -248,8 +235,8 @@ const editMember = () => {
         }}
         data={titleOptions}
         placeholder="Choose title"
-      /> */}
-{/* 
+      />
+
       <MultiSelectController
         name="Service"
         control={control}
@@ -262,40 +249,38 @@ const editMember = () => {
         }}
         data={serviceOptions}
         placeholder="Choose Service"
-      /> */}
+      />
 
       <AwesomeAlert
         show={isAlertVisible}
         title="Unsaved Changes"
-        titleStyle={{fontSize:28, color:"black"}}
+        titleStyle={{ fontSize: 28, color: "black" }}
         message="You have unsaved changes. Are you sure you want to leave without saving?"
-        messageStyle={{color: "grey", fontSize: 20}}
-
+        messageStyle={{ color: "grey", fontSize: 20 }}
         showCancelButton={true}
         cancelText="Cancel"
-        cancelButtonStyle={{backgroundColor:"black"}}
-        cancelButtonTextStyle={{color:"grey"}}
-        onCancelPressed={()=> {
-            setIsAlertVisible(false)
+        cancelButtonStyle={{ backgroundColor: "black" }}
+        cancelButtonTextStyle={{ color: "grey" }}
+        onCancelPressed={() => {
+          setIsAlertVisible(false);
         }}
 
         showConfirmButton={true}
         confirmText="Leave"
-        confirmButtonStyle={{backgroundColor:"black"}}
-        confirmButtonTextStyle={{color:"grey"}}
+        confirmButtonStyle={{ backgroundColor: "black" }}
+        confirmButtonTextStyle={{ color: "grey" }}
         onConfirmPressed={() => {
-            setIsAlertVisible(false)
-            navigation.goBack();
+          setIsAlertVisible(false);
+          navigation.goBack();
         }}
         closeOnTouchOutside={false}
         closeOnHardwareBackPress={false}
       />
 
-      {/* <Button title="Submit" onPress={handleSubmit(onSubmit)} /> */}
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default editMember
+export default editMember;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

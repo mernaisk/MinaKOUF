@@ -69,10 +69,15 @@ export default MultiSelectController
 const styles = StyleSheet.create({
   container: { padding: 16 },
   dropdown: {
-    height: 50,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 12,
+    height: 50, // Set height to match TextInput
+    width: "90%", // Set width to match TextInput
+    backgroundColor: "#f2e9e4", // Match TextInput background color
+    borderRadius: 10, // Match TextInput border radius
+    paddingVertical: 10, // Match TextInput vertical padding
+    paddingHorizontal: 10, // Match TextInput horizontal padding
+    textAlign: "center", // Center text
+    alignSelf: "center", // Center horizontally
+    justifyContent: "center", // Center vertically
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -80,14 +85,17 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
-
     elevation: 2,
   },
   placeholderStyle: {
-    fontSize: 16,
+    fontSize: 16, // Match TextInput placeholder font size
+    color: "#888888", // Match TextInput placeholder color
+    textAlign: "center", // Center placeholder text
   },
   selectedTextStyle: {
-    fontSize: 14,
+    fontSize: 16, // Match TextInput font size
+    color: "black", // Match TextInput text color
+    textAlign: "center", // Center selected text
   },
   iconStyle: {
     width: 20,
@@ -101,6 +109,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   item: {
+    backgroundColor: '#f2e9e4', // Match TextInput background color
     padding: 17,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -111,19 +120,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 14,
-    backgroundColor: 'white',
+    backgroundColor: '#f2e9e4', // Match TextInput background color
     shadowColor: '#000',
     marginTop: 8,
-    marginRight: 12,
+    marginRight: 3,
     paddingHorizontal: 12,
     paddingVertical: 8,
+    marginHorizontal: '15%', // Add horizontal margin to create space on both sides
+
     shadowOffset: {
       width: 0,
       height: 1,
     },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
-
     elevation: 2,
   },
   textSelectedStyle: {

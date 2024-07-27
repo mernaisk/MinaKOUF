@@ -1,4 +1,6 @@
 import validator from 'validator'
+// import sendEmailAPI from "../scripts/emailService"
+
 function sendMessage(youthMessage) {}
 
 function filterMembers(allMembers, searchString) {
@@ -34,8 +36,6 @@ function sortAlphapidically(filteredMembers) {
 }
 
 function sortDate(sheets){
-  // console.log(sheets)
-  // console.log("sorted sheet",sheets.sort((a, b) => a?.date - b?.date))
   return sheets.sort((a, b) => a?.date - b?.date);
 }
 
@@ -48,7 +48,7 @@ function checkPhoneNumber(phone) {
 }
 
 function checkPersonalNumber(PersonalNumber) {
-  const regex = /\d{8}-\d{4}/;
+  const regex = /^\d{8}-\d{4}$/;
   let object = {
     boolean: false,
     message: "",
@@ -121,8 +121,12 @@ const attendenceOptions = [
   { label: "Teater", value: "Teater" },
 ];
 
-// Export the addMember function
+
+
+
+
 export {
+
   sortDate,
   checkServiceOptions,
   serviceOptions,

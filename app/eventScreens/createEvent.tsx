@@ -10,7 +10,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-import { useMutation, useQueryClient,useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigation } from "expo-router";
 import InputController from "@/components/InputController";
@@ -37,8 +37,8 @@ const createEvent = () => {
     setError,
   } = useForm({
     defaultValues: {
-      date: "",
-      imageInfo: {},
+      Date: "",
+      ImageInfo: {},
     },
   });
 
@@ -46,19 +46,18 @@ const createEvent = () => {
     mutationFn: (data) => addEvent(data),
 
     onError: (error) => {
-      console.error('Error adding document:', error);
+      console.error("Error adding document:", error);
     },
     onSuccess: () => {
       queryClient.refetchQueries();
       navigation.goBack();
-    }
+    },
   });
 
   async function onSubmit(data: any) {
     console.log(data);
-    mutationCreateEvent.mutate(data)
+    mutationCreateEvent.mutate(data);
   }
-
 
   //select date
   const onChange = ({ type }: any, selectedDate: any) => {
@@ -79,8 +78,8 @@ const createEvent = () => {
 
   useEffect(() => {
     if (shownDate) {
-      setValue("date", shownDate);
-      clearErrors("date");
+      setValue("Date", shownDate);
+      clearErrors("Date");
     }
   }, [shownDate]);
 
@@ -90,7 +89,7 @@ const createEvent = () => {
       return (
         <Pressable onPress={toggleIsPickerShown}>
           <InputController
-            name="date"
+            name="Date"
             control={control}
             rules={{
               required: "Date is required.",
@@ -105,7 +104,7 @@ const createEvent = () => {
     if (Platform.OS === "ios") {
       return (
         <InputController
-          name="date"
+          name="Date"
           control={control}
           rules={{
             required: "Date is required.",
@@ -118,12 +117,11 @@ const createEvent = () => {
     }
   };
 
-
   //photo
   function deletePhoto() {
     setImage({});
-    setValue("imageInfo", {});
-    setError("imageInfo", {
+    setValue("ImageInfo", {});
+    setError("ImageInfo", {
       type: "manual",
       message: "Image is required",
     });
@@ -151,11 +149,10 @@ const createEvent = () => {
       setImage(selectedImage);
 
       console.log("image is: ", image);
-      setValue("imageInfo", selectedImage);
-      clearErrors("imageInfo");
+      setValue("ImageInfo", selectedImage);
+      clearErrors("ImageInfo");
     }
   };
-
 
   return (
     <SafeAreaView>
@@ -163,7 +160,6 @@ const createEvent = () => {
       <TouchableOpacity onPress={handleSubmit(onSubmit)}>
         <Text>Add</Text>
       </TouchableOpacity>
-
 
       <InputController
         name="Title"
@@ -179,7 +175,7 @@ const createEvent = () => {
       />
 
       <InputController
-        name="Place name"
+        name="Place"
         control={control}
         rules={{
           required: "Place name is required.",
@@ -213,7 +209,7 @@ const createEvent = () => {
         placeholder="Price"
       />
 
-    {/* date */}
+      {/* date */}
       {renderDateInput()}
 
       {isPickerShowen && (
@@ -247,19 +243,18 @@ const createEvent = () => {
         </View>
       )}
 
-
       {/*image */}
       <Controller
-        name="imageInfo"
+        name="ImageInfo"
         control={control}
-        rules={{
-          validate: (data: any) => {
-            if (!image.uri) {
-              return "Image is required";
-            }
-            return true;
-          },
-        }}
+        // rules={{
+        //   validate: (data: any) => {
+        //     if (!image.uri) {
+        //       return "Image is required";
+        //     }
+        //     return true;
+        //   },
+        // }}
         render={({ field }) => (
           <View>
             {image?.uri && (
@@ -278,13 +273,12 @@ const createEvent = () => {
         )}
       />
 
-
       <TouchableOpacity onPress={pickImage}>
         <Text>choose photo</Text>
       </TouchableOpacity>
 
-      {errors.imageInfo && (
-        <Text style={{ color: "red" }}>{errors.imageInfo.message}</Text>
+      {errors.ImageInfo && (
+        <Text style={{ color: "red" }}>{errors.ImageInfo.message}</Text>
       )}
     </SafeAreaView>
   );

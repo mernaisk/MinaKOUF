@@ -15,7 +15,7 @@ const Home = ({navigation}) => {
   function checkAccess() {
     return userInfo?.Title !== "Ungdom";
   }
-
+// bbhuy
   const handleLogout = async () => {
     try {
       await signOut();

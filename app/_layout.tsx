@@ -16,6 +16,8 @@ import KOUFTabLayout from "./(KOUFtabs)/_layout"; // Update the path as necessar
 import YOUTHTabLayout from "./(YOUTHtabs)/_layout";
 import ForgotPassword from "./ForgotPassword";
 
+// cljhnfl,
+
 const Stack = createNativeStackNavigator();
 
 export default function RootLayout() {

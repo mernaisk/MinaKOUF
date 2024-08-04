@@ -14,9 +14,9 @@ import { router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAllDocInCollection } from "@/firebase/firebaseModel";
 import { sortDate } from "@/scripts/utilities";
-import ScreenWrapper from "../../components/ScreenWrapper"; 
+import ScreenWrapper from "../ScreenWrapper"; 
 
-const events = () => {
+const Events = () => {
   const {
     data: allEvents,
     isLoading,
@@ -39,12 +39,12 @@ const events = () => {
   const renderItem = ({ item }) => (
     <View>
       <TouchableOpacity
-        onPress={() =>
-          router.push({
-            pathname: "/eventInfo",
-            params: { eventId: item.Id },
-          })
-        }
+        // onPress={() =>
+          // router.push({
+          //   pathname: "eventScreens/eventInfo",
+          //   params: { eventId: item.Id },
+          // })
+        // }
       >
         <Text>{item.Title}</Text>
         <Image
@@ -60,7 +60,7 @@ const events = () => {
     <ScreenWrapper>
       <Text style={styles.titleContainer}>events</Text>
       <TouchableOpacity
-        onPress={() => router.push({ pathname: "/createEvent" })}
+        // onPress={() => router.push({ pathname: "eventScreens/createEvent" })}
       >
         <Text>create new event</Text>
       </TouchableOpacity>
@@ -78,7 +78,7 @@ const events = () => {
   );
 };
 
-export default events;
+export default Events;
 
 const styles = StyleSheet.create({
   headerImage: {

@@ -18,15 +18,17 @@ import { filterMembers } from "../../scripts/utilities";
 import { getAllDocInCollection } from "../../firebase/firebaseModel.js";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import ScreenWrapper from "../../components/ScreenWrapper";
+import ScreenWrapper from "../ScreenWrapper";
+// import { CachedImage } from 'react-native-cached-image'; // Use cached image component
 
-export default function youth() {
+
+export default function Youth() {
   const navigation = useNavigation();
   const router = useRouter();
   const [nameToSearch, setNameToSearch] = useState("");
 
   const navigateToAddMember = () => {
-    router.push({ pathname: "addMember" });
+    // router.push({ pathname: "addMember" });
   };
 
   const { data: allMembers, isLoading } = useQuery({
@@ -71,17 +73,18 @@ export default function youth() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.memberItem}
-            onPress={() =>
-              router.push({
-                pathname: "/memberInfo",
-                params: { memberId: item.Id },
-              })
-            }
+            // onPress={() =>
+            //   router.push({
+            //     pathname: "memberScreens/memberInfo",
+            //     params: { memberId: item.Id },
+            //   })
+            // }
           >
             <Image
-              source={{ uri: item.ProfilePicture.uri || 'https://via.placeholder.com/50' }} // Use the actual profile picture URL
+              source={{ uri: item.ProfilePicture.URL || 'https://via.placeholder.com/50' }}
               style={styles.profilePicture}
             />
+
             <Text style={styles.memberName}>{item.Name}</Text>
           </TouchableOpacity>
         )}

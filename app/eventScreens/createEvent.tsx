@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
   Image,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,6 +17,7 @@ import { useNavigation } from "expo-router";
 import InputController from "@/components/InputController";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { addEvent } from "@/firebase/firebaseModel";
+import { Loading } from "@/components/loading";
 
 const createEvent = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -25,7 +27,7 @@ const createEvent = () => {
   const [image, setImage] = useState<any>({});
   const navigation = useNavigation();
   const queryClient = useQueryClient();
-
+  const [isUpdating,setIsUpdating] = useState(false);
   const {
     control,
     handleSubmit,
@@ -46,16 +48,20 @@ const createEvent = () => {
     mutationFn: (data) => addEvent(data),
 
     onError: (error) => {
+      setIsUpdating(false)
+      Alert.alert("Something went wrong, try again")
       console.error("Error adding document:", error);
     },
     onSuccess: () => {
       queryClient.refetchQueries();
+      setIsUpdating(false)
       navigation.goBack();
     },
   });
 
   async function onSubmit(data: any) {
     console.log(data);
+    setIsUpdating(true)
     mutationCreateEvent.mutate(data);
   }
 
@@ -96,6 +102,7 @@ const createEvent = () => {
             }}
             placeholder={datePlaceholder}
             editable={false}
+            secureTextEntry={undefined}
           />
         </Pressable>
       );
@@ -112,6 +119,7 @@ const createEvent = () => {
           placeholder={datePlaceholder}
           editable={false}
           onPressIn={toggleIsPickerShown}
+          secureTextEntry={undefined}
         />
       );
     }
@@ -172,6 +180,7 @@ const createEvent = () => {
           },
         }}
         placeholder="Title"
+        secureTextEntry={false}
       />
 
       <InputController
@@ -185,6 +194,7 @@ const createEvent = () => {
           },
         }}
         placeholder="Place name"
+        secureTextEntry={false}
       />
 
       <InputController
@@ -194,6 +204,7 @@ const createEvent = () => {
           required: false,
         }}
         placeholder="Info"
+        secureTextEntry={false}
       />
 
       <InputController
@@ -207,6 +218,7 @@ const createEvent = () => {
           },
         }}
         placeholder="Price"
+        secureTextEntry={false}
       />
 
       {/* date */}
@@ -280,6 +292,7 @@ const createEvent = () => {
       {errors.ImageInfo && (
         <Text style={{ color: "red" }}>{errors.ImageInfo.message}</Text>
       )}
+      {isUpdating && (<Loading></Loading>)}
     </SafeAreaView>
   );
 };

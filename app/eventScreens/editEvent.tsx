@@ -21,6 +21,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import InputController from "@/components/InputController";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AwesomeAlert from "react-native-awesome-alerts";
+import { Loading } from "@/components/loading";
 
 const EditEvent = () => {
   //   const { eventId } = useLocalSearchParams();
@@ -34,22 +35,32 @@ const EditEvent = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [shownDate, setShowenDate] = useState("");
   const [isPickerShowen, setIsPickerShowen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false)
+  async function refetch(){
+    await queryClient.refetchQueries();
+
+  }
   const {
     data: eventInfo,
     isLoading,
     isSuccess,
   } = useQuery({
     queryFn: () => getOneDocInCollection("STMinaKOUFEvents", eventId),
-    queryKey: ["eventInfo", eventId],
+    queryKey: ["eventInfo"],
   });
   const updateEventInfoMutation = useMutation({
     mutationFn: (data) => updateDocument("STMinaKOUFEvents", eventId, data),
     onError: (error) => {
+      setIsUpdating(false)
       console.error("Error updating document:", error);
     },
     onSuccess: (data: any) => {
-      reset(data);
-      queryClient.refetchQueries();
+      // reset(data);
+      refetch();
+      setIsUpdating(false);
+      navigation.goBack();
+
+
     },
   });
 
@@ -73,20 +84,20 @@ const EditEvent = () => {
     },
   });
 
-  useEffect(() => {
-    if (isSuccess && eventInfo) {
-      reset({
-        Title: eventInfo.Title || "",
-        Place: eventInfo.Place || "",
-        Info: eventInfo.Info || "",
-        Price: eventInfo.Price || "",
-        Date: eventInfo.Date || "",
-        ImageInfo: eventInfo.ImageInfo || {},
-      });
-      console.log(eventInfo.imageInfo);
-      setImage(eventInfo.imageInfo);
-    }
-  }, [isSuccess, eventInfo]);
+  // useEffect(() => {
+  //   if (isSuccess && eventInfo) {
+  //     reset({
+  //       Title: eventInfo.Title || "",
+  //       Place: eventInfo.Place || "",
+  //       Info: eventInfo.Info || "",
+  //       Price: eventInfo.Price || "",
+  //       Date: eventInfo.Date || "",
+  //       ImageInfo: eventInfo.ImageInfo || {},
+  //     });
+  //     console.log(eventInfo.imageInfo);
+  //     setImage(eventInfo.imageInfo);
+  //   }
+  // }, [isSuccess, eventInfo]);
 
   const pickImage = async () => {
     if (status === null || status.status !== "granted") {
@@ -150,8 +161,7 @@ const EditEvent = () => {
               required: "Date is required.",
             }}
             placeholder={datePlaceholder}
-            editable={false}
-          />
+            editable={false} secureTextEntry={false}          />
         </Pressable>
       );
     }
@@ -166,17 +176,14 @@ const EditEvent = () => {
           }}
           placeholder={datePlaceholder}
           editable={false}
-          onPressIn={toggleIsPickerShown}
-        />
+          onPressIn={toggleIsPickerShown} secureTextEntry={false}        />
       );
     }
   };
 
   if (isLoading) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#00ff00" />
-      </View>
+      <Loading></Loading>
     );
   }
 
@@ -190,6 +197,7 @@ const EditEvent = () => {
 
   const onSubmit = (data: any) => {
     // console.log("button is pressed");
+    setIsUpdating(true)
     updateEventInfoMutation.mutate(data);
   };
 
@@ -211,8 +219,7 @@ const EditEvent = () => {
             message: "This input is letters only.",
           },
         }}
-        placeholder="Title"
-      />
+        placeholder="Title" secureTextEntry={undefined}      />
 
       <InputController
         name="Place"
@@ -224,8 +231,7 @@ const EditEvent = () => {
             message: "This input is letters only.",
           },
         }}
-        placeholder="Place name"
-      />
+        placeholder="Place name" secureTextEntry={undefined}      />
 
       <InputController
         name="Info"
@@ -233,8 +239,7 @@ const EditEvent = () => {
         rules={{
           required: false,
         }}
-        placeholder="Info"
-      />
+        placeholder="Info" secureTextEntry={undefined}      />
 
       <InputController
         name="Price"
@@ -246,8 +251,7 @@ const EditEvent = () => {
             message: "Digits only",
           },
         }}
-        placeholder="Price"
-      />
+        placeholder="Price" secureTextEntry={undefined}      />
 
       {renderDateInput()}
 

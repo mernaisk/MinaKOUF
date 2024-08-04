@@ -25,7 +25,7 @@ const MultiSelectController = ({name, control, rules, defaultValue = '', ...prop
     );
   };
 
-  console.log("props.data:", props.data);
+  // console.log("props.data:", props.data);
   return (
       <View>
         <MultiSelect
@@ -59,7 +59,7 @@ const MultiSelectController = ({name, control, rules, defaultValue = '', ...prop
             </TouchableOpacity>
           )}
         />
-        {error && <Text style={{ color: 'red' }}>{error.message}</Text>}
+        {error && <Text style={styles.errorText}>{error.message}</Text>}
       </View>
   )
 }
@@ -67,17 +67,24 @@ const MultiSelectController = ({name, control, rules, defaultValue = '', ...prop
 export default MultiSelectController
 
 const styles = StyleSheet.create({
+  errorText: {
+    color: "black",
+    marginTop: 5,
+    fontStyle: "italic",
+    marginBottom: 10,
+    textAlign: "center", // Center the text
+  },
   container: { padding: 16 },
   dropdown: {
-    height: 50, // Set height to match TextInput
-    width: "90%", // Set width to match TextInput
-    backgroundColor: "#f2e9e4", // Match TextInput background color
-    borderRadius: 10, // Match TextInput border radius
-    paddingVertical: 10, // Match TextInput vertical padding
-    paddingHorizontal: 10, // Match TextInput horizontal padding
-    textAlign: "center", // Center text
-    alignSelf: "center", // Center horizontally
-    justifyContent: "center", // Center vertically
+    height: 50, 
+    width: "90%", 
+    backgroundColor: "#f2e9e4", 
+    borderRadius: 10, 
+    paddingVertical: 10, 
+    paddingHorizontal: 10, 
+    textAlign: "center", 
+    alignSelf: "center", 
+    justifyContent: "center", 
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -86,6 +93,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
     elevation: 2,
+    marginTop:20
   },
   placeholderStyle: {
     fontSize: 16, // Match TextInput placeholder font size
@@ -124,10 +132,10 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     marginTop: 8,
     marginRight: 3,
-    paddingHorizontal: 12,
+    paddingHorizontal: 5,
     paddingVertical: 8,
     marginHorizontal: '15%', // Add horizontal margin to create space on both sides
-
+    marginBottom:10,
     shadowOffset: {
       width: 0,
       height: 1,

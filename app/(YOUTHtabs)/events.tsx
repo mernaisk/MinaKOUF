@@ -15,7 +15,7 @@ import {
   import { getAllDocInCollection } from "@/firebase/firebaseModel";
   import { sortDate } from "@/scripts/utilities";
   
-  const events = () => {
+  const Events = () => {
     const {
       data: allEvents,
       isLoading,
@@ -34,13 +34,12 @@ import {
     }
   
     const sortedEvents = sortDate(allEvents);
-  
     const renderItem = ({ item }) => (
       <View>
         <TouchableOpacity
           onPress={() =>
             router.push({
-              pathname: "/eventInfo",
+              pathname: "eventScreens/eventInfo",
               params: { eventId: item.Id },
             })
           }
@@ -59,7 +58,7 @@ import {
       <SafeAreaView>
         <Text style={styles.titleContainer}>events</Text>
         <TouchableOpacity
-          onPress={() => router.push({ pathname: "/createEvent" })}
+          onPress={() => router.push({ pathname: "eventScreens/createEvent" })}
         >
           <Text>create new event</Text>
         </TouchableOpacity>
@@ -77,7 +76,7 @@ import {
     );
   };
   
-  export default events;
+  export default Events;
   
   const styles = StyleSheet.create({
     headerImage: {

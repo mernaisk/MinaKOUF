@@ -1,4 +1,11 @@
-import { FlatList, StyleSheet, Text, View, Image, ActivityIndicator } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
@@ -18,20 +25,34 @@ const KOUFinfo = () => {
     );
   }
 
+  const renderItem = ({ item }) => (
+    <View>
+      <Image
+        source={{ uri: item?.ProfilePicture?.URL }}
+        style={styles.imagePreview}
+        resizeMode="cover"
+      />
+      <View>
+        <Text>{item.Name}</Text>
+      </View>
+      <View>
+        <Text>{item.Title}</Text>
+      </View>
+      <View>
+        <Text>{item.PhoneNumber}</Text>
+      </View>
+    </View>
+  );
+  console.log(leaders);
   return (
     <SafeAreaView>
       <FlatList
         data={leaders}
-        renderItem={(leader: any) => (
+        keyExtractor={(item) => item.Id}
+        renderItem={renderItem}
+        ListEmptyComponent={() => (
           <View>
-            <Image
-              source={leader?.profilePicture?.url}
-              style={styles.imagePreview}
-              resizeMode="cover"
-            />
-            <View><Text>{leader.FirstName} {leader.LastName}</Text></View>
-            <View><Text>{leader.Title}</Text></View>
-            <View><Text>{leader.PhoneNumber}</Text></View>
+            <Text>No items to display</Text>
           </View>
         )}
       />
@@ -42,6 +63,9 @@ const KOUFinfo = () => {
 export default KOUFinfo;
 
 const styles = StyleSheet.create({
+  text: {
+    color: "black",
+  },
   imagePreview: {
     width: 300,
     height: 300,

@@ -10,10 +10,61 @@ import {
   updateDoc,
   deleteDoc,
   arrayUnion,
-  setDoc
+  setDoc,
 } from "firebase/firestore";
-import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  ref,
+  getDownloadURL,
+  uploadBytes,
+  deleteObject,
+} from "firebase/storage";
+import {
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  fetchSignInMethodsForEmail,
+} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { signOut as firebaseSignOut } from "firebase/auth";
+import { getAuth, getUserByEmail } from "firebase/auth";
+
+async function checkIfEmailExists(email) {
+  getAuth()
+    .getUserByEmail(email)
+    .then((userRecord) => {
+      // See the UserRecord reference doc for the contents of userRecord.
+      return true;
+    })
+    .catch((error) => {
+      return false;
+    });
+}
+
+async function resetPassword(Email) {
+  // try {
+  //   console.log("email is ", Email);
+  //   const emailExists = await checkIfEmailExists(Email);
+  //   if (!emailExists) {
+  //     throw { code: "auth/user-not-found" };
+  //   }
+
+    await sendPasswordResetEmail(auth, Email);
+  // } catch (error) {
+  //   throw error;
+  // }
+}
+
+async function logInEmailAndPassword({ Email, Password }) {
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      Email,
+      Password
+    );
+    return userCredential.user;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function getAllDocInCollection(type) {
   const querySnapshot = await getDocs(collection(db, type));
@@ -46,7 +97,7 @@ async function addDocoment(type, objectToAdd) {
 async function addDocomentWithId(type, objectToAdd, id) {
   try {
     // Directly set the document with the predetermined ID
-    const docRef = doc(db, type, id);  // Create a document reference with the desired ID
+    const docRef = doc(db, type, id); // Create a document reference with the desired ID
     await setDoc(docRef, objectToAdd);
     console.log("Document written with ID: ", id);
   } catch (error) {
@@ -123,10 +174,8 @@ async function getAttendedMembers(sheetID) {
 
 async function getKOUFAnsvariga() {
   const allMembers = await getAllDocInCollection("STMinaKOUFData");
-  const KOUFLeaders = allMembers.filter(
-    (member) => member.Title.label !== "Ungdom"
-  );
-  console.log(KOUFLeaders);
+  const KOUFLeaders = allMembers.filter((member) => member.Title !== "Ungdom");
+  console.log("KOUFLeaders", KOUFLeaders);
   return KOUFLeaders;
 }
 
@@ -147,7 +196,7 @@ async function deleteIdFromAttendenceSheet(MemberID) {
 
 async function addEvent(event) {
   try {
-    const downloadURL = await uploadImage(event.ImageInfo.uri);
+    const downloadURL = await uploadImage(event.ImageInfo.uri, "EventImages");
     event.ImageInfo.URL = downloadURL;
     console.log("event is", event);
     await addDocoment("STMinaKOUFEvents", event);
@@ -156,42 +205,46 @@ async function addEvent(event) {
   }
 }
 
-async function AddMember(member) {
+async function AddMemberFirebase(member) {
   // try {
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      member.Email,
-      member.Password
-    );
-    const user = userCredential.user;
-    console.log("the user is:", user)
-    console.log("the member is:", member)
+  const userCredential = await createUserWithEmailAndPassword(
+    auth,
+    member.Email,
+    member.Password
+  );
+  const user = userCredential.user;
+  console.log("the user is:", user);
+  console.log("the member is:", member);
+  member.Title = "Ungdom";
 
-
-    if ((member.ProfilePicture.uri)) {
-      const response = await fetch(member?.ProfilePicture?.uri);
-      const blob = await response.blob();
-      const storageRef = ref(storage, `ProfilePicture/${new Date().getTime()}`);
-      await uploadBytes(storageRef, blob);
-      const downloadURL = await getDownloadURL(storageRef);
-      member.ProfilePicture.URL = downloadURL;
-      await addDocomentWithId("STMinaKOUFData", member, user.uid);
-    } else {
-      member.ProfilePicture.URL = null;
-      await addDocomentWithId("STMinaKOUFData", member, user.uid);
-    }
-  // } catch (error) {
-  //   console.error("Error uploading image: ", error);
-  // }
+  if (member.ProfilePicture.assetInfo.uri) {
+    const response = await fetch(member.ProfilePicture.assetInfo.uri);
+    const blob = await response.blob();
+    const storageRef = ref(storage, `ProfilePicture/${new Date().getTime()}`);
+    await uploadBytes(storageRef, blob);
+    const downloadURL = await getDownloadURL(storageRef);
+    member.ProfilePicture.URL = downloadURL;
+    await addDocomentWithId("STMinaKOUFData", member, user.uid);
+  } else {
+    await addDocomentWithId("STMinaKOUFData", member, user.uid);
+  }
 }
-async function uploadImage(uri) {
+
+async function doesDocumentExist(collectionName, docID) {
+  const docRef = doc(db, collectionName, docID);
+  const docSnap = await getDoc(docRef);
+
+  return docSnap.exists();
+}
+
+async function uploadImage(uri, pathName) {
   try {
     const response = await fetch(uri);
-    console.log(response)
+    console.log(response);
     const blob = await response.blob();
-    console.log(blob)
-    const storageRef = ref(storage, `EventImages/${new Date().getTime()}`);
-    console.log(storageRef)
+    console.log(blob);
+    const storageRef = ref(storage, `${pathName}/${new Date().getTime()}`);
+    console.log(storageRef);
     await uploadBytes(storageRef, blob);
     const downloadURL = await getDownloadURL(storageRef);
     console.log(downloadURL);
@@ -199,6 +252,48 @@ async function uploadImage(uri) {
   } catch (error) {
     console.error("Error uploading image: ", error);
     throw error;
+  }
+}
+
+async function deletePhoto(photoUrl) {
+  try {
+    const photoRef = ref(storage, photoUrl);
+    await deleteObject(photoRef);
+    console.log("Photo deleted successfully");
+  } catch (error) {
+    console.error("Error deleting photo: ", error);
+    throw error;
+  }
+}
+export const signOut = async () => {
+  try {
+    await firebaseSignOut(auth);
+    console.log("User signed out successfully");
+  } catch (error) {
+    console.error("Error signing out: ", error);
+    throw error;
+  }
+};
+async function updateMemberInfo(memberId, member) {
+  if (member.ProfilePicture.assetInfo.uri) {
+    const oldImage = await getFieldFromDocument(
+      "STMinaKOUFData",
+      memberId,
+      "ProfilePicture"
+    );
+    if (oldImage.assetInfo.assetId == member.ProfilePicture.assetInfo.AssetID) {
+      member.ProfilePicture.URL = oldImage.URL;
+    } else {
+      const downloadURL = await uploadImage(
+        member.ProfilePicture.assetInfo.uri,
+        "ProfilePictures"
+      );
+      member.ProfilePicture.URL = downloadURL;
+      deletePhoto(oldImage.URL);
+    }
+    await updateDocument("STMinaKOUFData", memberId, member);
+  } else {
+    await updateDocument("STMinaKOUFData", memberId, member);
   }
 }
 
@@ -215,5 +310,9 @@ export {
   addDocoment,
   updateDocument,
   deleteDocument,
-  AddMember,
+  AddMemberFirebase,
+  logInEmailAndPassword,
+  updateMemberInfo,
+  doesDocumentExist,
+  resetPassword,
 };

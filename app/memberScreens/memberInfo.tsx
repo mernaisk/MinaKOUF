@@ -1,5 +1,4 @@
 import {
-  ActivityIndicator,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -9,12 +8,12 @@ import {
 } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { getOneDocInCollection } from "@/firebase/firebaseModel";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-
+import { Loading } from "@/components/loading";
 const MemberInfo = () => {
   const { memberId } = useLocalSearchParams();
   const { data: memberInfo, isLoading } = useQuery({
@@ -26,7 +25,7 @@ const MemberInfo = () => {
   const router = useRouter();
 
   if (isLoading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return <Loading></Loading>;
   }
 
   return (
@@ -43,7 +42,7 @@ const MemberInfo = () => {
         <TouchableOpacity
           onPress={() =>
             router.push({
-              pathname: "/editMember",
+              pathname: "memberScreens/editMember",
               params: { memberId: memberId },
             })
           }
@@ -53,9 +52,9 @@ const MemberInfo = () => {
         </TouchableOpacity>
         <View style={styles.profilePictureContainer}>
           <View style={styles.profilePicture}>
-            {memberInfo?.ProfilePicture?.uri ? (
+            {memberInfo?.ProfilePicture?.URL ? (
               <Image
-                source={{ uri: memberInfo?.ProfilePicture?.uri }}
+                source={{ uri: memberInfo?.ProfilePicture?.URL }}
                 style={styles.image}
                 resizeMode="cover"
               />
@@ -65,11 +64,7 @@ const MemberInfo = () => {
           </View>
         </View>
 
-        {renderInfoSection(
-          "person-outline",
-          "Name",
-          `${memberInfo?.Name}`
-        )}
+        {renderInfoSection("person-outline", "Name", `${memberInfo?.Name}`)}
         {renderInfoSection("mail-outline", "Email", memberInfo?.Email)}
         {renderInfoSection(
           "call-outline",
@@ -84,7 +79,7 @@ const MemberInfo = () => {
         {renderInfoSection(
           "home-outline",
           "Address",
-          `${memberInfo?.StreetName}, ${memberInfo?.PostNumber} ${memberInfo?.city}`
+          `${memberInfo?.StreetName}, ${memberInfo?.PostNumber} ${memberInfo?.City}`
         )}
         {renderInfoSection(
           "lock-closed-outline",

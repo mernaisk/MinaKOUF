@@ -12,17 +12,16 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllDocInCollection } from "@/firebase/firebaseModel";
 import { router } from "expo-router";
 import { sortDate } from "@/scripts/utilities";
+import { Loading } from "@/components/loading";
 
-const attendence = () => {
+const Attendance = () => {
   const { data: allAttendenceSheets, isLoading } = useQuery({
     queryFn: () => getAllDocInCollection("STMinaKOUFAttendence"),
     queryKey: ["allAttendenceSheets"],
   });
   if (isLoading) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#00ff00" />
-      </View>
+      <Loading></Loading>
     );
   }
   const sortedSheets = sortDate(allAttendenceSheets);
@@ -33,7 +32,7 @@ const attendence = () => {
 
   function datePressed(item:any){
     // console.log("item is ",item)
-    router.push({ pathname: "/editAttendenceSheet", params:{sheetID: item.Id}})
+    // router.push({ pathname: "/editAttendenceSheet", params:{sheetID: item.Id}})
   }
 
   return (
@@ -43,7 +42,7 @@ const attendence = () => {
       </View>
 
       <TouchableOpacity
-        onPress={() => router.push({ pathname: "/createAttendenceSheet" })}
+        // onPress={() => router.push({ pathname: "/createAttendenceSheet" })}
       >
         <Text>create</Text>
       </TouchableOpacity>
@@ -89,14 +88,10 @@ const attendence = () => {
   );
 };
 
-export default attendence;
+export default Attendance;
 
 const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+
   button: {
     marginTop: 10,
     fontSize: 30,

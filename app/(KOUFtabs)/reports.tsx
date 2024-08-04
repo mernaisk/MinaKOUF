@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const reports = () => {
+const Reports = () => {
   return (
     <SafeAreaView>
       <Text>reports</Text>
@@ -10,6 +10,6 @@ const reports = () => {
   )
 }
 
-export default reports
+export default Reports
 
 const styles = StyleSheet.create({})

@@ -1,5 +1,6 @@
 import validator from 'validator'
 // import sendEmailAPI from "../scripts/emailService"
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 function sendMessage(youthMessage) {}
 
@@ -39,13 +40,16 @@ function sortDate(sheets){
   return sheets.sort((a, b) => a?.date - b?.date);
 }
 
-function checkPhoneNumber(phone) {
-  // try {
-  //   return phoneUtil.isValidNumber(phoneUtil.parseAndKeepRawInput(phone));
-  // } catch (error) {
-  //   return false;
-  // }
-}
+const validatePhoneNumber = (value) => {
+  const phoneNumber = parsePhoneNumberFromString(value);
+  if (!phoneNumber) {
+    return 'Invalid phone number';
+  }
+  if (!phoneNumber.isValid()) {
+    return 'Phone number is not valid';
+  }
+  return true;
+};
 
 function checkPersonalNumber(PersonalNumber) {
   const regex = /^\d{8}-\d{4}$/;
@@ -134,9 +138,9 @@ export {
   sendMessage,
   filterMembers,
   sortAlphapidically,
-  checkPhoneNumber,
   checkPersonalNumber,
   checkEmail,
   getLeadersNames,
   attendenceOptions,
+  validatePhoneNumber
 };

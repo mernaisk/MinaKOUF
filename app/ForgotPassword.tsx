@@ -19,6 +19,8 @@ import InputController from "@/components/InputController";
 import { checkEmail } from "@/scripts/utilities";
 import BackButton from "../components/BackButton";
 
+//bk,.
+
 const ForgotPassword = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
 

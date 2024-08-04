@@ -21,6 +21,8 @@ import EventInfo from "./eventScreens/EventInfo";
 import CreateEvent from "./eventScreens/CreateEvent";
 import EditEvent from "./eventScreens/EditEvent";
 
+// cljhnfl,
+
 const Stack = createNativeStackNavigator();
 
 export default function RootLayout() {

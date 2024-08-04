@@ -4,7 +4,7 @@ import { signOut } from "@/firebase/firebaseModel"; // Import your sign-out func
 // import { useNavigation, useRouter } from "expo-router";
 import { useUser } from "../context/userContext";
 import { Loading } from "@/components/loading";
-
+// yhjbh
 const Home = ({navigation}) => {
   const { user, userInfo, isLoading } = useUser();
   // const router = useRouter(); 

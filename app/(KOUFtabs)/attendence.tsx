@@ -13,6 +13,7 @@ import { getAllDocInCollection } from "@/firebase/firebaseModel";
 import { router } from "expo-router";
 import { sortDate } from "@/scripts/utilities";
 import { Loading } from "@/components/loading";
+import { useNavigation } from "@react-navigation/native";
 
 const Attendance = () => {
   const { data: allAttendenceSheets, isLoading } = useQuery({
@@ -25,14 +26,14 @@ const Attendance = () => {
     );
   }
   const sortedSheets = sortDate(allAttendenceSheets);
-
+  const navigation = useNavigation()
   const IdsCount = (sheetDetails: any) => {
     return sheetDetails?.IDS ? Object.keys(sheetDetails.IDS).length : 0;
   };
 
   function datePressed(item:any){
     // console.log("item is ",item)
-    // router.push({ pathname: "/editAttendenceSheet", params:{sheetID: item.Id}})
+    navigation.navigate("attendenceScreens/SheetDetails")
   }
 
   return (
@@ -42,7 +43,7 @@ const Attendance = () => {
       </View>
 
       <TouchableOpacity
-        // onPress={() => router.push({ pathname: "/createAttendenceSheet" })}
+        onPress={() => navigation.navigate("attendenceScreens/CreateAttendenceSheet")}
       >
         <Text>create</Text>
       </TouchableOpacity>

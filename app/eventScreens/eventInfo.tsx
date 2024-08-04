@@ -9,8 +9,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Fontisto from "@expo/vector-icons/Fontisto";
 
-const eventInfo = () => {
-  const { eventId } = useLocalSearchParams();
+const EventInfo = () => {
+  // const { eventId } = useLocalSearchParams();
+  const eventId ="WMyNtfFUls0NqUgnP4y8"
   console.log(eventId);
   const { data: eventInfo, isLoading } = useQuery({
     queryFn: () => getOneDocInCollection("STMinaKOUFEvents", eventId),
@@ -62,7 +63,7 @@ const eventInfo = () => {
   );
 };
 
-export default eventInfo;
+export default EventInfo;
 
 const styles = StyleSheet.create({
   loading: {

@@ -19,7 +19,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { addEvent } from "@/firebase/firebaseModel";
 import { Loading } from "@/components/loading";
 
-const createEvent = () => {
+const CreateEvent = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [shownDate, setShowenDate] = useState("");
   const [isPickerShowen, setIsPickerShowen] = useState(false);
@@ -297,7 +297,7 @@ const createEvent = () => {
   );
 };
 
-export default createEvent;
+export default CreateEvent;
 
 const styles = StyleSheet.create({
   buttonsView: {

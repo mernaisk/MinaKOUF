@@ -19,8 +19,9 @@ import { addDocoment, getKOUFAnsvariga } from "@/firebase/firebaseModel";
 import { getLeadersNames, attendenceOptions } from "@/scripts/utilities";
 import { router, useNavigation, useRouter } from "expo-router";
 // import DatePicker from 'react-native-date-picker'
+// import { useNavigation } from "@react-navigation/native"; // Use the correct hook for navigation
 
-const createAttendenceSheet = () => {
+const CreateAttendenceSheet = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [shownDate, setShowenDate] = useState("");
   const [isPickerShowen, setIsPickerShowen] = useState(false);
@@ -32,6 +33,7 @@ const createAttendenceSheet = () => {
   const navigation = useNavigation()
 
   //react query
+// import { useNavigation } from "@react-navigation/native"; // Use the correct hook for navigation
 
   const mutationAdd = useMutation<any, unknown, any>({
     mutationFn: (data) => addDocoment('STMinaKOUFAttendence', data),
@@ -188,7 +190,7 @@ const createAttendenceSheet = () => {
   );
 };
 
-export default createAttendenceSheet;
+export default CreateAttendenceSheet;
 
 const styles = StyleSheet.create({
   buttonsView: {

@@ -88,7 +88,7 @@ function checkEmail(email) {
 function getLeadersNames(leaders){
   const leadersOptions= []
   const addLeaderOption = (object) => {
-    let leader = {label:object.FirstName + " " + object.LastName, value:object}
+    let leader = {label:object.Name, value:object}
     leadersOptions.push(leader)
   }
   leaders?.map(addLeaderOption)

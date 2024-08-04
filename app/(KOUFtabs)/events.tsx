@@ -15,6 +15,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllDocInCollection } from "@/firebase/firebaseModel";
 import { sortDate } from "@/scripts/utilities";
 import ScreenWrapper from "../ScreenWrapper"; 
+import { useNavigation } from "@react-navigation/native";
+import { Loading } from "@/components/loading";
 
 const Events = () => {
   const {
@@ -28,11 +30,10 @@ const Events = () => {
 
   if (isLoading) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#00ff00" />
-      </View>
+      <Loading></Loading>
     );
   }
+  const navigation = useNavigation(); // Get navigation prop
 
   const sortedEvents = sortDate(allEvents);
 
@@ -45,6 +46,8 @@ const Events = () => {
           //   params: { eventId: item.Id },
           // })
         // }
+        onPress={() => navigation.navigate("eventScreens/EventInfo")
+      }
       >
         <Text>{item.Title}</Text>
         <Image
@@ -60,7 +63,7 @@ const Events = () => {
     <ScreenWrapper>
       <Text style={styles.titleContainer}>events</Text>
       <TouchableOpacity
-        // onPress={() => router.push({ pathname: "eventScreens/createEvent" })}
+        onPress={() => navigation.navigate("eventsScreens/CreateEvent")}
       >
         <Text>create new event</Text>
       </TouchableOpacity>

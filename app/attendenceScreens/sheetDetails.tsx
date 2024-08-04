@@ -8,7 +8,7 @@ import { DocumentData } from 'firebase/firestore';
 import { useForm } from 'react-hook-form'
 
 
-const editSheet = () => {
+const SheetDetails = () => {
   const { control, handleSubmit } = useForm();
   const {sheetId} = useLocalSearchParams()
   const { data: sheetDetails, isLoading: isSheetLoading, isError: isSheetError } = useQuery<DocumentData | undefined>({
@@ -51,7 +51,7 @@ const editSheet = () => {
   )
 }
 
-export default editSheet
+export default SheetDetails
 
 const styles = StyleSheet.create({
   loading: {

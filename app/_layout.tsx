@@ -15,6 +15,11 @@ import { Loading } from "@/components/loading";
 import KOUFTabLayout from "./(KOUFtabs)/_layout"; // Update the path as necessary
 import YOUTHTabLayout from "./(YOUTHtabs)/_layout";
 import ForgotPassword from "./ForgotPassword";
+import CreateAttendenceSheet from "./attendenceScreens/CreateAttendenceSheet";
+import SheetDetails from "./attendenceScreens/SheetDetails";
+import EventInfo from "./eventScreens/EventInfo";
+import CreateEvent from "./eventScreens/CreateEvent";
+import EditEvent from "./eventScreens/EditEvent";
 
 const Stack = createNativeStackNavigator();
 
@@ -78,6 +83,31 @@ function AuthChecker({ DefaultOptions }) {
           <Stack.Screen
             name="YOUTHtabs"
             component={YOUTHTabLayout}
+            options={{ contentStyle: styles.screenContent }}
+          />
+          <Stack.Screen
+            name="attendenceScreens/CreateAttendenceSheet"
+            component={CreateAttendenceSheet}
+            options={{ contentStyle: styles.screenContent }}
+          />
+          <Stack.Screen
+            name="attendenceScreens/SheetDetails"
+            component={SheetDetails}
+            options={{ contentStyle: styles.screenContent }}
+          />
+          <Stack.Screen
+            name="eventScreens/EventInfo"
+            component={EventInfo}
+            options={{ contentStyle: styles.screenContent }}
+          />
+          <Stack.Screen
+            name="eventScreens/CreateEvent"
+            component={CreateEvent}
+            options={{ contentStyle: styles.screenContent }}
+          />
+          <Stack.Screen
+            name="eventScreens/EditEvent"
+            component={EditEvent}
             options={{ contentStyle: styles.screenContent }}
           />
         </>

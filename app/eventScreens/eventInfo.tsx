@@ -1,6 +1,5 @@
-import { Image, ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { Image, ActivityIndicator, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React from "react";
-import { useLocalSearchParams } from "expo-router";
 import { getOneDocInCollection } from "@/firebase/firebaseModel";
 import { useQuery } from "@tanstack/react-query";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,10 +7,17 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { MaterialIcons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Fontisto from "@expo/vector-icons/Fontisto";
+import { RootStackParamList } from "@/constants/types";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { useRoute, RouteProp } from "@react-navigation/native";
+
+type EventsDetailsRouteProp = RouteProp<RootStackParamList, "EventInfo">;
 
 const EventInfo = () => {
-  // const { eventId } = useLocalSearchParams();
-  const eventId ="WMyNtfFUls0NqUgnP4y8"
+  const route = useRoute<EventsDetailsRouteProp>();
+  const { eventId } = route.params; // Extract the sheetId parameter
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   console.log(eventId);
   const { data: eventInfo, isLoading } = useQuery({
     queryFn: () => getOneDocInCollection("STMinaKOUFEvents", eventId),
@@ -30,6 +36,7 @@ const EventInfo = () => {
     //   <Text>event info</Text>
     // </SafeAreaView>
     <SafeAreaView>
+      <TouchableOpacity onPress={() => navigation.navigate("EditEvent", {eventId:eventId})}><Text>Edit</Text></TouchableOpacity>
       <View>
         <Text style={styles.title}>{eventInfo?.Title}</Text>
       </View>

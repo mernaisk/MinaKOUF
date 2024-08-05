@@ -1,4 +1,3 @@
-// import { Tabs, useRouter } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -20,28 +19,27 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loading } from "@/components/loading";
 import { useUser } from "@/context/userContext";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Events from "./Events";
-import Taranim from "./Taranim";
+import Events from "./events";
+import Taranim from "./taranim";
 import KOUFinfo from "./KOUFinfo";
 import YOUTHindex from "./YOUTHindex";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/types";
 
 const Tab = createBottomTabNavigator();
 function CustomHeader() {
   const { user, userInfo } = useUser();
-  // const router = useRouter();
   const getInitials = (name: string) => {
     if (!name) return "";
     return name.charAt(0).toUpperCase();
   };
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
 
   return (
     <View style={headerStyles.container}>
       <TouchableOpacity
-        // onPress={() =>
-        //   router.push({
-        //     pathname: "/home",
-        //   })
-        // }
+        onPress={() => navigation.navigate("Home")}
       >
         <MaterialIcons
           name="church"
@@ -50,15 +48,9 @@ function CustomHeader() {
           style={headerStyles.icon}
         />
       </TouchableOpacity>
-      {/* </Link> */}
       <Text style={headerStyles.title}>St: Mina KOUF</Text>
       <TouchableOpacity
-        // onPress={() =>
-        //   router.push({
-        //     pathname: "/memberScreens/memberInfo",
-        //     params: { memberId: user?.uid },
-        //   })
-        // }
+      onPress={() => navigation.navigate('MemberInfo', { memberId: user?.uid })}
       >
         {userInfo?.ProfilePicture?.URL ? (
           <Image
@@ -175,8 +167,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#c9ada7",
     borderTopColor: "#c9ada7",
     height: 85,
-    paddingBottom: 20, // Adjust for vertical centering
-    paddingTop: 5, // Adjust for vertical centering
+    paddingBottom: 20,
+    paddingTop: 5, 
     paddingHorizontal: 5,
     bottom: 10,
   },

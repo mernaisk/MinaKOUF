@@ -1,13 +1,14 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { signOut } from "@/firebase/firebaseModel"; // Import your sign-out function
-// import { useNavigation, useRouter } from "expo-router";
 import { useUser } from "../context/userContext";
 import { Loading } from "@/components/loading";
-// yhjbh
-const Home = ({navigation}) => {
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/types";
+
+const Home = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user, userInfo, isLoading } = useUser();
-  // const router = useRouter(); 
   if (isLoading) {
     return <Loading></Loading>;
   }

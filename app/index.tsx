@@ -1,10 +1,11 @@
 import React from "react";
 import { TouchableOpacity, StyleSheet, Text } from "react-native";
-import { useNavigation } from "@react-navigation/native"; // Use the correct hook for navigation
+import { NavigationProp, useNavigation } from "@react-navigation/native"; // Use the correct hook for navigation
 import { SafeAreaView } from "react-native-safe-area-context";
+import { RootStackParamList } from "@/constants/types";
 
 export default function Index() {
-  const navigation = useNavigation(); // Get navigation prop
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <SafeAreaView
@@ -19,7 +20,7 @@ export default function Index() {
 
       <TouchableOpacity
         style={styles.memberItem}
-        onPress={() => navigation.navigate("memberScreens/AddMember")}
+        onPress={() => navigation.navigate("AddMember")} // Corrected the screen name to match the defined name
       >
         <Text style={styles.buttonText}>New member </Text>
       </TouchableOpacity>

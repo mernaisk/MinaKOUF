@@ -9,20 +9,28 @@ import {
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { getOneDocInCollection } from "@/firebase/firebaseModel";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { Loading } from "@/components/loading";
+import { RootStackParamList } from "@/constants/types";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { useRoute, RouteProp } from "@react-navigation/native";
+
+type MemberInfosRouteProp = RouteProp<RootStackParamList, "MemberInfo">;
+
 const MemberInfo = () => {
-  const { memberId } = useLocalSearchParams();
+
+  const route = useRoute<MemberInfosRouteProp>();
+  const { memberId } = route.params; // Extract the sheetId parameter
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const { data: memberInfo, isLoading } = useQuery({
     queryFn: () => getOneDocInCollection("STMinaKOUFData", memberId),
     queryKey: ["memberInfo", memberId],
   });
 
-  const navigation = useNavigation();
-  const router = useRouter();
+
 
   if (isLoading) {
     return <Loading></Loading>;
@@ -40,12 +48,7 @@ const MemberInfo = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() =>
-            router.push({
-              pathname: "memberScreens/editMember",
-              params: { memberId: memberId },
-            })
-          }
+          onPress={() => navigation.navigate("EditMember",{memberId: memberId})}
           style={styles.editButton}
         >
           <FontAwesome5 name="user-edit" size={24} color="black" />

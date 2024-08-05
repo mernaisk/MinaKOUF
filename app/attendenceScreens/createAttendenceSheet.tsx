@@ -17,38 +17,30 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDocoment, getKOUFAnsvariga } from "@/firebase/firebaseModel";
 import { getLeadersNames, attendenceOptions } from "@/scripts/utilities";
-import { router, useNavigation, useRouter } from "expo-router";
-// import DatePicker from 'react-native-date-picker'
-// import { useNavigation } from "@react-navigation/native"; // Use the correct hook for navigation
 
-const CreateAttendenceSheet = () => {
+const CreateAttendenceSheet = (navigation) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [shownDate, setShowenDate] = useState("");
   const [isPickerShowen, setIsPickerShowen] = useState(false);
-  const {data: leaders, isLoading} = useQuery({
+  const { data: leaders, isLoading } = useQuery({
     queryFn: () => getKOUFAnsvariga(),
-    queryKey: ["leaders"]
-  })
-  const queryClient = useQueryClient()
-  const navigation = useNavigation()
-
-  //react query
-// import { useNavigation } from "@react-navigation/native"; // Use the correct hook for navigation
-
+    queryKey: ["leaders"],
+  });
+  const queryClient = useQueryClient();
   const mutationAdd = useMutation<any, unknown, any>({
-    mutationFn: (data) => addDocoment('STMinaKOUFAttendence', data),
+    mutationFn: (data) => addDocoment("STMinaKOUFAttendence", data),
 
     onError: (error) => {
-      console.error('Error updating document:', error);
+      console.error("Error updating document:", error);
     },
     onSuccess: () => {
       queryClient.refetchQueries();
       navigation.goBack();
-    }
+    },
   });
 
-  console.log("leaders are", leaders)
-  
+  console.log("leaders are", leaders);
+
   const onSubmit = (data: { [key: string]: any }) => {
     data.IDS = [];
     console.log(data);
@@ -62,8 +54,6 @@ const CreateAttendenceSheet = () => {
       type: "",
     },
   });
-
-
 
   //select date
   function toggleIsPickerShown() {
@@ -84,7 +74,6 @@ const CreateAttendenceSheet = () => {
   };
 
   useEffect(() => {
-
     if (shownDate) {
       const currentValues = getValues();
       reset({
@@ -106,25 +95,27 @@ const CreateAttendenceSheet = () => {
             }}
             placeholder={"selectedDate"}
             editable={false}
+            secureTextEntry={undefined}
           />
         </Pressable>
       );
     }
 
     if (Platform.OS === "ios") {
-        return (
-            <InputController
-              name="date"
-              control={control}
-              rules={{
-                required: "Date is required.",
-              }}
-              placeholder={"selectedDate"}
-              editable={false}
-              onPressIn={toggleIsPickerShown}
-            />
-        );
-      }
+      return (
+        <InputController
+          name="date"
+          control={control}
+          rules={{
+            required: "Date is required.",
+          }}
+          placeholder={"selectedDate"}
+          editable={false}
+          onPressIn={toggleIsPickerShown}
+          secureTextEntry={undefined}
+        />
+      );
+    }
   };
 
   return (
@@ -177,9 +168,9 @@ const CreateAttendenceSheet = () => {
 
           <TouchableOpacity
             style={styles.pickerButtons}
-            onPress={() =>{
-                toggleIsPickerShown();
-                setShowenDate(selectedDate.toDateString());
+            onPress={() => {
+              toggleIsPickerShown();
+              setShowenDate(selectedDate.toDateString());
             }}
           >
             <Text style={styles.buttonText}>confirm</Text>

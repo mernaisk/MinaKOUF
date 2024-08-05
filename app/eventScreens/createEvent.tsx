@@ -13,19 +13,21 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigation } from "expo-router";
 import InputController from "@/components/InputController";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { addEvent } from "@/firebase/firebaseModel";
 import { Loading } from "@/components/loading";
+import { RootStackParamList } from "@/constants/types";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 
 const CreateEvent = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [shownDate, setShowenDate] = useState("");
   const [isPickerShowen, setIsPickerShowen] = useState(false);
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
   const [image, setImage] = useState<any>({});
-  const navigation = useNavigation();
   const queryClient = useQueryClient();
   const [isUpdating,setIsUpdating] = useState(false);
   const {

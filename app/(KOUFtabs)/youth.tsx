@@ -11,25 +11,22 @@ import {
   Image
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { filterMembers } from "../../scripts/utilities";
 import { getAllDocInCollection } from "../../firebase/firebaseModel.js";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { useNavigation } from "@react-navigation/native";
 import ScreenWrapper from "../ScreenWrapper";
-// import { CachedImage } from 'react-native-cached-image'; // Use cached image component
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/types";
 
 
 export default function Youth() {
-  const navigation = useNavigation();
-  const router = useRouter();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+
   const [nameToSearch, setNameToSearch] = useState("");
 
-  const navigateToAddMember = () => {
-    // router.push({ pathname: "addMember" });
-  };
+  
 
   const { data: allMembers, isLoading } = useQuery({
     queryFn: () => getAllDocInCollection("STMinaKOUFData"),
@@ -42,14 +39,7 @@ export default function Youth() {
   const filteredMembers = filterMembers(allMembers, nameToSearch);
   return (
     <ScreenWrapper>
-      {/* <TouchableOpacity onPress={navigateToAddMember}>
-        <Ionicons
-          name="person-add"
-          size={50}
-          color="black"
-          style={styles.iconStyle}
-        />
-      </TouchableOpacity> */}
+
 
 
       <View style={styles.inputContainer}>
@@ -73,12 +63,7 @@ export default function Youth() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.memberItem}
-            // onPress={() =>
-            //   router.push({
-            //     pathname: "memberScreens/memberInfo",
-            //     params: { memberId: item.Id },
-            //   })
-            // }
+            onPress={() =>navigation.navigate("MemberInfo", {memberId: item?.Id}) }
           >
             <Image
               source={{ uri: item.ProfilePicture.URL || 'https://via.placeholder.com/50' }}
@@ -101,8 +86,7 @@ export default function Youth() {
 
 const styles = StyleSheet.create({
   list: {
-    // top: 100,
-    width: "100%", // Ensure the list takes up the full width
+    width: "100%", 
   },
   memberItem: {
     flexDirection: "row",
@@ -159,9 +143,8 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   inputContainer: {
-    // position: "relative",
     marginTop: 20,
     width: "100%",
-    alignItems: "center", // Center the content horizontally
+    alignItems: "center",  
   },
 });

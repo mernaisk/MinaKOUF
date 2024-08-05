@@ -10,12 +10,14 @@ import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import { getAllDocInCollection } from "@/firebase/firebaseModel";
-import { router } from "expo-router";
 import { sortDate } from "@/scripts/utilities";
 import { Loading } from "@/components/loading";
-import { useNavigation } from "@react-navigation/native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/types";
 
 const Attendance = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const { data: allAttendenceSheets, isLoading } = useQuery({
     queryFn: () => getAllDocInCollection("STMinaKOUFAttendence"),
     queryKey: ["allAttendenceSheets"],
@@ -26,14 +28,13 @@ const Attendance = () => {
     );
   }
   const sortedSheets = sortDate(allAttendenceSheets);
-  const navigation = useNavigation()
+  // const navigation = useNavigation()
   const IdsCount = (sheetDetails: any) => {
     return sheetDetails?.IDS ? Object.keys(sheetDetails.IDS).length : 0;
   };
 
   function datePressed(item:any){
-    // console.log("item is ",item)
-    navigation.navigate("attendenceScreens/SheetDetails")
+    navigation.navigate("SheetDetails", {sheetId: item?.Id})
   }
 
   return (
@@ -43,7 +44,7 @@ const Attendance = () => {
       </View>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate("attendenceScreens/CreateAttendenceSheet")}
+        onPress={() => navigation.navigate("CreateAttendenceSheet")}
       >
         <Text>create</Text>
       </TouchableOpacity>

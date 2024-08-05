@@ -34,13 +34,15 @@ import {
   QueryCache,
 } from "@tanstack/react-query";
 import { AddMemberFirebase } from "../../firebase/firebaseModel.js";
-// import { router, useNavigation } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import ScreenWrapper from "../ScreenWrapper.js";
 import { Loading } from "@/components/loading";
 import { validatePhoneNumber } from "../../scripts/utilities.js";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/types.js";
 
-const AddMember = ({ navigation }) => {
+const AddMember = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const queryClient = useQueryClient();
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
   const [image, setImage] = useState<any>({});

@@ -15,19 +15,26 @@ import {
   getOneDocInCollection,
   updateDocument,
 } from "@/firebase/firebaseModel";
-import { useLocalSearchParams, useNavigation } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
 import InputController from "@/components/InputController";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AwesomeAlert from "react-native-awesome-alerts";
 import { Loading } from "@/components/loading";
+import { RootStackParamList } from "@/constants/types";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { useRoute, RouteProp } from "@react-navigation/native";
+
+type EventsDetailsRouteProp = RouteProp<RootStackParamList, "EventInfo">;
 
 const EditEvent = () => {
   //   const { eventId } = useLocalSearchParams();
-  const eventId = "dQXbEYYWa7Jy2nerdC93";
+  // const eventId = "dQXbEYYWa7Jy2nerdC93";
+  const route = useRoute<EventsDetailsRouteProp>();
+  const { eventId } = route.params; // Extract the sheetId parameter
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const [isAlertVisible, setIsAlertVisible] = useState(false);
-  const navigation = useNavigation();
 
   const queryClient = useQueryClient();
   const [image, setImage] = useState<any>({});

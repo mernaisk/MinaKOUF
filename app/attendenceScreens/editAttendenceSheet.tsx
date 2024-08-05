@@ -10,7 +10,6 @@ import React, { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useLocalSearchParams, useNavigation } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   getAllDocInCollection,
@@ -20,12 +19,18 @@ import {
   updateDocument,
 } from "@/firebase/firebaseModel";
 import AwesomeAlert from "react-native-awesome-alerts";
+import { useRoute, RouteProp } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/types";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 
-const editAttendenceSheet = () => {
-  const { sheetID } = useLocalSearchParams();
+type SheetDetailsRouteProp = RouteProp<RootStackParamList, "SheetDetails">;
+
+const EditAttendenceSheet = () => {
+  const route = useRoute<SheetDetailsRouteProp>();
+  const { sheetId } = route.params; // Extract the sheetId parameter
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const queryClient = useQueryClient();
-  const navigation = useNavigation();
-
   const [isChanged, setIsChanged] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false); // State for tracking mutationUpdate state
@@ -38,8 +43,8 @@ const editAttendenceSheet = () => {
   });
 
   const { data: sheetDetails, isLoading: sheetDetailsLoading } = useQuery({
-    queryFn: () => getOneDocInCollection("STMinaKOUFAttendence", sheetID),
-    queryKey: ["sheetDetails", sheetID],
+    queryFn: () => getOneDocInCollection("STMinaKOUFAttendence", sheetId),
+    queryKey: ["sheetDetails", sheetId],
   });
 
   useEffect(() => {
@@ -63,24 +68,26 @@ const editAttendenceSheet = () => {
   }, [sheetIDS, sheetDetails]);
 
   const mutationAdd = useMutation({
-    mutationFn: (data) => addIDToAttendence(sheetID, data),
+    mutationFn: (data) => addIDToAttendence(sheetId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sheetDetails", sheetID] });
+      queryClient.invalidateQueries({ queryKey: ["sheetDetails", sheetId] });
     },
   });
 
   const mutationRemove = useMutation({
-    mutationFn: (data) => removeIDFromAttendence(sheetID, data),
+    mutationFn: (data) => removeIDFromAttendence(sheetId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sheetDetails", sheetID] });
+      queryClient.invalidateQueries({ queryKey: ["sheetDetails", sheetId] });
     },
   });
 
   const mutationUpdate = useMutation({
     mutationFn: (data: string[]) =>
-      updateDocument("STMinaKOUFAttendence", sheetID, { IDS: data }),
+      updateDocument("STMinaKOUFAttendence", sheetId, { IDS: data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sheetDetails", sheetID] });
+      queryClient.invalidateQueries({ queryKey: ["sheetDetails", sheetId] });
+      queryClient.invalidateQueries({ queryKey: ["allAttendenceSheets"] });
+
     },
     onMutate: () => {
       setIsUpdating(true); // Set isUpdating to true when mutation starts
@@ -127,7 +134,7 @@ const editAttendenceSheet = () => {
         </TouchableOpacity>
       )}
       <Text style={styles.text}>
-        {item.FirstName} {item.LastName}
+        {item.Name}
       </Text>
     </View>
   );
@@ -199,7 +206,7 @@ const editAttendenceSheet = () => {
   );
 };
 
-export default editAttendenceSheet;
+export default EditAttendenceSheet;
 
 const styles = StyleSheet.create({
   item: {

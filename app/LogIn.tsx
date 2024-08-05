@@ -22,12 +22,14 @@ import {
   resetPassword,
 } from "../firebase/firebaseModel";
 import { Loading } from "@/components/loading";
-import { useNavigation } from "@react-navigation/native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import AwesomeAlert from "react-native-awesome-alerts";
 import BackButton from "@/components/BackButton";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { RootStackParamList } from "@/constants/types";
 
-const LogIn = ({ navigation }) => {
+const LogIn = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState(null);
 

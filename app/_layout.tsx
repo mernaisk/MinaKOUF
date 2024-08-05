@@ -3,27 +3,29 @@ import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { UserProvider, useUser } from "../context/userContext";
 import SplashScreen from "../components/SplashScreen";
-import AddMember from "./memberScreens/AddMember";
-import Home from "./Home";
+import AddMember from "./memberScreens/addMember";
+import Home from "./home";
 import KOUFindex from "./(KOUFtabs)/KOUFindex";
 import YOUTHindex from "./(YOUTHtabs)/YOUTHindex";
-import LogIn from "./LogIn";
-import Index from "./Index";
+import LogIn from "./logIn";
+import Index from "./index";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { Loading } from "@/components/loading";
-import KOUFTabLayout from "./(KOUFtabs)/_layout"; // Update the path as necessary
+import KOUFTabLayout from "./(KOUFtabs)/_layout";
 import YOUTHTabLayout from "./(YOUTHtabs)/_layout";
-import ForgotPassword from "./ForgotPassword";
-import CreateAttendenceSheet from "./attendenceScreens/CreateAttendenceSheet";
-import SheetDetails from "./attendenceScreens/SheetDetails";
-import EventInfo from "./eventScreens/EventInfo";
-import CreateEvent from "./eventScreens/CreateEvent";
-import EditEvent from "./eventScreens/EditEvent";
+import ForgotPassword from "./forgotPassword";
+import CreateAttendenceSheet from "./attendenceScreens/createAttendenceSheet";
+import SheetDetails from "./attendenceScreens/sheetDetails";
+import EventInfo from "./eventScreens/eventInfo";
+import CreateEvent from "./eventScreens/createEvent";
+import EditEvent from "./eventScreens/editEvent";
+import EditAttendenceSheet from "./attendenceScreens/editAttendenceSheet";
+import EditMember from "./memberScreens/editMember";
+import MemberInfo from "./memberScreens/memberInfo";
+import { RootStackParamList } from "@/constants/types";
 
-// cljhnfl,
-
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootLayout() {
   const queryClient = new QueryClient();
@@ -87,29 +89,47 @@ function AuthChecker({ DefaultOptions }) {
             component={YOUTHTabLayout}
             options={{ contentStyle: styles.screenContent }}
           />
+
           <Stack.Screen
-            name="attendenceScreens/CreateAttendenceSheet"
+            name="CreateAttendenceSheet"
             component={CreateAttendenceSheet}
             options={{ contentStyle: styles.screenContent }}
           />
           <Stack.Screen
-            name="attendenceScreens/SheetDetails"
+            name="SheetDetails"
             component={SheetDetails}
             options={{ contentStyle: styles.screenContent }}
           />
           <Stack.Screen
-            name="eventScreens/EventInfo"
+            name="EditAttendenceSheet"
+            component={EditAttendenceSheet}
+            options={{ contentStyle: styles.screenContent }}
+          />
+
+          <Stack.Screen
+            name="EventInfo"
             component={EventInfo}
             options={{ contentStyle: styles.screenContent }}
           />
           <Stack.Screen
-            name="eventScreens/CreateEvent"
+            name="CreateEvent"
             component={CreateEvent}
             options={{ contentStyle: styles.screenContent }}
           />
           <Stack.Screen
-            name="eventScreens/EditEvent"
+            name="EditEvent"
             component={EditEvent}
+            options={{ contentStyle: styles.screenContent }}
+          />
+
+          <Stack.Screen
+            name="EditMember"
+            component={EditMember}
+            options={{ contentStyle: styles.screenContent }}
+          />
+          <Stack.Screen
+            name="MemberInfo"
+            component={MemberInfo}
             options={{ contentStyle: styles.screenContent }}
           />
         </>
@@ -126,7 +146,7 @@ function AuthChecker({ DefaultOptions }) {
             options={{ contentStyle: styles.screenContent }}
           />
           <Stack.Screen
-            name="memberScreens/AddMember"
+            name="AddMember"
             component={AddMember}
             options={{ contentStyle: styles.screenContent }}
           />

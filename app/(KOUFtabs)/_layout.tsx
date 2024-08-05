@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
@@ -17,18 +16,20 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useUser } from "@/context/userContext";
 import KOUFindex from "./KOUFindex"; // Update with correct path
-import Events from "./Events"; // Replace with actual component
-import Youth from "./Youth"; // Replace with actual component
-import Reports from "./Reports"; // Replace with actual component
-import Attendance from "./Attendence"; // Replace with actual component
+import Events from "./events"; // Replace with actual component
+import Youth from "./youth"; // Replace with actual component
+import Reports from "./reports"; // Replace with actual component
+import Attendance from "./attendence"; // Replace with actual component
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/types";
 
 const Tab = createBottomTabNavigator();
 
 function CustomHeader() {
   const { user, userInfo, isLoading } = useUser();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const getInitials = (name) => {
+  const getInitials = (name:any) => {
     if (!name) return "";
     return name.charAt(0).toUpperCase();
   };
@@ -47,7 +48,7 @@ function CustomHeader() {
       </TouchableOpacity>
       <Text style={headerStyles.title}>St: Mina KOUF</Text>
       <TouchableOpacity
-      // onPress={() => navigation.navigate('MemberInfo', { memberId: user?.uid })} // Update with correct route
+      onPress={() => navigation.navigate('MemberInfo', { memberId: user?.uid })}
       >
         {isLoading && <ActivityIndicator size="small" color="#726d81" />}
         {!isLoading && userInfo?.ProfilePicture?.URL ? (

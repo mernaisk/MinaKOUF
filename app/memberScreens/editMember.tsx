@@ -22,7 +22,6 @@ import {
 } from "../../scripts/utilities.js";
 import MultiSelectController from "../../components/MultiSelectController.jsx";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLocalSearchParams, useNavigation } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   getOneDocInCollection,
@@ -32,9 +31,18 @@ import {
 import AwesomeAlert from "react-native-awesome-alerts";
 import { Ionicons } from "@expo/vector-icons";
 import { Loading } from "../../components/loading";
+import { RootStackParamList } from "@/constants/types";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { useRoute, RouteProp } from "@react-navigation/native";
 
-const editMember = () => {
-  const { memberId } = useLocalSearchParams();
+type MemberInfosRouteProp = RouteProp<RootStackParamList, "MemberInfo">;
+
+const EditMember = () => {
+  
+  const route = useRoute<MemberInfosRouteProp>();
+  const { memberId } = route.params; // Extract the sheetId parameter
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
@@ -95,7 +103,6 @@ const editMember = () => {
 
   const watchPassword = watch("Password", "");
 
-  const navigation = useNavigation();
 
   const [isAlertVisible, setIsAlertVisible] = useState(false);
 
@@ -482,7 +489,7 @@ const editMember = () => {
   );
 };
 
-export default editMember;
+export default EditMember;
 
 const styles = StyleSheet.create({
   buttonContainer: {

@@ -8,17 +8,17 @@ import {
   Image,
 } from "react-native";
 import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAllDocInCollection } from "@/firebase/firebaseModel";
 import { sortDate } from "@/scripts/utilities";
 import ScreenWrapper from "../ScreenWrapper"; 
-import { useNavigation } from "@react-navigation/native";
 import { Loading } from "@/components/loading";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { EventItem, RootStackParamList } from "@/constants/types";
 
 const Events = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const {
     data: allEvents,
     isLoading,
@@ -33,20 +33,13 @@ const Events = () => {
       <Loading></Loading>
     );
   }
-  const navigation = useNavigation(); // Get navigation prop
 
   const sortedEvents = sortDate(allEvents);
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: EventItem }) => (
     <View>
       <TouchableOpacity
-        // onPress={() =>
-          // router.push({
-          //   pathname: "eventScreens/eventInfo",
-          //   params: { eventId: item.Id },
-          // })
-        // }
-        onPress={() => navigation.navigate("eventScreens/EventInfo")
+        onPress={() => navigation.navigate("EventInfo", {eventId: item.Id })
       }
       >
         <Text>{item.Title}</Text>
@@ -63,7 +56,7 @@ const Events = () => {
     <ScreenWrapper>
       <Text style={styles.titleContainer}>events</Text>
       <TouchableOpacity
-        onPress={() => navigation.navigate("eventsScreens/CreateEvent")}
+        onPress={() => navigation.navigate("CreateEvent")}
       >
         <Text>create new event</Text>
       </TouchableOpacity>

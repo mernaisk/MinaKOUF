@@ -9,7 +9,7 @@ function filterMembers(allMembers, searchString) {
     searchString.charAt(0).toUpperCase() + searchString.slice(1).toLowerCase();
   if (searchString != "") {
     const filteredMembers = allMembers.filter((member) => {
-      return member.FirstName.startsWith(modifiedSearchString);
+      return member.Name.startsWith(modifiedSearchString);
     });
     return sortAlphapidically(filteredMembers);
   } else {
@@ -20,10 +20,10 @@ function filterMembers(allMembers, searchString) {
 function sortAlphapidically(filteredMembers) {
   if(filteredMembers){
     const sortedMembers = filteredMembers.sort(function (a, b) {
-      if (a.FirstName < b.FirstName) {
+      if (a.Name < b.Name) {
         return -1;
       }
-      if (a.FirstName > b.FirstName) {
+      if (a.Name > b.Name) {
         return 1;
       }
       return 0;

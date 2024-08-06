@@ -274,14 +274,11 @@ export const signOut = async () => {
     throw error;
   }
 };
-async function updateMemberInfo(memberId, member) {
+async function updateMemberInfo(memberId, member, oldImage) {
+
   if (member.ProfilePicture.assetInfo.uri) {
-    const oldImage = await getFieldFromDocument(
-      "STMinaKOUFData",
-      memberId,
-      "ProfilePicture"
-    );
-    if (oldImage.assetInfo.assetId == member.ProfilePicture.assetInfo.AssetID) {
+
+    if (oldImage.assetInfo.assetId == member.ProfilePicture.assetInfo.assetID) {
       member.ProfilePicture.URL = oldImage.URL;
     } else {
       const downloadURL = await uploadImage(
@@ -293,6 +290,9 @@ async function updateMemberInfo(memberId, member) {
     }
     await updateDocument("STMinaKOUFData", memberId, member);
   } else {
+    if(oldImage.URL){
+      deletePhoto(oldImage.URL);
+    }
     await updateDocument("STMinaKOUFData", memberId, member);
   }
 }

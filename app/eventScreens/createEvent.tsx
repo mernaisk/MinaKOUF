@@ -19,6 +19,7 @@ import { addEvent } from "@/firebase/firebaseModel";
 import { Loading } from "@/components/loading";
 import { RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
+// import ImageCropPicker from 'react-native-image-crop-picker';
 
 const CreateEvent = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -147,8 +148,8 @@ const CreateEvent = () => {
 
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [3, 6],
+      allowsEditing: false,
+      // aspect: [3, 6],
       quality: 1,
     });
 
@@ -157,10 +158,20 @@ const CreateEvent = () => {
       const selectedImage = result.assets[0];
       console.log("selimage is: ", selectedImage);
       setImage(selectedImage);
-
+      // const croppedImage = await ImageCropPicker.openCropper({
+      //   path: selectedImage.uri,
+      //   width: 300, // Desired width
+      //   height: 200, // Desired height
+      // });
+  
+      // console.log("cropped image is: ", croppedImage);
+      // setImage(croppedImage);
       console.log("image is: ", image);
-      setValue("ImageInfo", selectedImage);
-      clearErrors("ImageInfo");
+    setValue("ImageInfo", selectedImage);
+    clearErrors("ImageInfo");
+      // console.log("image is: ", image);
+      // setValue("ImageInfo", croppedImage);
+      // clearErrors("ImageInfo");
     }
   };
 

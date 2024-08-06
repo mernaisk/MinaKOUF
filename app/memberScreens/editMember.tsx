@@ -13,7 +13,8 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import InputController from "../../components/InputController.jsx";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as ImagePicker from "expo-image-picker";
+// import * as ImagePicker from "expo-image-picker";
+import { launchImageLibrary, MediaType } from "react-native-image-picker";
 
 import {
   serviceOptions,
@@ -45,18 +46,10 @@ const EditMember = () => {
 
   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
-  const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
+  // const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
   const [image, setImage] = useState<any>({});
   const [modalVisible, setModalVisible] = useState(false);
 
-  // const {
-  //   data: memberInfo,
-  //   isLoading,
-  //   isSuccess,
-  // } = useQuery({
-  //   queryFn: () => getOneDocInCollection("STMinaKOUFData", memberId),
-  //   queryKey: ["memberInfo2", memberId],
-  // });
   interface MemberInfo {
     ProfilePicture: any;
     Name: string;
@@ -110,14 +103,14 @@ const EditMember = () => {
     await queryClient.refetchQueries({queryKey: ['memberInfo', memberId]})
     await queryClient.refetchQueries({queryKey: ['allMembers']})
 
-    // await queryClient.refetchQueries()
+//Later, change everything to setQueryData
+//what is the different between invalidatequery and refetchQueries in terms of how quick the data is displayed
   }
 
   const mutationUpdate = useMutation({
     mutationFn: (data: MemberInfo) => {
       setIsUpdating(true);
-      // queryClient.setQueryData(["memberInfo", memberId], data);
-      return updateMemberInfo( memberId, data);
+      return updateMemberInfo( memberId, data, memberInfo?.ProfilePicture);
     },
 
     onError: (error) => {
@@ -184,35 +177,56 @@ const EditMember = () => {
     setModalVisible(false);
   }
 
+  // const pickImage = async () => {
+  //   if (status === null || status.status !== "granted") {
+  //     const { status } = await requestPermission();
+  //     if (status !== "granted") {
+  //       return;
+  //     }
+  //   }
+
+  //   let result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  //     allowsEditing: true,
+  //     aspect: [1, 1],
+  //     quality: 1,
+  //   });
+
+  //   if (!result.canceled) {
+  //     console.log("result is ",result);
+  //     const selectedImage = result.assets[0];
+
+  //     setImage({assetInfo: selectedImage, URL: ""});
+
+
+  //     setValue("ProfilePicture", {assetInfo: selectedImage, URL: ""}, { shouldDirty: true });
+  //   }
+  //   setModalVisible(false);
+  // };
+
   const pickImage = async () => {
-    if (status === null || status.status !== "granted") {
-      const { status } = await requestPermission();
-      if (status !== "granted") {
-        return;
+    const options: {
+      mediaType: MediaType;
+      includeBase64: boolean;
+    } = {
+      mediaType: 'photo' as MediaType,
+      includeBase64: false,
+    };
+  
+    launchImageLibrary(options, (response:any) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        const selectedImage = response.assets[0];
+        setImage({ assetInfo: selectedImage, URL: "" });
+        setValue("ProfilePicture", { assetInfo: selectedImage, URL: "" }, { shouldDirty: true });
       }
-    }
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [3, 6],
-      quality: 1,
     });
-
-    if (!result.canceled) {
-      console.log("result is ",result);
-      const selectedImage = result.assets[0];
-      // console.log("selimage is: ", selectedImage);
-      // console.log("oldimag is: ", image)
-      setImage({assetInfo: selectedImage, URL: ""});
-      // console.log("newimage is: ", image)
-      // console.log("image is: ", image);
-      // setValue("ProfilePicture", { assetInfo: selectedImage, URL: "" });
-
-      setValue("ProfilePicture", {assetInfo: selectedImage, URL: ""}, { shouldDirty: true });
-    }
     setModalVisible(false);
   };
+  
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as ImagePicker from "expo-image-picker";
 import { useQuery } from "@tanstack/react-query";
 import { getAllDocInCollection } from "@/firebase/firebaseModel";
 import { sortDate } from "@/scripts/utilities";
@@ -22,7 +21,6 @@ const Events = () => {
   const {
     data: allEvents,
     isLoading,
-    isSuccess,
   } = useQuery({
     queryFn: () => getAllDocInCollection("STMinaKOUFEvents"),
     queryKey: ["allEvents"],
@@ -38,11 +36,11 @@ const Events = () => {
 
   const sortedEvents = sortDate(allEvents);
   const renderItem = ({ item }: { item: EventItem }) => (
-    <View>
+    <View style={styles.eventBox}>
       <TouchableOpacity
         onPress={() => navigation.navigate("EventInfo", { eventId: item.Id })}
       >
-        <Text>{item.Title}</Text>
+        <Text style={styles.eventTitle}>{item.Title}</Text>
         <Image
           source={{ uri: item?.ImageInfo?.URL }}
           style={styles.imagePreview}
@@ -53,9 +51,8 @@ const Events = () => {
   );
 
   return (
-    <SafeAreaView>
-      <Text style={styles.titleContainer}>events</Text>
-      
+    <SafeAreaView style={styles.container}>
+      {/* <Text style={styles.title}>Events</Text> */}
       <FlatList
         data={sortedEvents}
         keyExtractor={(item) => item.Id}
@@ -73,27 +70,49 @@ const Events = () => {
 export default Events;
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: "#808080",
-    bottom: -90,
-    left: -35,
-    position: "absolute",
+  container: {
+    // flex: 1,
+    // alignItems: "center",
+    // justifyContent: "center",
+    padding: 20,
+    backgroundColor: "#f8f8f8",
   },
-  titleContainer: {
-    flexDirection: "row",
-    gap: 20,
-    marginLeft: 20,
-    color: "black",
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
   },
   loading: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
+
+  eventBox: {
+    // width: '90%',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 15,
+    marginVertical: 10,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  eventTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+    color: "#333",
+  },
   imagePreview: {
-    width: 300,
+    width: '100%',
     height: 300,
-    marginTop: 20,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#ccc",

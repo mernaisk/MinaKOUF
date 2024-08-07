@@ -15,7 +15,7 @@ type EventsDetailsRouteProp = RouteProp<RootStackParamList, "EventInfo">;
 
 const EventInfo = () => {
   const route = useRoute<EventsDetailsRouteProp>();
-  const { eventId } = route.params; // Extract the sheetId parameter
+  const { eventId } = route.params;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   console.log(eventId);
@@ -23,6 +23,7 @@ const EventInfo = () => {
     queryFn: () => getOneDocInCollection("STMinaKOUFEvents", eventId),
     queryKey: ["EventInfo", eventId],
   });
+
   if (isLoading) {
     return (
       <View style={styles.loading}>
@@ -30,13 +31,39 @@ const EventInfo = () => {
       </View>
     );
   }
-  console.log(eventInfo?.imageInfo?.uri);
+
+  const renderDates = () => {
+    const { StartDate, EndDate } = eventInfo;
+    if (StartDate.justDate === EndDate.justDate) {
+      return (
+        <View style={styles.item}>
+          <Fontisto name="date" size={24} style={styles.icon} />
+          <Text>{StartDate.justDate}</Text>
+          <Fontisto name="clock" size={24} style={styles.icon} />
+          <Text>{`${StartDate.justTime} - ${EndDate.justTime}`}</Text>
+        </View>
+      );
+    } else {
+      return (
+        <>
+          <View style={styles.item}>
+            <Fontisto name="date" size={24} style={styles.icon} />
+            <Text>{`Start: ${StartDate.dateTime}`}</Text>
+          </View>
+          <View style={styles.item}>
+            <Fontisto name="date" size={24} style={styles.icon} />
+            <Text>{`End: ${EndDate.dateTime}`}</Text>
+          </View>
+        </>
+      );
+    }
+  };
+
   return (
-    // <SafeAreaView>
-    //   <Text>event info</Text>
-    // </SafeAreaView>
     <SafeAreaView>
-      <TouchableOpacity onPress={() => navigation.navigate("EditEvent", {eventId:eventId})}><Text>Edit</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("EditEvent", {eventId:eventId})}>
+        <Text>Edit</Text>
+      </TouchableOpacity>
       <View>
         <Text style={styles.title}>{eventInfo?.Title}</Text>
       </View>
@@ -62,10 +89,7 @@ const EventInfo = () => {
         <Text>{eventInfo?.Info}</Text>
       </View>
 
-      <View style={styles.item}>
-        <Fontisto name="date" size={24} style={styles.icon} />
-        <Text>{eventInfo?.Date}</Text>
-      </View>
+      {renderDates()}
     </SafeAreaView>
   );
 };
@@ -91,13 +115,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 5,
-    minHeight: 24, // or the maximum height of your icons
+    minHeight: 24,
   },
-
   icon: {
     color: "black",
     marginHorizontal: 10,
-    height: 24, // or the maximum height of your icons
+    height: 24,
     textAlignVertical: "center",
   },
   text: {

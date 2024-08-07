@@ -1,26 +1,32 @@
 import {
   Platform,
-  TouchableOpacity,
   StyleSheet,
-  Text,
   TextInput,
   View,
-  KeyboardAvoidingView,
+  Pressable,
   TouchableWithoutFeedback,
   Keyboard,
+  Text,
 } from "react-native";
 import React, { useState } from "react";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { useController } from "react-hook-form";
+import DateTimePicker from "react-native-ui-datepicker";
+import dayjs from "dayjs";
 
-const SelectDateControl = ({ name, control, defaultValue = "", rules }) => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+const SelectDateControl = ({
+  name,
+  control,
+  // defaultValue = { dateTime: "", justDate: "", justTime: "" },
+  defaultValue = "",
+  rules,
+  placeholderDate,
+  placeholderTime,
+  ...dateProps
+}) => {
+  const [selectedDate, setSelectedDate] = useState(dayjs());
   const [isPickerShown, setIsPickerShown] = useState(false);
 
-  const {
-    field,
-    fieldState: { error },
-  } = useController({
+  const { field, fieldState } = useController({
     name,
     control,
     rules,
@@ -28,30 +34,34 @@ const SelectDateControl = ({ name, control, defaultValue = "", rules }) => {
   });
 
   function toggleIsPickerShown() {
-    console.log("Picker is shown:", isPickerShown);
     setIsPickerShown(!isPickerShown);
   }
 
-  const onChange = (event, date) => {
-    const currentDate = date || selectedDate;
+  const onChange = (date) => {
+    const currentDate = date.date || selectedDate;
     setSelectedDate(currentDate);
-    // setShownDate(currentDate.toDateString());
-    field.onChange(currentDate);
+    const formattedDate = dayjs(currentDate).format("YYYY-MM-DD");
+    const formattedTime = dayjs(currentDate).format("HH:mm");
+    field.onChange({
+      dateTime: currentDate,
+      justDate: formattedDate,
+      justTime: formattedTime,
+    });
     if (Platform.OS !== "ios") {
       setIsPickerShown(false);
     }
   };
+
   const renderDateInput = () => {
     if (Platform.OS === "android") {
       return (
-        <Pressable onPress={toggleIsPickerShown}>
+        <Pressable onPress={toggleIsPickerShown} style={{ width: "45%" }}>
           <TextInput
             editable={false}
-            value={formattedDate}
-            placeholder="Select Date"
-            style={[styles.input, error ? styles.inputError : null]}
+            value={field.value?.justDate}
+            placeholder={placeholderDate}
+            style={[styles.input, fieldState.error ? styles.inputError : null]}
             placeholderTextColor="#7d8597"
-
           />
         </Pressable>
       );
@@ -59,71 +69,75 @@ const SelectDateControl = ({ name, control, defaultValue = "", rules }) => {
 
     if (Platform.OS === "ios") {
       return (
-        <TextInput
-        editable={false}
-        onPressIn={toggleIsPickerShown}
-        value={formattedDate}
-        placeholder="Select Date"
-        style={[styles.input, error ? styles.inputError : null]}
-        placeholderTextColor="#7d8597"
-
-      />
+        <View style={{ width: "45%" }}>
+          <TextInput
+            editable={false}
+            onPressIn={toggleIsPickerShown}
+            value={field.value?.justDate}
+            placeholder={placeholderDate}
+            style={[styles.input, fieldState.error ? styles.inputError : null]}
+            placeholderTextColor="#7d8597"
+          />
+        </View>
       );
     }
   };
-  const formattedDate = field.value ? field.value.toDateString() : "";
+
+  const renderTimeInput = () => {
+    if (Platform.OS === "android") {
+      return (
+        <Pressable onPress={toggleIsPickerShown} style={{ width: "45%" }}>
+          <TextInput
+            editable={false}
+            value={field.value?.justTime}
+            placeholder={placeholderTime}
+            style={[styles.input, fieldState.error ? styles.inputError : null]}
+            placeholderTextColor="#7d8597"
+          />
+        </Pressable>
+      );
+    }
+
+    if (Platform.OS === "ios") {
+      return (
+        <View style={{ width: "45%" }}>
+          <TextInput
+            editable={false}
+            onPressIn={toggleIsPickerShown}
+            value={field.value?.justTime}
+            placeholder={placeholderTime}
+            style={[styles.input, fieldState.error ? styles.inputError : null]}
+            placeholderTextColor="#7d8597"
+          />
+        </View>
+      );
+    }
+  };
+  console.log(fieldState.error);
+  console.log(field.value);
 
   return (
-    <TouchableWithoutFeedback onPress={() => setIsPickerShown(false)}>
-
     <View style={styles.container}>
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View>
-      {/* <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View> */}
-            {renderDateInput()}
-
-            {isPickerShown && (
-              <DateTimePicker
-                mode="date"
-                display="spinner"
-                value={selectedDate}
-                onChange={onChange}
-                maximumDate={new Date()}
-              />
-            )}
-
-            {isPickerShown && Platform.OS === "ios" && (
-              <View style={styles.buttonsView}>
-                <TouchableOpacity
-                  style={styles.pickerButtons}
-                  onPress={toggleIsPickerShown}
-                >
-                  <Text style={styles.buttonText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.pickerButtons}
-                  onPress={() => {
-                    toggleIsPickerShown();
-                    field.onChange(selectedDate);
-                  }}
-                >
-                  <Text style={styles.buttonText}>Confirm</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          {error && <Text style={styles.errorText}>{error.message}</Text>}
-
-          </View>
-        </TouchableWithoutFeedback>
+      <View style={styles.calenderContainer}>
+        {isPickerShown && (
+          <DateTimePicker
+            mode="single"
+            date={selectedDate}
+            onChange={onChange}
+            timePicker={true}
+            {...dateProps}
+          />
+        )}
       </View>
-    </TouchableWithoutFeedback>
+      <View style={styles.inputsContainer}>
+        {renderDateInput()}
+        {renderTimeInput()}
+      </View>
 
+      {fieldState.error && (
+        <Text style={styles.errorText}>{fieldState.error.message}</Text>
+      )}
+    </View>
   );
 };
 
@@ -133,9 +147,13 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 20,
     width: "100%",
-    alignItems: "center", 
+    alignItems: "center",
   },
-
+  inputsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "90%",
+  },
   buttonsView: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -146,7 +164,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 50,
     marginTop: 10,
-    marginHorizontal:20,
+    marginHorizontal: 20,
     marginBottom: 15,
     paddingHorizontal: 20,
     backgroundColor: "#11182711",
@@ -158,18 +176,17 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: "red",
-    marginTop: 5,
+    marginTop: 20,
     fontStyle: "italic",
     marginBottom: 20,
     textAlign: "center",
-    marginHorizontal: 20, // Add margin to prevent text from touching edges  
+    marginHorizontal: 20,
   },
   input: {
     backgroundColor: "#f2e9e4",
     fontSize: 18,
     paddingVertical: 10,
     paddingHorizontal: 10,
-    width: "90%",
     height: 50,
     textAlign: "center",
     borderRadius: 10,
@@ -178,5 +195,8 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: "red",
     borderWidth: 1,
+  },
+  calenderContainer: {
+    width: "80%",
   },
 });

@@ -25,33 +25,27 @@ import { RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import SelectDateControl from "@/components/selectDateControll";
 import ImagePickerControl from "@/components/ImagePickerControl";
+import dayjs from "dayjs";
+import BackButton from "@/components/BackButton";
 // import ImageCropPicker from 'react-native-image-crop-picker';
 const CreateEvent = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [shownDate, setShowenDate] = useState("");
-  const [isPickerShowen, setIsPickerShowen] = useState(false);
-  const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
-  const [image, setImage] = useState<any>({});
   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
   const {
     control,
     handleSubmit,
-    reset,
-    formState: { errors },
-    getValues,
-    setValue,
-    clearErrors,
-    setError,
   } = useForm({
     defaultValues: {
-      Date: "",
-      ImageInfo: {},
+      assetInfo: {},
+      URL: "",
     },
   });
 
+  async function refetch(){
+    await queryClient.refetchQueries({queryKey: ['allEvents']})
+  }
   const mutationCreateEvent = useMutation<any, unknown, any>({
     mutationFn: (data) => addEvent(data),
 
@@ -61,7 +55,7 @@ const CreateEvent = () => {
       console.error("Error adding document:", error);
     },
     onSuccess: () => {
-      queryClient.refetchQueries();
+      refetch();
       setIsUpdating(false);
       navigation.goBack();
     },
@@ -72,6 +66,9 @@ const CreateEvent = () => {
     setIsUpdating(true);
     mutationCreateEvent.mutate(data);
   }
+  function handleBackPress(){
+    navigation.goBack()
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -79,17 +76,23 @@ const CreateEvent = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            Keyboard.dismiss();
+          }}
+        >
           <ScrollView
             style={{ flex: 1 }}
             automaticallyAdjustKeyboardInsets={true}
           >
+            <BackButton handleBackPress={handleBackPress}></BackButton>
             <TouchableOpacity
               style={styles.addButton}
               onPress={handleSubmit(onSubmit)}
             >
               <Text>Add</Text>
             </TouchableOpacity>
+            
             <ImagePickerControl
               name="ImageInfo"
               control={control}
@@ -110,6 +113,7 @@ const CreateEvent = () => {
               placeholder="Title"
               secureTextEntry={false}
             />
+
             <InputController
               name="Place"
               control={control}
@@ -123,6 +127,7 @@ const CreateEvent = () => {
               placeholder="Place name"
               secureTextEntry={false}
             />
+
             <InputController
               name="Info"
               control={control}
@@ -132,6 +137,7 @@ const CreateEvent = () => {
               placeholder="Info"
               secureTextEntry={false}
             />
+
             <InputController
               name="Price"
               control={control}
@@ -144,13 +150,29 @@ const CreateEvent = () => {
               }}
               placeholder="Price"
               secureTextEntry={false}
+              keyboardType="phone-pad"
             />
+
             <SelectDateControl
-              name="Date"
+              name="StartDate"
               control={control}
               rules={{
-                required: "Date is required.",
+                required: " Start Date and time is required.",
               }}
+              placeholderDate={"Start Date"}
+              placeholderTime={"Start Time"}
+              minDate = {dayjs().toDate()} 
+            />
+
+            <SelectDateControl
+              name="EndDate"
+              control={control}
+              rules={{
+                required: " End Date and time is required.",
+              }}
+              placeholderDate={"End Date"}
+              placeholderTime={"End Time"}
+              minDate = {dayjs().toDate()} 
             />
             {isUpdating && <Loading></Loading>}
           </ScrollView>

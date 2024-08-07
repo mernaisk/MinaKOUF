@@ -17,8 +17,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDocoment, getKOUFAnsvariga } from "@/firebase/firebaseModel";
 import { getLeadersNames, attendenceOptions } from "@/scripts/utilities";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/types";
 
-const CreateAttendenceSheet = (navigation) => {
+const CreateAttendenceSheet = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [shownDate, setShowenDate] = useState("");
   const [isPickerShowen, setIsPickerShowen] = useState(false);

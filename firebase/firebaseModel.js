@@ -198,12 +198,12 @@ async function addEvent(event) {
   console.log("Adding event:", event);
   try {
     // Check if the image URI is valid
-    if (!event.ImageInfo || !event.ImageInfo.uri) {
+    if (!event.ImageInfo || !event.ImageInfo.assetInfo.uri) {
       throw new Error("Invalid image URI");
     }
 
     // Upload the event image and get the download URL
-    const downloadURL = await uploadEventImage(event.ImageInfo.uri);
+    const downloadURL = await uploadEventImage(event.ImageInfo.assetInfo.uri);
     event.ImageInfo.URL = downloadURL;
 
     console.log("Event with updated URL:", event);

@@ -24,6 +24,10 @@ import { Loading } from "@/components/loading";
 import { RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useRoute, RouteProp } from "@react-navigation/native";
+import BackButton from "@/components/BackButton";
+import SelectDateControl from "@/components/selectDateControll";
+import dayjs from "dayjs";
+import ImagePickerControl from "@/components/ImagePickerControl";
 
 type EventsDetailsRouteProp = RouteProp<RootStackParamList, "EventInfo">;
 
@@ -42,10 +46,9 @@ const EditEvent = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [shownDate, setShowenDate] = useState("");
   const [isPickerShowen, setIsPickerShowen] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false)
-  async function refetch(){
+  const [isUpdating, setIsUpdating] = useState(false);
+  async function refetch() {
     await queryClient.refetchQueries();
-
   }
   const {
     data: eventInfo,
@@ -58,7 +61,7 @@ const EditEvent = () => {
   const updateEventInfoMutation = useMutation({
     mutationFn: (data) => updateDocument("STMinaKOUFEvents", eventId, data),
     onError: (error) => {
-      setIsUpdating(false)
+      setIsUpdating(false);
       console.error("Error updating document:", error);
     },
     onSuccess: (data: any) => {
@@ -66,8 +69,6 @@ const EditEvent = () => {
       refetch();
       setIsUpdating(false);
       navigation.goBack();
-
-
     },
   });
 
@@ -86,136 +87,54 @@ const EditEvent = () => {
       Place: "",
       Info: "",
       Price: "",
-      Date: "",
+      StartDate: {},
+      EndDate:{},
       ImageInfo: {},
     },
   });
 
-  // useEffect(() => {
-  //   if (isSuccess && eventInfo) {
-  //     reset({
-  //       Title: eventInfo.Title || "",
-  //       Place: eventInfo.Place || "",
-  //       Info: eventInfo.Info || "",
-  //       Price: eventInfo.Price || "",
-  //       Date: eventInfo.Date || "",
-  //       ImageInfo: eventInfo.ImageInfo || {},
-  //     });
-  //     console.log(eventInfo.imageInfo);
-  //     setImage(eventInfo.imageInfo);
-  //   }
-  // }, [isSuccess, eventInfo]);
-
-  const pickImage = async () => {
-    if (status === null || status.status !== "granted") {
-      const { status } = await requestPermission();
-      if (status !== "granted") {
-        return;
-      }
-    }
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      console.log(result);
-      const selectedImage = result.assets[0];
-      //   console.log("selimage is: ", selectedImage);
-      setImage(selectedImage);
-
-      //   console.log("image is: ", image);
-      setValue("ImageInfo", selectedImage);
-      clearErrors("ImageInfo");
-    }
-  };
-
-  const onChange = ({ type }: any, selectedDate: any) => {
-    if (type == "set") {
-      setSelectedDate(selectedDate);
-      if (Platform.OS === "android") {
-        toggleIsPickerShown();
-        setShowenDate(selectedDate.toDateString());
-      }
-    } else {
-      toggleIsPickerShown();
-    }
-  };
-
-  function toggleIsPickerShown() {
-    setIsPickerShowen(!isPickerShowen);
+  function handleBackPress() {
+    navigation.goBack();
   }
-
-  useEffect(() => {
-    if (shownDate) {
-      setValue("Date", shownDate);
-      clearErrors("Date");
-    }
-  }, [shownDate]);
-
-  const renderDateInput = () => {
-    const datePlaceholder = shownDate ? shownDate : "Select Date";
-    if (Platform.OS === "android") {
-      return (
-        <Pressable onPress={toggleIsPickerShown}>
-          <InputController
-            name="Date"
-            control={control}
-            rules={{
-              required: "Date is required.",
-            }}
-            placeholder={datePlaceholder}
-            editable={false} secureTextEntry={false}          />
-        </Pressable>
-      );
-    }
-
-    if (Platform.OS === "ios") {
-      return (
-        <InputController
-          name="Date"
-          control={control}
-          rules={{
-            required: "Date is required.",
-          }}
-          placeholder={datePlaceholder}
-          editable={false}
-          onPressIn={toggleIsPickerShown} secureTextEntry={false}        />
-      );
-    }
-  };
 
   if (isLoading) {
-    return (
-      <Loading></Loading>
-    );
+    return <Loading></Loading>;
   }
-
-  const handleBackPress = () => {
-    if (isDirty) {
-      setIsAlertVisible(true);
-    } else {
-      navigation.goBack();
-    }
-  };
 
   const onSubmit = (data: any) => {
     // console.log("button is pressed");
-    setIsUpdating(true)
+    setIsUpdating(true);
     updateEventInfoMutation.mutate(data);
   };
 
+  useEffect(() => {
+    if (eventInfo) {
+      reset({
+
+        Title: eventInfo.Title || "",
+        Place: eventInfo.Place || "",
+        Info: eventInfo.Info || "",
+        Price: eventInfo.Price || "",
+        StartDate: eventInfo.StartDate || {},
+        EndDate:eventInfo.EndDate || {},
+        ImageInfo: eventInfo.ImageInfo || {},
+      });
+    }
+  }, [eventInfo, reset]);
   return (
     <SafeAreaView>
-      <TouchableOpacity onPress={handleBackPress}>
-        <Text>Back</Text>
-      </TouchableOpacity>
+      <BackButton handleBackPress={handleBackPress}></BackButton>
       <TouchableOpacity disabled={!isDirty} onPress={handleSubmit(onSubmit)}>
         <Text>save</Text>
       </TouchableOpacity>
+
+      <ImagePickerControl
+        name="ImageInfo"
+        control={control}
+        rules={{
+          required: "Image is required.",
+        }}
+      />
       <InputController
         name="Title"
         control={control}
@@ -226,7 +145,9 @@ const EditEvent = () => {
             message: "This input is letters only.",
           },
         }}
-        placeholder="Title" secureTextEntry={undefined}      />
+        placeholder="Title"
+        secureTextEntry={false}
+      />
 
       <InputController
         name="Place"
@@ -238,7 +159,9 @@ const EditEvent = () => {
             message: "This input is letters only.",
           },
         }}
-        placeholder="Place name" secureTextEntry={undefined}      />
+        placeholder="Place name"
+        secureTextEntry={false}
+      />
 
       <InputController
         name="Info"
@@ -246,7 +169,9 @@ const EditEvent = () => {
         rules={{
           required: false,
         }}
-        placeholder="Info" secureTextEntry={undefined}      />
+        placeholder="Info"
+        secureTextEntry={false}
+      />
 
       <InputController
         name="Price"
@@ -258,84 +183,31 @@ const EditEvent = () => {
             message: "Digits only",
           },
         }}
-        placeholder="Price" secureTextEntry={undefined}      />
-
-      {renderDateInput()}
-
-      {isPickerShowen && (
-        <DateTimePicker
-          mode="date"
-          display="spinner"
-          value={selectedDate}
-          onChange={onChange}
-          minimumDate={new Date()}
-        />
-      )}
-
-      {isPickerShowen && Platform.OS === "ios" && (
-        <View style={styles.buttonsView}>
-          <TouchableOpacity
-            style={styles.pickerButtons}
-            onPress={toggleIsPickerShown}
-          >
-            <Text style={styles.buttonText}>cancel</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.pickerButtons}
-            onPress={() => {
-              toggleIsPickerShown();
-              setShowenDate(selectedDate.toDateString());
-            }}
-          >
-            <Text style={styles.buttonText}>confirm</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <Controller
-        name="ImageInfo"
-        control={control}
-        render={() => (
-          <View>
-            {image?.uri && (
-              <Image
-                source={{ uri: image?.uri }}
-                style={styles.imagePreview}
-                resizeMode="cover"
-              />
-            )}
-          </View>
-        )}
+        placeholder="Price"
+        secureTextEntry={false}
+        keyboardType="phone-pad"
       />
 
-      <TouchableOpacity onPress={pickImage}>
-        <Text>change photo</Text>
-      </TouchableOpacity>
+      <SelectDateControl
+        name="StartDate"
+        control={control}
+        rules={{
+          required: " Start Date and time is required.",
+        }}
+        placeholderDate={"Start Date"}
+        placeholderTime={"Start Time"}
+        minDate={dayjs().toDate()}
+      />
 
-      <AwesomeAlert
-        show={isAlertVisible}
-        title="Unsaved Changes"
-        titleStyle={{ fontSize: 28, color: "black" }}
-        message="You have unsaved changes. Are you sure you want to leave without saving?"
-        messageStyle={{ color: "grey", fontSize: 20 }}
-        showCancelButton={true}
-        cancelText="Cancel"
-        cancelButtonStyle={{ backgroundColor: "black" }}
-        cancelButtonTextStyle={{ color: "grey" }}
-        onCancelPressed={() => {
-          setIsAlertVisible(false);
+      <SelectDateControl
+        name="EndDate"
+        control={control}
+        rules={{
+          required: " End Date and time is required.",
         }}
-        showConfirmButton={true}
-        confirmText="Leave"
-        confirmButtonStyle={{ backgroundColor: "black" }}
-        confirmButtonTextStyle={{ color: "grey" }}
-        onConfirmPressed={() => {
-          setIsAlertVisible(false);
-          navigation.goBack();
-        }}
-        closeOnTouchOutside={false}
-        closeOnHardwareBackPress={false}
+        placeholderDate={"End Date"}
+        placeholderTime={"End Time"}
+        minDate={dayjs().toDate()}
       />
     </SafeAreaView>
   );

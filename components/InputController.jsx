@@ -88,7 +88,9 @@
       transform: [{ translateY: -12 }], // Adjust the vertical alignment
     },
     inputError: {
-      borderBottomColor: "red",
+      borderColor: "red",
+      borderWidth: 1,
+
     },
     errorText: {
       color: "black",

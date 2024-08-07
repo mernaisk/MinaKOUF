@@ -195,13 +195,54 @@ async function deleteIdFromAttendenceSheet(MemberID) {
 }
 
 async function addEvent(event) {
+  console.log("Adding event:", event);
   try {
-    const downloadURL = await uploadImage(event.ImageInfo.uri, "EventImages");
+    // Check if the image URI is valid
+    if (!event.ImageInfo || !event.ImageInfo.uri) {
+      throw new Error("Invalid image URI");
+    }
+
+    // Upload the event image and get the download URL
+    const downloadURL = await uploadEventImage(event.ImageInfo.uri);
     event.ImageInfo.URL = downloadURL;
-    console.log("event is", event);
+
+    console.log("Event with updated URL:", event);
+
+    // Add the event document to Firestore
     await addDocoment("STMinaKOUFEvents", event);
+    console.log("Event successfully added.");
   } catch (error) {
-    console.error("Error adding document: ", error);
+    console.error("Error adding event:", error);
+  }
+}
+
+async function uploadEventImage(uri) {
+  try {
+    // Fetch the image
+    const response = await fetch(uri);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+    const blob = await response.blob();
+    console.log("Blob created successfully:", blob);
+
+    // Create a storage reference
+    const timestamp = new Date().getTime();
+    const storageRef = ref(storage, `EventImages/${timestamp}`);
+    console.log("Storage reference created:", storageRef);
+
+    // Upload the blob
+    const snapshot = await uploadBytes(storageRef, blob);
+    console.log("Upload snapshot:", snapshot);
+
+    // Get the download URL
+    const downloadURL = await getDownloadURL(storageRef);
+    console.log("Download URL obtained:", downloadURL);
+
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading event image:", error);
+    throw error;
   }
 }
 
@@ -220,7 +261,7 @@ async function AddMemberFirebase(member) {
   if (member.ProfilePicture.assetInfo.uri) {
     const response = await fetch(member.ProfilePicture.assetInfo.uri);
     const blob = await response.blob();
-    const storageRef = ref(storage, `ProfilePicture/${new Date().getTime()}`);
+    const storageRef = await ref(storage, `ProfilePicture/${new Date().getTime()}`);
     await uploadBytes(storageRef, blob);
     const downloadURL = await getDownloadURL(storageRef);
     member.ProfilePicture.URL = downloadURL;
@@ -237,23 +278,7 @@ async function doesDocumentExist(collectionName, docID) {
   return docSnap.exists();
 }
 
-async function uploadImage(uri, pathName) {
-  try {
-    const response = await fetch(uri);
-    console.log(response);
-    const blob = await response.blob();
-    console.log(blob);
-    const storageRef = ref(storage, `${pathName}/${new Date().getTime()}`);
-    console.log(storageRef);
-    await uploadBytes(storageRef, blob);
-    const downloadURL = await getDownloadURL(storageRef);
-    console.log(downloadURL);
-    return downloadURL;
-  } catch (error) {
-    console.error("Error uploading image: ", error);
-    throw error;
-  }
-}
+
 
 async function deletePhoto(photoUrl) {
   try {
@@ -283,7 +308,7 @@ async function updateMemberInfo(memberId, member, oldImage) {
     } else {
       const downloadURL = await uploadImage(
         member.ProfilePicture.assetInfo.uri,
-        "ProfilePictures"
+        "ProfilePicture"
       );
       member.ProfilePicture.URL = downloadURL;
       deletePhoto(oldImage.URL);

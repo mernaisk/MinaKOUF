@@ -54,7 +54,6 @@ const Events = () => {
 
   return (
     <ScreenWrapper>
-      <Text style={styles.titleContainer}>events</Text>
       <TouchableOpacity
         onPress={() => navigation.navigate("CreateEvent")}
       >

@@ -7,6 +7,10 @@ import {
   View,
   Image,
   Alert,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  ScrollView,
+  Keyboard,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,8 +23,9 @@ import { addEvent } from "@/firebase/firebaseModel";
 import { Loading } from "@/components/loading";
 import { RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
+import SelectDateControl from "@/components/selectDateControll";
+import ImagePickerControl from "@/components/ImagePickerControl";
 // import ImageCropPicker from 'react-native-image-crop-picker';
-
 const CreateEvent = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -30,7 +35,7 @@ const CreateEvent = () => {
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
   const [image, setImage] = useState<any>({});
   const queryClient = useQueryClient();
-  const [isUpdating,setIsUpdating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const {
     control,
     handleSubmit,
@@ -51,261 +56,106 @@ const CreateEvent = () => {
     mutationFn: (data) => addEvent(data),
 
     onError: (error) => {
-      setIsUpdating(false)
-      Alert.alert("Something went wrong, try again")
+      setIsUpdating(false);
+      Alert.alert("Something went wrong, try again");
       console.error("Error adding document:", error);
     },
     onSuccess: () => {
       queryClient.refetchQueries();
-      setIsUpdating(false)
+      setIsUpdating(false);
       navigation.goBack();
     },
   });
 
   async function onSubmit(data: any) {
     console.log(data);
-    setIsUpdating(true)
+    setIsUpdating(true);
     mutationCreateEvent.mutate(data);
   }
 
-  //select date
-  const onChange = ({ type }: any, selectedDate: any) => {
-    if (type == "set") {
-      setSelectedDate(selectedDate);
-      if (Platform.OS === "android") {
-        toggleIsPickerShown();
-        setShowenDate(selectedDate.toDateString());
-      }
-    } else {
-      toggleIsPickerShown();
-    }
-  };
-
-  function toggleIsPickerShown() {
-    setIsPickerShowen(!isPickerShowen);
-  }
-
-  useEffect(() => {
-    if (shownDate) {
-      setValue("Date", shownDate);
-      clearErrors("Date");
-    }
-  }, [shownDate]);
-
-  const renderDateInput = () => {
-    const datePlaceholder = shownDate ? shownDate : "Select Date";
-    if (Platform.OS === "android") {
-      return (
-        <Pressable onPress={toggleIsPickerShown}>
-          <InputController
-            name="Date"
-            control={control}
-            rules={{
-              required: "Date is required.",
-            }}
-            placeholder={datePlaceholder}
-            editable={false}
-            secureTextEntry={undefined}
-          />
-        </Pressable>
-      );
-    }
-
-    if (Platform.OS === "ios") {
-      return (
-        <InputController
-          name="Date"
-          control={control}
-          rules={{
-            required: "Date is required.",
-          }}
-          placeholder={datePlaceholder}
-          editable={false}
-          onPressIn={toggleIsPickerShown}
-          secureTextEntry={undefined}
-        />
-      );
-    }
-  };
-
-  //photo
-  function deletePhoto() {
-    setImage({});
-    setValue("ImageInfo", {});
-    setError("ImageInfo", {
-      type: "manual",
-      message: "Image is required",
-    });
-  }
-
-  const pickImage = async () => {
-    if (status === null || status.status !== "granted") {
-      const { status } = await requestPermission();
-      if (status !== "granted") {
-        return;
-      }
-    }
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      // aspect: [3, 6],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      console.log(result);
-      const selectedImage = result.assets[0];
-      console.log("selimage is: ", selectedImage);
-      setImage(selectedImage);
-      // const croppedImage = await ImageCropPicker.openCropper({
-      //   path: selectedImage.uri,
-      //   width: 300, // Desired width
-      //   height: 200, // Desired height
-      // });
-  
-      // console.log("cropped image is: ", croppedImage);
-      // setImage(croppedImage);
-      console.log("image is: ", image);
-    setValue("ImageInfo", selectedImage);
-    clearErrors("ImageInfo");
-      // console.log("image is: ", image);
-      // setValue("ImageInfo", croppedImage);
-      // clearErrors("ImageInfo");
-    }
-  };
-
   return (
-    <SafeAreaView>
-      <Text>createEvent</Text>
-      <TouchableOpacity onPress={handleSubmit(onSubmit)}>
-        <Text>Add</Text>
-      </TouchableOpacity>
-
-      <InputController
-        name="Title"
-        control={control}
-        rules={{
-          required: "Title is required.",
-          pattern: {
-            value: /^[a-zA-ZöäåÖÄÅ\s]+$/,
-            message: "This input is letters only.",
-          },
-        }}
-        placeholder="Title"
-        secureTextEntry={false}
-      />
-
-      <InputController
-        name="Place"
-        control={control}
-        rules={{
-          required: "Place name is required.",
-          pattern: {
-            value: /^[a-zA-ZöäåÖÄÅ\s]+$/,
-            message: "This input is letters only.",
-          },
-        }}
-        placeholder="Place name"
-        secureTextEntry={false}
-      />
-
-      <InputController
-        name="Info"
-        control={control}
-        rules={{
-          required: false,
-        }}
-        placeholder="Info"
-        secureTextEntry={false}
-      />
-
-      <InputController
-        name="Price"
-        control={control}
-        rules={{
-          required: "Price is required.",
-          pattern: {
-            value: /\d/,
-            message: "Digits only",
-          },
-        }}
-        placeholder="Price"
-        secureTextEntry={false}
-      />
-
-      {/* date */}
-      {renderDateInput()}
-
-      {isPickerShowen && (
-        <DateTimePicker
-          mode="date"
-          display="spinner"
-          value={selectedDate}
-          onChange={onChange}
-          minimumDate={new Date()}
-        />
-      )}
-
-      {isPickerShowen && Platform.OS === "ios" && (
-        <View style={styles.buttonsView}>
-          <TouchableOpacity
-            style={styles.pickerButtons}
-            onPress={toggleIsPickerShown}
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView
+            style={{ flex: 1 }}
+            automaticallyAdjustKeyboardInsets={true}
           >
-            <Text style={styles.buttonText}>cancel</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.pickerButtons}
-            onPress={() => {
-              toggleIsPickerShown();
-              setShowenDate(selectedDate.toDateString());
-            }}
-          >
-            <Text style={styles.buttonText}>confirm</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/*image */}
-      <Controller
-        name="ImageInfo"
-        control={control}
-        // rules={{
-        //   validate: (data: any) => {
-        //     if (!image.uri) {
-        //       return "Image is required";
-        //     }
-        //     return true;
-        //   },
-        // }}
-        render={({ field }) => (
-          <View>
-            {image?.uri && (
-              <Image
-                source={{ uri: image?.uri }}
-                style={styles.imagePreview}
-                resizeMode="cover"
-              />
-            )}
-            {image?.uri && (
-              <TouchableOpacity onPress={deletePhoto}>
-                <Text>delete photo</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-      />
-
-      <TouchableOpacity onPress={pickImage}>
-        <Text>choose photo</Text>
-      </TouchableOpacity>
-
-      {errors.ImageInfo && (
-        <Text style={{ color: "red" }}>{errors.ImageInfo.message}</Text>
-      )}
-      {isUpdating && (<Loading></Loading>)}
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={handleSubmit(onSubmit)}
+            >
+              <Text>Add</Text>
+            </TouchableOpacity>
+            <ImagePickerControl
+              name="ImageInfo"
+              control={control}
+              rules={{
+                required: "Image is required.",
+              }}
+            />
+            <InputController
+              name="Title"
+              control={control}
+              rules={{
+                required: "Title is required.",
+                pattern: {
+                  value: /^[a-zA-ZöäåÖÄÅ\s]+$/,
+                  message: "This input is letters only.",
+                },
+              }}
+              placeholder="Title"
+              secureTextEntry={false}
+            />
+            <InputController
+              name="Place"
+              control={control}
+              rules={{
+                required: "Place name is required.",
+                pattern: {
+                  value: /^[a-zA-ZöäåÖÄÅ\s]+$/,
+                  message: "This input is letters only.",
+                },
+              }}
+              placeholder="Place name"
+              secureTextEntry={false}
+            />
+            <InputController
+              name="Info"
+              control={control}
+              rules={{
+                required: false,
+              }}
+              placeholder="Info"
+              secureTextEntry={false}
+            />
+            <InputController
+              name="Price"
+              control={control}
+              rules={{
+                required: "Price is required.",
+                pattern: {
+                  value: /\d/,
+                  message: "Digits only",
+                },
+              }}
+              placeholder="Price"
+              secureTextEntry={false}
+            />
+            <SelectDateControl
+              name="Date"
+              control={control}
+              rules={{
+                required: "Date is required.",
+              }}
+            />
+            {isUpdating && <Loading></Loading>}
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -313,32 +163,14 @@ const CreateEvent = () => {
 export default CreateEvent;
 
 const styles = StyleSheet.create({
-  buttonsView: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+  addButton: {
+    position: "absolute",
+    top: 5,
+    right: 5,
+    zIndex: 1,
   },
-  pickerButtons: {
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 50,
-    marginTop: 10,
-    marginBottom: 15,
-    paddingHorizontal: 20,
-    backgroundColor: "#11182711",
-  },
-
-  buttonText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#075985",
-  },
-  imagePreview: {
-    width: 300,
-    height: 300,
-    marginTop: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
+  container: {
+    flex: 1,
+    backgroundColor: "#decbc6",
   },
 });

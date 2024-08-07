@@ -13,8 +13,7 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import InputController from "../../components/InputController.jsx";
 import { SafeAreaView } from "react-native-safe-area-context";
-// import * as ImagePicker from "expo-image-picker";
-import { launchImageLibrary, MediaType } from "react-native-image-picker";
+import * as ImagePicker from "expo-image-picker";
 
 import {
   serviceOptions,
@@ -46,7 +45,7 @@ const EditMember = () => {
 
   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
-  // const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
+  const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
   const [image, setImage] = useState<any>({});
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -177,56 +176,35 @@ const EditMember = () => {
     setModalVisible(false);
   }
 
-  // const pickImage = async () => {
-  //   if (status === null || status.status !== "granted") {
-  //     const { status } = await requestPermission();
-  //     if (status !== "granted") {
-  //       return;
-  //     }
-  //   }
-
-  //   let result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-  //     allowsEditing: true,
-  //     aspect: [1, 1],
-  //     quality: 1,
-  //   });
-
-  //   if (!result.canceled) {
-  //     console.log("result is ",result);
-  //     const selectedImage = result.assets[0];
-
-  //     setImage({assetInfo: selectedImage, URL: ""});
-
-
-  //     setValue("ProfilePicture", {assetInfo: selectedImage, URL: ""}, { shouldDirty: true });
-  //   }
-  //   setModalVisible(false);
-  // };
-
   const pickImage = async () => {
-    const options: {
-      mediaType: MediaType;
-      includeBase64: boolean;
-    } = {
-      mediaType: 'photo' as MediaType,
-      includeBase64: false,
-    };
-  
-    launchImageLibrary(options, (response:any) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else {
-        const selectedImage = response.assets[0];
-        setImage({ assetInfo: selectedImage, URL: "" });
-        setValue("ProfilePicture", { assetInfo: selectedImage, URL: "" }, { shouldDirty: true });
+    if (status === null || status.status !== "granted") {
+      const { status } = await requestPermission();
+      if (status !== "granted") {
+        return;
       }
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
     });
+
+    if (!result.canceled) {
+      console.log("result is ",result);
+      const selectedImage = result.assets[0];
+      // console.log("selimage is: ", selectedImage);
+      // console.log("oldimag is: ", image)
+      setImage({assetInfo: selectedImage, URL: ""});
+      // console.log("newimage is: ", image)
+      // console.log("image is: ", image);
+      // setValue("ProfilePicture", { assetInfo: selectedImage, URL: "" });
+
+      setValue("ProfilePicture", {assetInfo: selectedImage, URL: ""}, { shouldDirty: true });
+    }
     setModalVisible(false);
   };
-  
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

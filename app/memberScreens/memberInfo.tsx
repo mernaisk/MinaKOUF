@@ -12,6 +12,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getOneDocInCollection } from "@/firebase/firebaseModel";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+
 import { Loading } from "@/components/loading";
 import { RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
@@ -20,7 +22,6 @@ import { useRoute, RouteProp } from "@react-navigation/native";
 type MemberInfosRouteProp = RouteProp<RootStackParamList, "MemberInfo">;
 
 const MemberInfo = () => {
-
   const route = useRoute<MemberInfosRouteProp>();
   const { memberId } = route.params; // Extract the sheetId parameter
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -30,11 +31,10 @@ const MemberInfo = () => {
     queryKey: ["memberInfo", memberId],
   });
 
-
-
   if (isLoading) {
     return <Loading></Loading>;
   }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -48,7 +48,9 @@ const MemberInfo = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("EditMember",{memberId: memberId})}
+          onPress={() =>
+            navigation.navigate("EditMember", { memberId: memberId })
+          }
           style={styles.editButton}
         >
           <FontAwesome5 name="user-edit" size={24} color="black" />
@@ -94,6 +96,28 @@ const MemberInfo = () => {
           "Interested services",
           memberInfo?.Service?.join(", ")
         )}
+
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <MaterialIcons name="church" size={24} color="black" />
+            <Text style={styles.infoHeaderText}>Church</Text>
+          </View>
+          <Text style={styles.infoText}>
+            {memberInfo?.Orginization?.join(", ")}
+          </Text>
+          <View style={styles.separator} />
+        </View>
+
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <MaterialIcons name="category" size={24} color="black" />
+            <Text style={styles.infoHeaderText}>Category</Text>
+          </View>
+          <Text style={styles.infoText}>
+            {/* {renderMembersTitle()} */}
+          </Text>
+          <View style={styles.separator} />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -111,6 +135,15 @@ const renderInfoSection = (iconName: any, header: any, info: any) => {
     </View>
   );
 };
+
+const renderMembersTitle = (member:any) => {
+  if(member.Title.Category == "Ungdom"){
+    return(<Text>Ungdom</Text>)
+  }
+  else if(member.Title.Category == "KOUF"){
+    return(<Text>{member.Title.Title}</Text>)
+  }
+}
 
 export default MemberInfo;
 

@@ -24,7 +24,7 @@ export default function Youth() {
 
   const [nameToSearch, setNameToSearch] = useState("");
   const { churchName } = useChurch();
-
+  console.log("churchName",churchName)
   const { data: allMembers, isLoading } = useQuery({
     queryFn: () => getAllDocInCollection("Members"),
     queryKey: ["allMembers"],

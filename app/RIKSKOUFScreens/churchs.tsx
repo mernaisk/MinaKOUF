@@ -12,7 +12,6 @@ import BackButton from '@/components/BackButton'
 
 const Churchs = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [newChurchName, setNewChurchName] = useState("")
   const [isUpdating, setIsUpdating] = useState(false)
   const queryClient = useQueryClient();
   const {setChurchName } = useChurch();

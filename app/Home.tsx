@@ -14,13 +14,12 @@ const Home = () => {
   }
 
   function checkAccess() {
-    return userInfo?.Title !== "Ungdom";
+    return userInfo?.Title.Category !== "Ungdom";
   }
 // bbhuy
   const handleLogout = async () => {
     try {
       await signOut();
-      // navigation.navigate("Index"); // Navigate to login screen or any other appropriate screen after logout
     } catch (error) {
       console.error("Error logging out: ", error);
     }

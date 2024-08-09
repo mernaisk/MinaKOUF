@@ -1,10 +1,9 @@
 import validator from 'validator'
-// import sendEmailAPI from "../scripts/emailService"
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
-function sendMessage(youthMessage) {}
 
 function filterMembers(allMembers, searchString, churchName) {
+
   const modifiedSearchString =
     searchString.charAt(0).toUpperCase() + searchString.slice(1).toLowerCase();
 
@@ -14,16 +13,27 @@ function filterMembers(allMembers, searchString, churchName) {
     });
     if(churchName != ""){
       const churchFilteredMembers = filteredMembers.filter((member) => {
-        return member.Title.Orginization.contain(churchName)
+        return member.Orginization.some((Name) => Name === churchName);
       })
+      console.log("imhere222222",churchFilteredMembers)
       return sortAlphapidically(churchFilteredMembers);
     }
     else{
       return sortAlphapidically(filteredMembers);
     }
   } else {
-    return sortAlphapidically(allMembers);
-  }
+    console.log("imhere",allMembers)
+
+    if(churchName != ""){
+      const churchFilteredMembers = allMembers.filter((member) => {
+        return member.Orginization.some((Name) => Name === churchName);
+      })
+      console.log("imhere222222",churchFilteredMembers)
+      return sortAlphapidically(churchFilteredMembers);
+    }
+    else{
+      return sortAlphapidically(allMembers);
+    }  }
 }
 
 function sortAlphapidically(filteredMembers) {
@@ -44,6 +54,8 @@ function sortAlphapidically(filteredMembers) {
   }
 
 }
+
+
 
 function sortDate(sheets){
   return sheets.sort((a, b) => a?.date - b?.date);
@@ -144,7 +156,6 @@ export {
   checkServiceOptions,
   serviceOptions,
   titleOptions,
-  sendMessage,
   filterMembers,
   sortAlphapidically,
   checkPersonalNumber,

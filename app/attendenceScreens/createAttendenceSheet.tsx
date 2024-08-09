@@ -31,7 +31,7 @@ const CreateAttendenceSheet = () => {
   });
   const queryClient = useQueryClient();
   const mutationAdd = useMutation<any, unknown, any>({
-    mutationFn: (data) => addDocoment("STMinaKOUFAttendence", data),
+    mutationFn: (data) => addDocoment("Attendence", data),
 
     onError: (error) => {
       console.error("Error updating document:", error);

@@ -9,35 +9,36 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [userInfo, setUserInfo] = useState(null);
+  const [isUserLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        console.log('User is set:', user); // Debug log
-      } else {
-        setUser(null);
-        setUserInfo(null); // Clear userInfo when user logs out
-      }
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const { data, isLoading, isError } = useQuery({
-    queryFn: () => getOneDocInCollection('STMinaKOUFData', user?.uid),
+  // Use useQuery hook to fetch userInfo based on the user state
+  const { data: userInfo, isLoading: userInfoLoading, isError } = useQuery({
     queryKey: ['userInfo', user?.uid],
+    queryFn: () => getOneDocInCollection('Members', user?.uid),
+    enabled: !!user, // Run the query only if user exists
     onError: (error) => {
       console.error('Error fetching userInfo:', error); // Debug log
     },
   });
 
   useEffect(() => {
-    setUserInfo(data);
-}, [data]);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      if (!user) {
+        setUser(null);
+        setIsLoading(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Update isUserLoading based on both user loading and userInfo loading states
+  useEffect(() => {
+    setIsLoading(userInfoLoading);
+  }, [userInfoLoading]);
 
   return (
-    <UserContext.Provider value={{ user, userInfo, isLoading }}>
+    <UserContext.Provider value={{ user, userInfo, isUserLoading }}>
       {children}
     </UserContext.Provider>
   );

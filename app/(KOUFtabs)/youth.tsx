@@ -8,7 +8,7 @@ import {
   View,
   Alert,
   TouchableOpacity,
-  Image
+  Image,
 } from "react-native";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -17,43 +17,41 @@ import { getAllDocInCollection } from "../../firebase/firebaseModel.js";
 import ScreenWrapper from "../ScreenWrapper";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types";
-
+import { useChurch } from "@/context/churchContext";
 
 export default function Youth() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-
   const [nameToSearch, setNameToSearch] = useState("");
-
-  
+  const { churchName } = useChurch();
 
   const { data: allMembers, isLoading } = useQuery({
-    queryFn: () => getAllDocInCollection("STMinaKOUFData"),
+    queryFn: () => getAllDocInCollection("Members"),
     queryKey: ["allMembers"],
   });
   if (isLoading) {
     return <ActivityIndicator size="large" color="#00ff00" />;
   }
-
-  const filteredMembers = filterMembers(allMembers, nameToSearch);
+  const getInitials = (name: string) => {
+    if (!name) return "";
+    return name.charAt(0).toUpperCase();
+  };
+  const filteredMembers = filterMembers(allMembers, nameToSearch, churchName);
+  console.log(filteredMembers);
   return (
     <ScreenWrapper>
-
-
-
       <View style={styles.inputContainer}>
-
-      <TextInput
-        value={nameToSearch}
-        onChangeText={setNameToSearch}
-        placeholder="Search for name"
-        autoCapitalize="words"
-        clearButtonMode="while-editing"
-        style={styles.input}
-        placeholderTextColor="#7d8597"
-        enterKeyHint="search"
-        inputMode="text"
-      />
+        <TextInput
+          value={nameToSearch}
+          onChangeText={setNameToSearch}
+          placeholder="Search for name"
+          autoCapitalize="words"
+          clearButtonMode="while-editing"
+          style={styles.input}
+          placeholderTextColor="#7d8597"
+          enterKeyHint="search"
+          inputMode="text"
+        />
       </View>
 
       <FlatList
@@ -62,12 +60,22 @@ export default function Youth() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.memberItem}
-            onPress={() =>navigation.navigate("MemberInfo", {memberId: item?.Id}) }
+            onPress={() =>
+              navigation.navigate("MemberInfo", { memberId: item?.Id })
+            }
           >
-            <Image
-              source={{ uri: item.ProfilePicture.URL || 'https://via.placeholder.com/50' }}
-              style={styles.profilePicture}
-            />
+            {item?.ProfilePicture?.URL ? (
+              <Image
+                source={{ uri: item?.ProfilePicture?.URL }}
+                style={styles.profilePicture}
+              />
+            ) : (
+              <View style={styles.profileInitials}>
+                <Text style={styles.initialsText}>
+                  {getInitials(item.Name)}
+                </Text>
+              </View>
+            )}
 
             <Text style={styles.memberName}>{item.Name}</Text>
           </TouchableOpacity>
@@ -85,7 +93,7 @@ export default function Youth() {
 
 const styles = StyleSheet.create({
   list: {
-    width: "100%", 
+    width: "100%",
   },
   memberItem: {
     flexDirection: "row",
@@ -133,7 +141,6 @@ const styles = StyleSheet.create({
     textAlign: "left", // Center the text
     borderRadius: 10,
     color: "#4a4e69", // Change this to your desired text color
-
   },
   iconStyle: {
     position: "absolute",
@@ -144,6 +151,20 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginTop: 20,
     width: "100%",
-    alignItems: "center",  
+    alignItems: "center",
+  },
+  initialsText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  profileInitials: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#726d81",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
   },
 });

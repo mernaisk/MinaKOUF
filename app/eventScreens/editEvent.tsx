@@ -55,11 +55,11 @@ const EditEvent = () => {
     isLoading,
     isSuccess,
   } = useQuery({
-    queryFn: () => getOneDocInCollection("STMinaKOUFEvents", eventId),
+    queryFn: () => getOneDocInCollection("Events", eventId),
     queryKey: ["eventInfo"],
   });
   const updateEventInfoMutation = useMutation({
-    mutationFn: (data) => updateDocument("STMinaKOUFEvents", eventId, data),
+    mutationFn: (data) => updateDocument("Events", eventId, data),
     onError: (error) => {
       setIsUpdating(false);
       console.error("Error updating document:", error);

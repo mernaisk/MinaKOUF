@@ -47,7 +47,7 @@ async function resetPassword(Email) {
   //     throw { code: "auth/user-not-found" };
   //   }
 
-    await sendPasswordResetEmail(auth, Email);
+  await sendPasswordResetEmail(auth, Email);
   // } catch (error) {
   //   throw error;
   // }
@@ -113,7 +113,7 @@ async function updateDocument(type, docId, updateObject) {
 }
 
 const addIDToAttendence = async (documentId, newId) => {
-  const docRef = doc(db, "STMinaKOUFAttendence", documentId);
+  const docRef = doc(db, "Attendence", documentId);
 
   try {
     await updateDoc(docRef, {
@@ -127,7 +127,7 @@ const addIDToAttendence = async (documentId, newId) => {
 
 // Function to remove an ID from the IDS array
 const removeIDFromAttendence = async (documentId, idToRemove) => {
-  const docRef = doc(db, "STMinaKOUFAttendence", documentId);
+  const docRef = doc(db, "Attendence", documentId);
 
   try {
     await updateDoc(docRef, {
@@ -159,11 +159,11 @@ async function getFieldFromDocument(collectionName, docID, fieldName) {
 
 async function getAttendedMembers(sheetID) {
   const attendedIDS = await getFieldFromDocument(
-    "STMinaKOUFAttendence",
+    "Attendence",
     sheetID,
     "IDS"
   );
-  const allMembers = await getAllDocInCollection("STMinaKOUFData");
+  const allMembers = await getAllDocInCollection("Members");
   // console.log("attendedIDS: ", attendedIDS)
   // console.log("allMembers", allMembers)
   const attendedMembersInfo = allMembers.filter((member) =>
@@ -173,7 +173,7 @@ async function getAttendedMembers(sheetID) {
 }
 
 async function getKOUFAnsvariga() {
-  const allMembers = await getAllDocInCollection("STMinaKOUFData");
+  const allMembers = await getAllDocInCollection("Members");
   const KOUFLeaders = allMembers.filter((member) => member.Title !== "Ungdom");
   console.log("KOUFLeaders", KOUFLeaders);
   return KOUFLeaders;
@@ -181,11 +181,11 @@ async function getKOUFAnsvariga() {
 
 async function deleteIdFromAttendenceSheet(MemberID) {
   const allAttendenceSheet = await getAllDocInCollection(
-    "STMinaKOUFAttendence"
+    "Attendence"
   );
   for (const sheet of allAttendenceSheet) {
     if (sheet.IDS && sheet.IDS.includes(MemberID)) {
-      const docRef = doc(db, "STMinaKOUFAttendence", sheet.Id);
+      const docRef = doc(db, "Attendence", sheet.Id);
 
       await updateDoc(docRef, {
         IDS: arrayRemove(MemberID),
@@ -197,23 +197,23 @@ async function deleteIdFromAttendenceSheet(MemberID) {
 async function addEvent(event) {
   console.log("Adding event:", event);
   try {
-    // Check if the image URI is valid
     if (!event.ImageInfo || !event.ImageInfo.assetInfo.uri) {
       throw new Error("Invalid image URI");
     }
-
-    // Upload the event image and get the download URL
     const downloadURL = await uploadEventImage(event.ImageInfo.assetInfo.uri);
     event.ImageInfo.URL = downloadURL;
-
     console.log("Event with updated URL:", event);
-
-    // Add the event document to Firestore
-    await addDocoment("STMinaKOUFEvents", event);
+    await addDocoment("Events", event);
     console.log("Event successfully added.");
   } catch (error) {
     console.error("Error adding event:", error);
   }
+}
+
+async function AddChurchFirebase(data) {
+  const church = data;
+  church.value = data.lable;
+  await addDocoment("Churchs", church);
 }
 
 async function uploadEventImage(uri) {
@@ -254,20 +254,25 @@ async function AddMemberFirebase(member) {
     member.Password
   );
   const user = userCredential.user;
-  console.log("the user is:", user);
-  console.log("the member is:", member);
-  member.Title = "Ungdom";
+  member.Title = { Category: "Ungdom", Title: null, ChurchKOUFLeader: null };
+  member.Attendence = { CountAbsenceCurrentYear: "0", CoundAttendenceCurrentYear: "0", LastWeekAttendend: "0" };
+
 
   if (member.ProfilePicture.assetInfo.uri) {
     const response = await fetch(member.ProfilePicture.assetInfo.uri);
     const blob = await response.blob();
-    const storageRef = await ref(storage, `ProfilePicture/${new Date().getTime()}`);
+    const storageRef = await ref(
+      storage,
+      `ProfilePicture/${new Date().getTime()}`
+    );
     await uploadBytes(storageRef, blob);
     const downloadURL = await getDownloadURL(storageRef);
     member.ProfilePicture.URL = downloadURL;
-    await addDocomentWithId("STMinaKOUFData", member, user.uid);
+    console.log("member with pic: ", member)
+    await addDocomentWithId("Members", member, user.uid);
   } else {
-    await addDocomentWithId("STMinaKOUFData", member, user.uid);
+    console.log("member without pic: ", member)
+    await addDocomentWithId("Members", member, user.uid);
   }
 }
 
@@ -277,8 +282,6 @@ async function doesDocumentExist(collectionName, docID) {
 
   return docSnap.exists();
 }
-
-
 
 async function deletePhoto(photoUrl) {
   try {
@@ -300,9 +303,7 @@ export const signOut = async () => {
   }
 };
 async function updateMemberInfo(memberId, member, oldImage) {
-
   if (member.ProfilePicture.assetInfo.uri) {
-
     if (oldImage.assetInfo.assetId == member.ProfilePicture.assetInfo.assetID) {
       member.ProfilePicture.URL = oldImage.URL;
     } else {
@@ -313,12 +314,12 @@ async function updateMemberInfo(memberId, member, oldImage) {
       member.ProfilePicture.URL = downloadURL;
       deletePhoto(oldImage.URL);
     }
-    await updateDocument("STMinaKOUFData", memberId, member);
+    await updateDocument("Members", memberId, member);
   } else {
-    if(oldImage.URL){
+    if (oldImage.URL) {
       deletePhoto(oldImage.URL);
     }
-    await updateDocument("STMinaKOUFData", memberId, member);
+    await updateDocument("Members", memberId, member);
   }
 }
 
@@ -340,4 +341,5 @@ export {
   updateMemberInfo,
   doesDocumentExist,
   resetPassword,
+  AddChurchFirebase,
 };

@@ -4,14 +4,23 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 function sendMessage(youthMessage) {}
 
-function filterMembers(allMembers, searchString) {
+function filterMembers(allMembers, searchString, churchName) {
   const modifiedSearchString =
     searchString.charAt(0).toUpperCase() + searchString.slice(1).toLowerCase();
+
   if (searchString != "") {
     const filteredMembers = allMembers.filter((member) => {
       return member.Name.startsWith(modifiedSearchString);
     });
-    return sortAlphapidically(filteredMembers);
+    if(churchName != ""){
+      const churchFilteredMembers = filteredMembers.filter((member) => {
+        return member.Title.Orginization.contain(churchName)
+      })
+      return sortAlphapidically(churchFilteredMembers);
+    }
+    else{
+      return sortAlphapidically(filteredMembers);
+    }
   } else {
     return sortAlphapidically(allMembers);
   }

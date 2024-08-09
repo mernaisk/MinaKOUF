@@ -32,7 +32,7 @@ const SheetDetails = () => {
     isLoading: isSheetLoading,
     isError: isSheetError,
   } = useQuery<DocumentData | undefined>({
-    queryFn: () => getOneDocInCollection("STMinaKOUFAttendence", sheetId),
+    queryFn: () => getOneDocInCollection("Attendence", sheetId),
     queryKey: ["sheetDetails", sheetId], // Include sheetId in queryKey for proper invalidation
     enabled: !!sheetId, // Ensure the query runs only if sheetId is defined
   });

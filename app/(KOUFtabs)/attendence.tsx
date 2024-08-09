@@ -19,7 +19,7 @@ const Attendance = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const { data: allAttendenceSheets, isLoading } = useQuery({
-    queryFn: () => getAllDocInCollection("STMinaKOUFAttendence"),
+    queryFn: () => getAllDocInCollection("Attendence"),
     queryKey: ["allAttendenceSheets"],
   });
   if (isLoading) {

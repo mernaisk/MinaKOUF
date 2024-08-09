@@ -26,14 +26,19 @@ import {
   checkPersonalNumber,
 } from "../../scripts/utilities.js";
 import MultiSelectController from "../../components/MultiSelectController.jsx";
+import { MultipleSelectList } from "react-native-dropdown-select-list";
 import OneSelectController from "../../components/OneSelectController.jsx";
 import {
   useMutation,
   useQueryClient,
   InvalidateQueryFilters,
   QueryCache,
+  useQuery,
 } from "@tanstack/react-query";
-import { AddMemberFirebase } from "../../firebase/firebaseModel.js";
+import {
+  AddMemberFirebase,
+  getAllDocInCollection,
+} from "../../firebase/firebaseModel.js";
 import * as ImagePicker from "expo-image-picker";
 import ScreenWrapper from "../ScreenWrapper.js";
 import { Loading } from "@/components/loading";
@@ -47,7 +52,7 @@ const AddMember = () => {
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
   const [image, setImage] = useState<any>({});
   const [modalVisible, setModalVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isUpdating, setIsLoading] = useState(false);
 
   const {
     control,
@@ -73,6 +78,14 @@ const AddMember = () => {
     await queryClient.refetchQueries();
   }
 
+  const { data: churchNames, isLoading } = useQuery({
+    queryFn: () => getAllDocInCollection("Churchs"),
+    queryKey: ["churchs"],
+    // select: (data) =>
+      // data.map((item: any) => ({ label: item.name, value: item.Id })), // Assuming item has name and id fields
+  });
+
+  console.log(churchNames);
   const mutationAdd = useMutation<any, unknown, any>({
     mutationFn: (data) => {
       setIsLoading(true); // Start loading
@@ -160,6 +173,9 @@ const AddMember = () => {
     setModalVisible(false);
   };
 
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -394,7 +410,19 @@ const AddMember = () => {
                   },
                 }}
                 data={serviceOptions}
-                placeholder="Which Services are you intressted in? "
+                label="Which Services are you intressted in? "
+              />
+            </View>
+
+            <View style={styles.multiselect}>
+              <MultiSelectController
+                name="Orginization"
+                control={control}
+                rules={{
+                  required: "Please pick at least one church you attend in",
+                }}
+                data={churchNames}
+                label="Which church/churchs are you attending in? "
               />
             </View>
             <TouchableOpacity
@@ -404,7 +432,7 @@ const AddMember = () => {
               <Text style={styles.addButtonText}>Join</Text>
             </TouchableOpacity>
 
-            {isLoading && <Loading></Loading>}
+            {isUpdating && <Loading></Loading>}
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
@@ -416,7 +444,7 @@ export default AddMember;
 
 const styles = StyleSheet.create({
   multiselect: {
-    marginBottom: 100,
+    // marginBottom: 100,
   },
   loadingOverlay: {
     position: "absolute",

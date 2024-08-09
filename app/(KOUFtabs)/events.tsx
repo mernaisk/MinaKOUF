@@ -22,7 +22,7 @@ const Events = () => {
     data: allEvents,
     isLoading,
   } = useQuery({
-    queryFn: () => getAllDocInCollection("STMinaKOUFEvents"),
+    queryFn: () => getAllDocInCollection("Events"),
     queryKey: ["allEvents"],
   });
 

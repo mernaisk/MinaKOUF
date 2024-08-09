@@ -38,12 +38,12 @@ const EditAttendenceSheet = () => {
 
   // Fetch all members
   const { data: allMembers, isLoading: allMembersLoading } = useQuery({
-    queryFn: () => getAllDocInCollection("STMinaKOUFData"),
+    queryFn: () => getAllDocInCollection("Members"),
     queryKey: ["allMembers"],
   });
 
   const { data: sheetDetails, isLoading: sheetDetailsLoading } = useQuery({
-    queryFn: () => getOneDocInCollection("STMinaKOUFAttendence", sheetId),
+    queryFn: () => getOneDocInCollection("Attendence", sheetId),
     queryKey: ["sheetDetails", sheetId],
   });
 
@@ -83,7 +83,7 @@ const EditAttendenceSheet = () => {
 
   const mutationUpdate = useMutation({
     mutationFn: (data: string[]) =>
-      updateDocument("STMinaKOUFAttendence", sheetId, { IDS: data }),
+      updateDocument("Attendence", sheetId, { IDS: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sheetDetails", sheetId] });
       queryClient.invalidateQueries({ queryKey: ["allAttendenceSheets"] });

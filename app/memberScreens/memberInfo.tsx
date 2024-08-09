@@ -26,7 +26,7 @@ const MemberInfo = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const { data: memberInfo, isLoading } = useQuery({
-    queryFn: () => getOneDocInCollection("STMinaKOUFData", memberId),
+    queryFn: () => getOneDocInCollection("Members", memberId),
     queryKey: ["memberInfo", memberId],
   });
 

@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { UserProvider, useUser } from "../context/userContext";
+import {ChurchProvider,useChurch} from "../context/churchContext"
 import SplashScreen from "../components/SplashScreen";
 import AddMember from "./memberScreens/addMember";
 import Home from "./home";
-import KOUFindex from "./(KOUFtabs)/KOUFindex";
-import YOUTHindex from "./(YOUTHtabs)/YOUTHindex";
 import LogIn from "./logIn";
 import Index from "./index";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -23,6 +22,13 @@ import EditEvent from "./eventScreens/editEvent";
 import EditAttendenceSheet from "./attendenceScreens/editAttendenceSheet";
 import EditMember from "./memberScreens/editMember";
 import MemberInfo from "./memberScreens/memberInfo";
+
+import RIKSKOUFhome from "./RIKSKOUFhome";
+import Payments from "./RIKSKOUFScreens/payments";
+import Events from "./RIKSKOUFScreens/events";
+import Churchs from "./RIKSKOUFScreens/churchs";
+import Members from "./RIKSKOUFScreens/members";
+
 import { RootStackParamList } from "@/constants/types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -40,7 +46,9 @@ export default function RootLayout() {
     <NavigationContainer independent={true}>
       <QueryClientProvider client={queryClient}>
         <UserProvider>
+          <ChurchProvider>
           <AuthChecker DefaultOptions={DefaultOptions} />
+          </ChurchProvider>
         </UserProvider>
       </QueryClientProvider>
     </NavigationContainer>
@@ -48,10 +56,9 @@ export default function RootLayout() {
 }
 
 function AuthChecker({ DefaultOptions }) {
-  const { user, isLoading } = useUser();
+  const { user, userInfo, isLoading } = useUser();
   const [showSplash, setShowSplash] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   useEffect(() => {
     if (!isLoading && !showSplash) {
       setIsLoggedIn(user && user.uid ? true : false);
@@ -74,64 +81,94 @@ function AuthChecker({ DefaultOptions }) {
     <Stack.Navigator screenOptions={DefaultOptions}>
       {isLoggedIn ? (
         <>
-          <Stack.Screen
-            name="Home"
-            component={Home}
-            options={{ contentStyle: styles.screenContent }}
-          />
-          <Stack.Screen
-            name="KOUFtabs"
-            component={KOUFTabLayout}
-            options={{ contentStyle: styles.screenContent }}
-          />
-          <Stack.Screen
-            name="YOUTHtabs"
-            component={YOUTHTabLayout}
-            options={{ contentStyle: styles.screenContent }}
-          />
+          {userInfo?.Title?.Category === "SuperAdmin" && (
+            <>
+              <Stack.Screen
+                name="RIKSKOUFhome"
+                component={RIKSKOUFhome}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="Payments"
+                component={Payments}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="Events"
+                component={Events}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="Churchs"
+                component={Churchs}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="Members"
+                component={Members}
+                options={{ contentStyle: styles.screenContent }}
+              />
 
-          <Stack.Screen
-            name="CreateAttendenceSheet"
-            component={CreateAttendenceSheet}
-            options={{ contentStyle: styles.screenContent }}
-          />
-          <Stack.Screen
-            name="SheetDetails"
-            component={SheetDetails}
-            options={{ contentStyle: styles.screenContent }}
-          />
-          <Stack.Screen
-            name="EditAttendenceSheet"
-            component={EditAttendenceSheet}
-            options={{ contentStyle: styles.screenContent }}
-          />
+            </>
+          )}
+            <>
+              <Stack.Screen
+                name="Home"
+                component={Home}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="KOUFtabs"
+                component={KOUFTabLayout}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="YOUTHtabs"
+                component={YOUTHTabLayout}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="CreateAttendenceSheet"
+                component={CreateAttendenceSheet}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="SheetDetails"
+                component={SheetDetails}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="EditAttendenceSheet"
+                component={EditAttendenceSheet}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="EventInfo"
+                component={EventInfo}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="CreateEvent"
+                component={CreateEvent}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="EditEvent"
+                component={EditEvent}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="EditMember"
+                component={EditMember}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="MemberInfo"
+                component={MemberInfo}
+                options={{ contentStyle: styles.screenContent }}
+              />
+            </>
 
-          <Stack.Screen
-            name="EventInfo"
-            component={EventInfo}
-            options={{ contentStyle: styles.screenContent }}
-          />
-          <Stack.Screen
-            name="CreateEvent"
-            component={CreateEvent}
-            options={{ contentStyle: styles.screenContent }}
-          />
-          <Stack.Screen
-            name="EditEvent"
-            component={EditEvent}
-            options={{ contentStyle: styles.screenContent }}
-          />
-
-          <Stack.Screen
-            name="EditMember"
-            component={EditMember}
-            options={{ contentStyle: styles.screenContent }}
-          />
-          <Stack.Screen
-            name="MemberInfo"
-            component={MemberInfo}
-            options={{ contentStyle: styles.screenContent }}
-          />
         </>
       ) : (
         <>

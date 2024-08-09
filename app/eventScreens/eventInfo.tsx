@@ -20,7 +20,7 @@ const EventInfo = () => {
 
   console.log(eventId);
   const { data: eventInfo, isLoading } = useQuery({
-    queryFn: () => getOneDocInCollection("STMinaKOUFEvents", eventId),
+    queryFn: () => getOneDocInCollection("Events", eventId),
     queryKey: ["EventInfo", eventId],
   });
 

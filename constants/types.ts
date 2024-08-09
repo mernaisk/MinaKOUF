@@ -8,6 +8,7 @@ export type RootStackParamList = {
     Home:undefined;
     KOUFtabs:undefined;
     YOUTHtabs: undefined;
+    // RIKSKOUFTabs: undefined;
 
     CreateAttendenceSheet: undefined;
     SheetDetails:{sheetId:string};
@@ -19,6 +20,12 @@ export type RootStackParamList = {
 
     EditMember:{memberId:string}
     MemberInfo:{memberId:string}
+
+    RIKSKOUFhome:undefined,
+    Churchs:undefined,
+    Events:undefined,
+    Payments:undefined,
+    Members:undefined,
   };
 
   export interface EventItem {

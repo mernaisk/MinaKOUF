@@ -255,7 +255,7 @@ async function AddMemberFirebase(member) {
   );
   const user = userCredential.user;
   member.Title = { Category: "Ungdom", Title: null, ChurchKOUFLeader: null };
-  member.Attendence = { CountAbsenceCurrentYear: "0", CoundAttendenceCurrentYear: "0", LastWeekAttendend: "0" };
+  member.Attendence = { CountAbsenceCurrentYear: "0", CountAttendenceCurrentYear: "0", LastWeekAttendend: "0" };
 
 
   if (member.ProfilePicture.assetInfo.uri) {

@@ -18,12 +18,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import InputController from "@/components/InputController";
 import { checkEmail } from "@/scripts/utilities";
 import BackButton from "../components/BackButton";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/types";
 
 //bk,.
 
-const ForgotPassword = ({ navigation }) => {
+const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
-
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { control, handleSubmit, setError } = useForm({
     defaultValues: {
       Email: "",

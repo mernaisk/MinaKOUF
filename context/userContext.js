@@ -1,4 +1,3 @@
-// context/UserContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
@@ -9,36 +8,36 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isUserLoading, setIsLoading] = useState(false);
-
-  // Use useQuery hook to fetch userInfo based on the user state
+  const [authChecked, setAuthChecked] = useState(false); // New state to track if auth check is complete
+  const [isUserLoading, setIsUserLoading] = useState(true);
+  const [isMemberBeingCreated, setIsMemberBeingCreated] = useState(false)
   const { data: userInfo, isLoading: userInfoLoading, isError } = useQuery({
     queryKey: ['userInfo', user?.uid],
     queryFn: () => getOneDocInCollection('Members', user?.uid),
-    enabled: !!user, // Run the query only if user exists
+    enabled: !!user && !isMemberBeingCreated, 
     onError: (error) => {
-      console.error('Error fetching userInfo:', error); // Debug log
+      console.error('Error fetching userInfo:', error);
     },
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      if (!user) {
-        setUser(null);
-        setIsLoading(false);
-      }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthChecked(true); 
     });
+
     return () => unsubscribe();
   }, []);
 
-  // Update isUserLoading based on both user loading and userInfo loading states
   useEffect(() => {
-    setIsLoading(userInfoLoading);
-  }, [userInfoLoading]);
+    if (authChecked) {
+      setIsUserLoading(user ? userInfoLoading : false);
+    }
+  }, [authChecked, user, userInfoLoading]);
+
 
   return (
-    <UserContext.Provider value={{ user, userInfo, isUserLoading }}>
+    <UserContext.Provider value={{ user, userInfo, isUserLoading,setIsMemberBeingCreated }}>
       {children}
     </UserContext.Provider>
   );

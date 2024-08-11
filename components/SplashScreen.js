@@ -2,12 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function SplashScreen({ onAnimationEnd }) {
-  useEffect(() => {
-    setTimeout(() => {
-      onAnimationEnd();
-    }, 3000); // Show the splash screen for 3 seconds
-  }, []);
+export default function SplashScreen() {
 
   return (
     <SafeAreaView style={styles.container}>

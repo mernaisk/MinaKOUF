@@ -246,35 +246,56 @@ async function uploadEventImage(uri) {
   }
 }
 
+
 async function AddMemberFirebase(member) {
-  // try {
-  const userCredential = await createUserWithEmailAndPassword(
-    auth,
-    member.Email,
-    member.Password
-  );
-  const user = userCredential.user;
-  member.Title = { Category: "Ungdom", Title: null, ChurchKOUFLeader: null };
-  member.Attendence = { CountAbsenceCurrentYear: "0", CoundAttendenceCurrentYear: "0", LastWeekAttendend: "0" };
-
-
-  if (member.ProfilePicture.assetInfo.uri) {
-    const response = await fetch(member.ProfilePicture.assetInfo.uri);
-    const blob = await response.blob();
-    const storageRef = await ref(
-      storage,
-      `ProfilePicture/${new Date().getTime()}`
+  try {
+    // Step 1: Create the user
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      member.Email,
+      member.Password
     );
-    await uploadBytes(storageRef, blob);
-    const downloadURL = await getDownloadURL(storageRef);
-    member.ProfilePicture.URL = downloadURL;
-    console.log("member with pic: ", member)
+    const user = userCredential.user;
+
+    // Step 2: Sign the user out
+    // await signOut();
+
+    // Set default values for the member
+    member.Title = { Category: "Ungdom", Title: null, ChurchKOUFLeader: null };
+    member.Attendence = {
+      CountAbsenceCurrentYear: "0",
+      CountAttendenceCurrentYear: "0",
+      LastWeekAttendend: "0",
+    };
+
+    // Step 3: Upload the profile picture if it exists
+    if (member.ProfilePicture?.assetInfo?.uri) {
+      const response = await fetch(member.ProfilePicture.assetInfo.uri);
+      const blob = await response.blob();
+      const storageRef = ref(storage, `ProfilePicture/${new Date().getTime()}`);
+      await uploadBytes(storageRef, blob);
+      const downloadURL = await getDownloadURL(storageRef);
+      member.ProfilePicture.URL = downloadURL;
+    }
+
+    // Step 4: Add the member data to Firestore
     await addDocomentWithId("Members", member, user.uid);
-  } else {
-    console.log("member without pic: ", member)
-    await addDocomentWithId("Members", member, user.uid);
+
+    console.log("Member added successfully:", member);
+
+    // Step 5: Sign the user back in
+    // await logInEmailAndPassword(member.Email, member.Password);
+
+    // Step 6: Navigate to the appropriate screen after login
+    // Replace with your navigation logic, for example:
+    // navigation.navigate("Home");
+
+  } catch (error) {
+    console.error("Error adding member:", error);
+    // Handle the error (e.g., show an error message to the user)
   }
 }
+
 
 async function doesDocumentExist(collectionName, docID) {
   const docRef = doc(db, collectionName, docID);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { UserProvider, useUser } from "../context/userContext";
-import {ChurchProvider,useChurch} from "../context/churchContext"
+import { ChurchProvider, useChurch } from "../context/churchContext";
 import SplashScreen from "../components/SplashScreen";
 import AddMember from "./memberScreens/addMember";
 import Home from "./home";
@@ -47,7 +47,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <UserProvider>
           <ChurchProvider>
-          <AuthChecker DefaultOptions={DefaultOptions} />
+            <AuthChecker DefaultOptions={DefaultOptions} />
           </ChurchProvider>
         </UserProvider>
       </QueryClientProvider>
@@ -56,30 +56,19 @@ export default function RootLayout() {
 }
 
 function AuthChecker({ DefaultOptions }) {
-  const { user, userInfo, isLoading } = useUser();
-  const [showSplash, setShowSplash] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  useEffect(() => {
-    if (!isLoading && !showSplash) {
-      setIsLoggedIn(user && user.uid ? true : false);
-    }
-  }, [user, isLoading, showSplash]);
+  const { user, userInfo, isUserLoading } = useUser();
+  const [isDataReady, setIsDataReady] = useState(false);
 
-  const handleAnimationEnd = () => {
-    setShowSplash(false);
-  };
-
-  if (showSplash) {
-    return <SplashScreen onAnimationEnd={handleAnimationEnd} />;
+  // console.log("isUserLoading",isUserLoading)
+  // console.log(userInfo?.Title?.Category)
+  if (isUserLoading) {
+    return <SplashScreen />;
   }
 
-  if (isLoading) {
-    return <Loading />;
-  }
 
   return (
     <Stack.Navigator screenOptions={DefaultOptions}>
-      {isLoggedIn ? (
+      {userInfo?.Title?.Category ? (
         <>
           {userInfo?.Title?.Category === "SuperAdmin" && (
             <>
@@ -108,67 +97,65 @@ function AuthChecker({ DefaultOptions }) {
                 component={Members}
                 options={{ contentStyle: styles.screenContent }}
               />
-
             </>
           )}
-            <>
-              <Stack.Screen
-                name="Home"
-                component={Home}
-                options={{ contentStyle: styles.screenContent }}
-              />
-              <Stack.Screen
-                name="KOUFtabs"
-                component={KOUFTabLayout}
-                options={{ contentStyle: styles.screenContent }}
-              />
-              <Stack.Screen
-                name="YOUTHtabs"
-                component={YOUTHTabLayout}
-                options={{ contentStyle: styles.screenContent }}
-              />
-              <Stack.Screen
-                name="CreateAttendenceSheet"
-                component={CreateAttendenceSheet}
-                options={{ contentStyle: styles.screenContent }}
-              />
-              <Stack.Screen
-                name="SheetDetails"
-                component={SheetDetails}
-                options={{ contentStyle: styles.screenContent }}
-              />
-              <Stack.Screen
-                name="EditAttendenceSheet"
-                component={EditAttendenceSheet}
-                options={{ contentStyle: styles.screenContent }}
-              />
-              <Stack.Screen
-                name="EventInfo"
-                component={EventInfo}
-                options={{ contentStyle: styles.screenContent }}
-              />
-              <Stack.Screen
-                name="CreateEvent"
-                component={CreateEvent}
-                options={{ contentStyle: styles.screenContent }}
-              />
-              <Stack.Screen
-                name="EditEvent"
-                component={EditEvent}
-                options={{ contentStyle: styles.screenContent }}
-              />
-              <Stack.Screen
-                name="EditMember"
-                component={EditMember}
-                options={{ contentStyle: styles.screenContent }}
-              />
-              <Stack.Screen
-                name="MemberInfo"
-                component={MemberInfo}
-                options={{ contentStyle: styles.screenContent }}
-              />
-            </>
-
+          <>
+            <Stack.Screen
+              name="Home"
+              component={Home}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="KOUFtabs"
+              component={KOUFTabLayout}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="YOUTHtabs"
+              component={YOUTHTabLayout}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="CreateAttendenceSheet"
+              component={CreateAttendenceSheet}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="SheetDetails"
+              component={SheetDetails}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="EditAttendenceSheet"
+              component={EditAttendenceSheet}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="EventInfo"
+              component={EventInfo}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="CreateEvent"
+              component={CreateEvent}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="EditEvent"
+              component={EditEvent}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="EditMember"
+              component={EditMember}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="MemberInfo"
+              component={MemberInfo}
+              options={{ contentStyle: styles.screenContent }}
+            />
+          </>
         </>
       ) : (
         <>

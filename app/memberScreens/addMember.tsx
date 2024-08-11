@@ -45,6 +45,7 @@ import { Loading } from "@/components/loading";
 import { validatePhoneNumber } from "../../scripts/utilities.js";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types.js";
+import { useUser } from "@/context/userContext.js";
 
 const AddMember = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -53,7 +54,7 @@ const AddMember = () => {
   const [image, setImage] = useState<any>({});
   const [modalVisible, setModalVisible] = useState(false);
   const [isUpdating, setIsLoading] = useState(false);
-
+  const {setIsMemberBeingCreated} =useUser()
   const {
     control,
     handleSubmit,
@@ -94,6 +95,7 @@ const AddMember = () => {
 
     onError: (error: any) => {
       setIsLoading(false); // Stop loading
+      setIsMemberBeingCreated(false)
 
       if (error.code === "auth/email-already-in-use") {
         setError("Email", {
@@ -114,6 +116,7 @@ const AddMember = () => {
     onSuccess: () => {
       refetch();
       setIsLoading(false); // Stop loading
+      setIsMemberBeingCreated(false)
 
       // router.push({ pathname: "/home" });
       // console.log("data is: ", data)
@@ -131,6 +134,7 @@ const AddMember = () => {
   };
 
   async function onSubmit(data: any) {
+    setIsMemberBeingCreated(true)
     mutationAdd.mutate(data);
   }
 
@@ -138,10 +142,6 @@ const AddMember = () => {
   function deletePhoto() {
     setImage({});
     setValue("ProfilePicture", { assetInfo: {}, URL: "" });
-    // setError("ProfilePicture", {
-    //   type: "manual",
-    //   message: "Image is required",
-    // });
     setModalVisible(false);
   }
 

@@ -33,18 +33,15 @@ const CreateEvent = () => {
 
   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
-  const {
-    control,
-    handleSubmit,
-  } = useForm({
+  const { control, handleSubmit } = useForm({
     defaultValues: {
       assetInfo: {},
       URL: "",
     },
   });
 
-  async function refetch(){
-    await queryClient.refetchQueries({queryKey: ['allEvents']})
+  async function refetch() {
+    await queryClient.refetchQueries({ queryKey: ["allEvents"] });
   }
   const mutationCreateEvent = useMutation<any, unknown, any>({
     mutationFn: (data) => addEvent(data),
@@ -66,8 +63,8 @@ const CreateEvent = () => {
     setIsUpdating(true);
     mutationCreateEvent.mutate(data);
   }
-  function handleBackPress(){
-    navigation.goBack()
+  function handleBackPress() {
+    navigation.goBack();
   }
 
   return (
@@ -92,7 +89,7 @@ const CreateEvent = () => {
             >
               <Text>Add</Text>
             </TouchableOpacity>
-            
+
             <ImagePickerControl
               name="ImageInfo"
               control={control}
@@ -139,16 +136,61 @@ const CreateEvent = () => {
             />
 
             <InputController
-              name="Price"
+              name="PriceForNonMembers"
               control={control}
               rules={{
-                required: "Price is required.",
+                required: "Standard price is required.",
                 pattern: {
                   value: /\d/,
                   message: "Digits only",
                 },
               }}
-              placeholder="Price"
+              placeholder="Standard price"
+              secureTextEntry={false}
+              keyboardType="phone-pad"
+            />
+
+            <InputController
+              name="PriceForMembers"
+              control={control}
+              rules={{
+                required: "Price for members is required.",
+                pattern: {
+                  value: /\d/,
+                  message: "Digits only",
+                },
+              }}
+              placeholder="Price for members"
+              secureTextEntry={false}
+              keyboardType="phone-pad"
+            />
+
+            <InputController
+              name="MaxAmountOfBookings"
+              control={control}
+              rules={{
+                required: "number is required.",
+                pattern: {
+                  value: /\d/,
+                  message: "Digits only",
+                },
+              }}
+              placeholder="Max antal personer"
+              secureTextEntry={false}
+              keyboardType="phone-pad"
+            />
+
+            <InputController
+              name="SwishNumber"
+              control={control}
+              rules={{
+                required: "Swish number is required.",
+                pattern: {
+                  value: /\d/,
+                  message: "Digits only",
+                },
+              }}
+              placeholder="Swish number"
               secureTextEntry={false}
               keyboardType="phone-pad"
             />
@@ -161,7 +203,7 @@ const CreateEvent = () => {
               }}
               placeholderDate={"Start Date"}
               placeholderTime={"Start Time"}
-              minDate = {dayjs().toDate()} 
+              minDate={dayjs().toDate()}
             />
 
             <SelectDateControl
@@ -172,8 +214,20 @@ const CreateEvent = () => {
               }}
               placeholderDate={"End Date"}
               placeholderTime={"End Time"}
-              minDate = {dayjs().toDate()} 
+              minDate={dayjs().toDate()}
             />
+
+            <SelectDateControl
+              name="Deadline"
+              control={control}
+              rules={{
+                required: " End Date and time is required.",
+              }}
+              placeholderDate={"End Date"}
+              placeholderTime={"End Time"}
+              minDate={dayjs().toDate()}
+            />
+
             {isUpdating && <Loading></Loading>}
           </ScrollView>
         </TouchableWithoutFeedback>

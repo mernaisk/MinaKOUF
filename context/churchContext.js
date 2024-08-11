@@ -7,6 +7,7 @@ import { useUser } from "./userContext";
 export const ChurchProvider = ({ children }) => {
   const [churchName, setChurchName] = useState("");
   const { user, userInfo, isLoading } = useUser();
+  
   useEffect(() => {
     
     if (!isLoading) {

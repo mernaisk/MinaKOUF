@@ -24,7 +24,6 @@ export type RootStackParamList = {
     RIKSKOUFhome:undefined,
     Churchs:undefined,
     Events:undefined,
-    Payments:undefined,
     Members:undefined,
   };
 

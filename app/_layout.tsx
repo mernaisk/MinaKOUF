@@ -24,7 +24,6 @@ import EditMember from "./memberScreens/editMember";
 import MemberInfo from "./memberScreens/memberInfo";
 
 import RIKSKOUFhome from "./RIKSKOUFhome";
-import Payments from "./RIKSKOUFScreens/payments";
 import Events from "./RIKSKOUFScreens/events";
 import Churchs from "./RIKSKOUFScreens/churchs";
 import Members from "./RIKSKOUFScreens/members";
@@ -77,11 +76,7 @@ function AuthChecker({ DefaultOptions }) {
                 component={RIKSKOUFhome}
                 options={{ contentStyle: styles.screenContent }}
               />
-              <Stack.Screen
-                name="Payments"
-                component={Payments}
-                options={{ contentStyle: styles.screenContent }}
-              />
+
               <Stack.Screen
                 name="Events"
                 component={Events}

@@ -248,6 +248,15 @@ async function uploadEventImage(uri) {
 
 
 async function AddMemberFirebase(member) {
+  // try {
+  const userCredential = await createUserWithEmailAndPassword(
+    auth,
+    member.Email,
+    member.Password
+  );
+  const user = userCredential.user;
+  member.Title = { Category: "Ungdom", Title: null, ChurchKOUFLeader: null };
+  member.Attendence = { CountAbsenceCurrentYear: "0", CountAttendenceCurrentYear: "0", LastWeekAttendend: "0" };
   try {
     // Step 1: Create the user
     const userCredential = await createUserWithEmailAndPassword(

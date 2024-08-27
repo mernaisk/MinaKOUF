@@ -12,8 +12,8 @@ export const ChurchProvider = ({ children }) => {
     
     if (!isLoading) {
         if(userInfo){
-            if (userInfo?.Title?.Category == "KOUF") {
-                setChurchName(userInfo.Title.ChurchKOUFLeader);
+            if (userInfo?.Title?.Category.Name == "KOUF") {
+                setChurchName(userInfo.Title.ChurchKOUFLeader.Name);
             }
         }
     }

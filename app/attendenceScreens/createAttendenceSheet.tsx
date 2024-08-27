@@ -1,30 +1,18 @@
-import {
-  Button,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Platform,
-  ActivityIndicator,
-} from "react-native";
-import React, { useState, useEffect } from "react";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { useForm, Controller } from "react-hook-form";
-import InputController from "@/components/InputController";
-import OneSelectController from "@/components/OneSelectController";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDocoment, getKOUFAnsvariga } from "@/firebase/firebaseModel";
-import { getLeadersNames, attendenceOptions } from "@/scripts/utilities";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types";
+import OneSelectController from "@/components/OneSelectController";
+import SelectDateControl from "@/components/selectDateControll";
+import { Loading } from "@/components/loading";
 
 const CreateAttendenceSheet = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [shownDate, setShowenDate] = useState("");
-  const [isPickerShowen, setIsPickerShowen] = useState(false);
+
   const { data: leaders, isLoading } = useQuery({
     queryFn: () => getKOUFAnsvariga(),
     queryKey: ["leaders"],
@@ -50,77 +38,18 @@ const CreateAttendenceSheet = () => {
     mutationAdd.mutate(data);
   };
 
-  const { control, handleSubmit, reset, getValues } = useForm({
-    defaultValues: {
-      date: "",
-      leader: "",
-      type: "",
-    },
+  const { control, handleSubmit, watch } = useForm({
+    defaultValues:{
+      Leader: ""
+    }
   });
 
   //select date
-  function toggleIsPickerShown() {
-    setIsPickerShowen(!isPickerShowen);
+  if(isLoading){
+    return <Loading></Loading>
   }
 
-  const onChange = ({ type }: any, selectedDate: any) => {
-    if (type == "set") {
-      // toggleIsPickerShown();
-      setSelectedDate(selectedDate);
-      if (Platform.OS === "android") {
-        toggleIsPickerShown();
-        setShowenDate(selectedDate.toDateString());
-      }
-    } else {
-      toggleIsPickerShown();
-    }
-  };
-
-  useEffect(() => {
-    if (shownDate) {
-      const currentValues = getValues();
-      reset({
-        ...currentValues,
-        date: shownDate || "",
-      });
-    }
-  }, [shownDate]);
-
-  const renderDateInput = () => {
-    if (Platform.OS === "android") {
-      return (
-        <Pressable onPress={toggleIsPickerShown}>
-          <InputController
-            name="date"
-            control={control}
-            rules={{
-              required: "Date is required.",
-            }}
-            placeholder={"selectedDate"}
-            editable={false}
-            secureTextEntry={undefined}
-          />
-        </Pressable>
-      );
-    }
-
-    if (Platform.OS === "ios") {
-      return (
-        <InputController
-          name="date"
-          control={control}
-          rules={{
-            required: "Date is required.",
-          }}
-          placeholder={"selectedDate"}
-          editable={false}
-          onPressIn={toggleIsPickerShown}
-          secureTextEntry={undefined}
-        />
-      );
-    }
-  };
-
+  console.log(watch())
   return (
     <SafeAreaView>
       <Text>createAttendenceSheet</Text>
@@ -128,58 +57,24 @@ const CreateAttendenceSheet = () => {
         <Text>Create</Text>
       </TouchableOpacity>
 
-      {renderDateInput()}
-
       <OneSelectController
-        name="leader"
+              control={control}
+              name="Leader"
+              rules={{ required: "Please select at least one leader." }}
+              items={leaders}
+              title="Which leader is creating the attendencesheet"
+      />
+      
+      <SelectDateControl
+        name="Date"
         control={control}
         rules={{
-          required: "Title is required.",
+          required: " Date and time is required.",
         }}
-        data={getLeadersNames(leaders)}
-        placeholder="created by"
+        placeholderDate={" Date"}
+        placeholderTime={" Time"}
+        // minDate={dayjs().toDate()}
       />
-
-      <OneSelectController
-        name="type"
-        control={control}
-        rules={{
-          required: "type is required.",
-        }}
-        data={attendenceOptions}
-        placeholder="Choose type"
-      />
-
-      {isPickerShowen && (
-        <DateTimePicker
-          mode="date"
-          display="spinner"
-          value={selectedDate}
-          onChange={onChange}
-          maximumDate={new Date()}
-        />
-      )}
-
-      {isPickerShowen && Platform.OS === "ios" && (
-        <View style={styles.buttonsView}>
-          <TouchableOpacity
-            style={styles.pickerButtons}
-            onPress={toggleIsPickerShown}
-          >
-            <Text style={styles.buttonText}>cancel</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.pickerButtons}
-            onPress={() => {
-              toggleIsPickerShown();
-              setShowenDate(selectedDate.toDateString());
-            }}
-          >
-            <Text style={styles.buttonText}>confirm</Text>
-          </TouchableOpacity>
-        </View>
-      )}
     </SafeAreaView>
   );
 };

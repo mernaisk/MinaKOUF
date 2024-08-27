@@ -4,9 +4,9 @@ import {
   TextInput,
   View,
   Pressable,
-  TouchableWithoutFeedback,
-  Keyboard,
   Text,
+  Modal,
+  Button
 } from "react-native";
 import React, { useState } from "react";
 import { useController } from "react-hook-form";
@@ -118,17 +118,22 @@ const SelectDateControl = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.calenderContainer}>
-        {isPickerShown && (
+      <Modal visible={isPickerShown} transparent={true} animationType="fade">
+        <View style={styles.calenderContainer}>
           <DateTimePicker
             mode="single"
             date={selectedDate}
             onChange={onChange}
             timePicker={true}
+            calendarTextStyle={{color:"white"}}
+            headerTextStyle={{color:"white"}}
+            headerButtonColor="white"
             {...dateProps}
           />
-        )}
-      </View>
+          <Button title="Done" onPress={toggleIsPickerShown} />
+        </View>
+      </Modal>
+
       <View style={styles.inputsContainer}>
         {renderDateInput()}
         {renderTimeInput()}
@@ -197,6 +202,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   calenderContainer: {
-    width: "80%",
+    // width: "80%",
+
+      flex: 1,
+      justifyContent:"center",
+      backgroundColor: "rgba(0,0,0,0.8)",
+
   },
 });

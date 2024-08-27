@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,7 +13,16 @@ import * as ImagePicker from "expo-image-picker";
 import { useController } from "react-hook-form";
 import { Ionicons } from "@expo/vector-icons";
 
-const ImagePickerControl = ({ name, control, rules,  defaultValue = {URL:"", assetInfo:{}},
+const ImagePickerControl = ({
+  name,
+  control,
+  isRequired,
+  fallBackIcon,
+  imagePreview,
+  imageStyling,
+  iconStyle,
+  customSize,
+  
 }) => {
   const {
     field,
@@ -22,15 +31,24 @@ const ImagePickerControl = ({ name, control, rules,  defaultValue = {URL:"", ass
     name,
     control,
     rules: {
-      ...rules,
-      validate: value => value.assetInfo && value.assetInfo.uri ? true : 'Image is required',
+      validate: (value) => {
+        if (isRequired) {
+          return value.assetInfo && value?.assetInfo?.uri
+            ? true
+            : "Image is required";
+        } else {
+          return true;
+        }
+      },
     },
-    defaultValue,
-
   });
 
   const [image, setImage] = useState(field.value);
   const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+      setImage(field.value);
+  },[field.value]);
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -48,37 +66,46 @@ const ImagePickerControl = ({ name, control, rules,  defaultValue = {URL:"", ass
 
     if (!result.canceled) {
       const selectedImage = result.assets[0];
-      setImage({URL:"", assetInfo:selectedImage});
-      field.onChange({URL:"", assetInfo:selectedImage});
+      // setImage({ URL: "", assetInfo: selectedImage });
+      field.onChange({ URL: "", assetInfo: selectedImage });
     }
     setModalVisible(false);
   };
 
   const deletePhoto = () => {
-    setImage({URL:"", assetInfo:{}});
-    field.onChange({URL:"", assetInfo:{}});
+    setImage({ URL: "", assetInfo: {} });
+    field.onChange({ URL: "", assetInfo: {} });
     setModalVisible(false);
   };
 
-  console.log(image)
+  console.log("image is",image);
   return (
     <View style={styles.container}>
       <View style={styles.PictureContainer}>
-        <View style={styles.Picture}>
+        <View style={imagePreview}>
           {image?.assetInfo?.uri ? (
+            // fallBackIcon
             <Image
-              source={{ uri: image.assetInfo.uri }}
-              style={[styles.imagePreview]}
+              source={{ uri: image.URL || image.assetInfo.uri }}
+              style={imageStyling}
               resizeMode="cover"
             />
           ) : (
-            <Text>No Photo</Text>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {fallBackIcon}
+            </View>
           )}
           <TouchableOpacity
             onPress={() => setModalVisible(true)}
-            style={styles.editIcon}
+            style={iconStyle}
           >
-            <Ionicons name="add-circle-outline" size={50} color="white" />
+            <Ionicons name="pencil-outline" size={customSize} color="white" />
           </TouchableOpacity>
         </View>
       </View>
@@ -91,7 +118,7 @@ const ImagePickerControl = ({ name, control, rules,  defaultValue = {URL:"", ass
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              {image.assetInfo.uri && (
+              {image?.assetInfo?.uri && (
                 <TouchableOpacity
                   style={styles.modalButton}
                   onPress={deletePhoto}
@@ -123,22 +150,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     marginVertical: 20,
-  },
-  imagePreview: {
-    width: 300,
-    height: 300,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    // marginBottom: 10,
-  },
-  editIcon: {
-    position: "absolute",
-    bottom: -10,
-    right: -10,
-    backgroundColor: "#726d81",
-    borderRadius: 15,
-    padding: 5,
   },
   errorText: {
     color: "red",
@@ -180,5 +191,20 @@ const styles = StyleSheet.create({
     borderColor: "#726d81",
     position: "relative",
   },
-  
+  imagePreview: {
+    width: 300,
+    height: 300,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    // marginBottom: 10,
+  },
+  editIcon: {
+    position: "absolute",
+    bottom: -10,
+    right: -10,
+    backgroundColor: "#726d81",
+    borderRadius: 15,
+    padding: 5,
+  },
 });

@@ -13,7 +13,7 @@ function filterMembers(allMembers, searchString, churchName) {
     });
     if(churchName != ""){
       const churchFilteredMembers = filteredMembers.filter((member) => {
-        return member.Orginization.some((Name) => Name === churchName);
+        return member.Orginization.some((church) => church.Name === churchName);
       })
       console.log("imhere222222",churchFilteredMembers)
       return sortAlphapidically(churchFilteredMembers);
@@ -26,7 +26,7 @@ function filterMembers(allMembers, searchString, churchName) {
 
     if(churchName != ""){
       const churchFilteredMembers = allMembers.filter((member) => {
-        return member.Orginization.some((Name) => Name === churchName);
+        return member.Orginization.some((church) => church.Name === churchName);
       })
       console.log("imhere222222",churchFilteredMembers)
       return sortAlphapidically(churchFilteredMembers);
@@ -131,11 +131,11 @@ const titleOptions = [
 ];
 
 const serviceOptions = [
-  { label: "Teatern", value: "Teatern" },
-  { label: "Kören", value: "Kören" },
-  { label: "Aktiviteter", value: "Aktiviteter" },
-  { label: "Eftekad", value: "Eftekad" },
-  { label: "Utbildning", value: "Utbildning " },
+  { Name: "Teatern", Id: "Teatern" },
+  { Name: "Kören", Id: "Kören" },
+  { Name: "Aktiviteter", Id: "Aktiviteter" },
+  { Name: "Eftekad", Id: "Eftekad" },
+  { Name: "Utbildning", Id: "Utbildning " },
 ];
 
 const attendenceOptions = [

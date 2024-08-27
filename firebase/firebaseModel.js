@@ -11,6 +11,8 @@ import {
   deleteDoc,
   arrayUnion,
   setDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import {
   ref,
@@ -112,6 +114,19 @@ async function updateDocument(type, docId, updateObject) {
   await updateDoc(docRef, updateObject);
 }
 
+const addToChurchCollection = async (churchId, memberId) => {
+  const docRef = doc(db, "Churchs", churchId);
+
+  try {
+    await updateDoc(docRef, {
+      NotAdmin: arrayUnion(memberId),
+    });
+    console.log("ID added successfully");
+  } catch (e) {
+    console.error("Error adding ID: ", e);
+  }
+};
+
 const addIDToAttendence = async (documentId, newId) => {
   const docRef = doc(db, "Attendence", documentId);
 
@@ -158,11 +173,7 @@ async function getFieldFromDocument(collectionName, docID, fieldName) {
 }
 
 async function getAttendedMembers(sheetID) {
-  const attendedIDS = await getFieldFromDocument(
-    "Attendence",
-    sheetID,
-    "IDS"
-  );
+  const attendedIDS = await getFieldFromDocument("Attendence", sheetID, "IDS");
   const allMembers = await getAllDocInCollection("Members");
   // console.log("attendedIDS: ", attendedIDS)
   // console.log("allMembers", allMembers)
@@ -174,15 +185,15 @@ async function getAttendedMembers(sheetID) {
 
 async function getKOUFAnsvariga() {
   const allMembers = await getAllDocInCollection("Members");
-  const KOUFLeaders = allMembers.filter((member) => member.Title !== "Ungdom");
+  const KOUFLeaders = allMembers.filter(
+    (member) => member.Title.Category !== "Ungdom"
+  );
   console.log("KOUFLeaders", KOUFLeaders);
   return KOUFLeaders;
 }
 
 async function deleteIdFromAttendenceSheet(MemberID) {
-  const allAttendenceSheet = await getAllDocInCollection(
-    "Attendence"
-  );
+  const allAttendenceSheet = await getAllDocInCollection("Attendence");
   for (const sheet of allAttendenceSheet) {
     if (sheet.IDS && sheet.IDS.includes(MemberID)) {
       const docRef = doc(db, "Attendence", sheet.Id);
@@ -211,9 +222,10 @@ async function addEvent(event) {
 }
 
 async function AddChurchFirebase(data) {
-  const church = data;
-  church.value = data.lable;
-  await addDocoment("Churchs", church);
+  data.NotAdmin=[];
+  data.Admin= [];
+  data.Id=data.Name;
+  await addDocoment("Churchs", data);
 }
 
 async function uploadEventImage(uri) {
@@ -246,17 +258,54 @@ async function uploadEventImage(uri) {
   }
 }
 
+async function getDocumentIdByName(collectionName, fieldName, insideField) {
+  const collectionRef = collection(db, collectionName); // No need for await here
+  const q = query(collectionRef, where(fieldName, "==", insideField)); // No need for await here
+
+  try {
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0]; // Get the first document
+      console.log("Document ID:", doc.id);
+      return doc.id; // Return the document ID
+    } else {
+      console.log("No matching documents found.");
+      return null; // Return null if no document is found
+    }
+  } catch (error) {
+    console.error("Error getting document:", error);
+    throw error; // Throw the error to handle it outside the function if needed
+  }
+}
+
+async function addMemberToChurch(churches, memberId) {
+  try {
+    const allChurches = await getAllDocInCollection("Churchs");
+    console.log("allChurches is: ", allChurches);
+
+    // Iterate over all churches asynchronously
+    for (const church of allChurches) {
+      // Await the result of getDocumentIdByName to get the ChurchId
+      const ChurchId = await getDocumentIdByName("Churchs", "Name", church.Name);
+
+      if (ChurchId) {
+        for (const belongChurch of churches) {
+          if (belongChurch.Name === church.Name) {
+            console.log("Church ID:", ChurchId);
+            await addToChurchCollection(ChurchId, memberId); // Assuming addToChurchCollection is also async
+            console.log("Church", belongChurch.Name, "is included");
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error in addMemberToChurch:", error);
+  }
+}
+
 
 async function AddMemberFirebase(member) {
-  // try {
-  const userCredential = await createUserWithEmailAndPassword(
-    auth,
-    member.Email,
-    member.Password
-  );
-  const user = userCredential.user;
-  member.Title = { Category: "Ungdom", Title: null, ChurchKOUFLeader: null };
-  member.Attendence = { CountAbsenceCurrentYear: "0", CountAttendenceCurrentYear: "0", LastWeekAttendend: "0" };
   try {
     // Step 1: Create the user
     const userCredential = await createUserWithEmailAndPassword(
@@ -264,20 +313,19 @@ async function AddMemberFirebase(member) {
       member.Email,
       member.Password
     );
-    const user = userCredential.user;
+    console.log("userCredential", userCredential.user);
+    (member.Involvments = []),
+      (member.Category = { Name: "Ungdom", Id: "Ungdom" }),
+      (member.LeaderTitle = null),
+      (member.ChurchKOUFLeader = {}),
+      (member.Attendence = {
+        CountAbsenceCurrentYear: "0",
+        CountAttendenceCurrentYear: "0",
+        LastWeekAttendend: "0",
+      });
 
-    // Step 2: Sign the user out
-    // await signOut();
+    await addMemberToChurch(member.Orginization, userCredential.user.uid);
 
-    // Set default values for the member
-    member.Title = { Category: "Ungdom", Title: null, ChurchKOUFLeader: null };
-    member.Attendence = {
-      CountAbsenceCurrentYear: "0",
-      CountAttendenceCurrentYear: "0",
-      LastWeekAttendend: "0",
-    };
-
-    // Step 3: Upload the profile picture if it exists
     if (member.ProfilePicture?.assetInfo?.uri) {
       const response = await fetch(member.ProfilePicture.assetInfo.uri);
       const blob = await response.blob();
@@ -288,23 +336,14 @@ async function AddMemberFirebase(member) {
     }
 
     // Step 4: Add the member data to Firestore
-    await addDocomentWithId("Members", member, user.uid);
+    await addDocomentWithId("Members", member, userCredential.user.uid);
 
     console.log("Member added successfully:", member);
-
-    // Step 5: Sign the user back in
-    // await logInEmailAndPassword(member.Email, member.Password);
-
-    // Step 6: Navigate to the appropriate screen after login
-    // Replace with your navigation logic, for example:
-    // navigation.navigate("Home");
-
   } catch (error) {
     console.error("Error adding member:", error);
     // Handle the error (e.g., show an error message to the user)
   }
 }
-
 
 async function doesDocumentExist(collectionName, docID) {
   const docRef = doc(db, collectionName, docID);
@@ -337,12 +376,12 @@ async function updateMemberInfo(memberId, member, oldImage) {
     if (oldImage.assetInfo.assetId == member.ProfilePicture.assetInfo.assetID) {
       member.ProfilePicture.URL = oldImage.URL;
     } else {
-      const downloadURL = await uploadImage(
-        member.ProfilePicture.assetInfo.uri,
-        "ProfilePicture"
-      );
-      member.ProfilePicture.URL = downloadURL;
-      deletePhoto(oldImage.URL);
+      // const downloadURL = await uploadImage(
+      //   member.ProfilePicture.assetInfo.uri,
+      //   "ProfilePicture"
+      // );
+      // member.ProfilePicture.URL = downloadURL;
+      // deletePhoto(oldImage.URL);
     }
     await updateDocument("Members", memberId, member);
   } else {

@@ -13,9 +13,6 @@ const RIKSKOUFhome = () => {
     return <Loading></Loading>;
   }
 
-  function checkAccess() {
-    return userInfo?.Title !== "Ungdom";
-  }
   const handleLogout = async () => {
     try {
       await signOut();
@@ -34,7 +31,6 @@ const RIKSKOUFhome = () => {
         <TouchableOpacity
           style={styles.memberItem}
           onPress={() => navigation.navigate("Churchs")}
-          disabled={!checkAccess()}
         >
           <Text style={styles.buttonText}>Churchs </Text>
         </TouchableOpacity>

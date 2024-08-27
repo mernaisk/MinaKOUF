@@ -22,7 +22,6 @@ import EditEvent from "./eventScreens/editEvent";
 import EditAttendenceSheet from "./attendenceScreens/editAttendenceSheet";
 import EditMember from "./memberScreens/editMember";
 import MemberInfo from "./memberScreens/memberInfo";
-
 import RIKSKOUFhome from "./RIKSKOUFhome";
 import Events from "./RIKSKOUFScreens/events";
 import Churchs from "./RIKSKOUFScreens/churchs";
@@ -56,10 +55,8 @@ export default function RootLayout() {
 
 function AuthChecker({ DefaultOptions }) {
   const { user, userInfo, isUserLoading } = useUser();
-  const [isDataReady, setIsDataReady] = useState(false);
 
-  // console.log("isUserLoading",isUserLoading)
-  // console.log(userInfo?.Title?.Category)
+
   if (isUserLoading) {
     return <SplashScreen />;
   }
@@ -67,9 +64,9 @@ function AuthChecker({ DefaultOptions }) {
 
   return (
     <Stack.Navigator screenOptions={DefaultOptions}>
-      {userInfo?.Title?.Category ? (
+      {userInfo ? (
         <>
-          {userInfo?.Title?.Category === "SuperAdmin" && (
+          {userInfo?.Category.Name === "RiksKOUF" && (
             <>
               <Stack.Screen
                 name="RIKSKOUFhome"

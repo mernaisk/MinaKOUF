@@ -14,9 +14,9 @@ const Home = () => {
   }
 
   function checkAccess() {
-    return userInfo?.Title.Category !== "Ungdom";
+    return userInfo?.Category.Name !== "Ungdom";
   }
-// bbhuy
+  // bbhuy
   const handleLogout = async () => {
     try {
       await signOut();
@@ -24,7 +24,7 @@ const Home = () => {
       console.error("Error logging out: ", error);
     }
   };
-
+  console.log(user)
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -32,7 +32,10 @@ const Home = () => {
       </TouchableOpacity>
       <View style={styles.content}>
         <TouchableOpacity
-          style={styles.memberItem}
+          style={[
+            styles.memberItem,
+            !checkAccess() && styles.disabled
+          ]}
           onPress={() => navigation.navigate("KOUFtabs")}
           disabled={!checkAccess()}
         >
@@ -41,7 +44,6 @@ const Home = () => {
         <TouchableOpacity
           style={styles.memberItem}
           onPress={() => navigation.navigate("YOUTHtabs")}
-
         >
           <Text style={styles.buttonText}>Youth</Text>
         </TouchableOpacity>
@@ -94,4 +96,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
   },
+  disabled: {
+    backgroundColor: "#d3d3d3",
+  }
 });

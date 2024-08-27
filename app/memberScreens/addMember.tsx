@@ -17,7 +17,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, FormProvider } from "react-hook-form";
+
 import InputController from "../../components/InputController.jsx";
 import {
   serviceOptions,
@@ -25,9 +26,8 @@ import {
   checkEmail,
   checkPersonalNumber,
 } from "../../scripts/utilities.js";
-import MultiSelectController from "../../components/MultiSelectController.jsx";
-import { MultipleSelectList } from "react-native-dropdown-select-list";
-import OneSelectController from "../../components/OneSelectController.jsx";
+import MultiSelectController from "../../components/MultiSelectController";
+
 import {
   useMutation,
   useQueryClient,
@@ -46,15 +46,14 @@ import { validatePhoneNumber } from "../../scripts/utilities.js";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types.js";
 import { useUser } from "@/context/userContext.js";
+import ImagePickerControl from "@/components/ImagePickerControl";
 
 const AddMember = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const queryClient = useQueryClient();
-  const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
-  const [image, setImage] = useState<any>({});
-  const [modalVisible, setModalVisible] = useState(false);
   const [isUpdating, setIsLoading] = useState(false);
-  const {setIsMemberBeingCreated} =useUser()
+  const { setIsMemberBeingCreated } = useUser();
+
   const {
     control,
     handleSubmit,
@@ -65,16 +64,16 @@ const AddMember = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      ProfilePicture: {
-        assetInfo: {},
-        URL: "",
-      },
+      ProfilePicture: { assetInfo: {}, URL: "" },
       Email: "",
       Password: "",
+      Service:[],
+      Orginization:[]
     },
   });
-  const watchPassword = watch("Password", "");
 
+  const watchPassword = watch("Password", "");
+  console.log(watch());
   async function refetch() {
     await queryClient.refetchQueries();
   }
@@ -83,7 +82,7 @@ const AddMember = () => {
     queryFn: () => getAllDocInCollection("Churchs"),
     queryKey: ["churchs"],
     // select: (data) =>
-      // data.map((item: any) => ({ label: item.name, value: item.Id })), // Assuming item has name and id fields
+    // data.map((item: any) => ({ label: item.name, value: item.Id })), // Assuming item has name and id fields
   });
 
   console.log(churchNames);
@@ -95,7 +94,6 @@ const AddMember = () => {
 
     onError: (error: any) => {
       setIsLoading(false); // Stop loading
-      setIsMemberBeingCreated(false)
 
       if (error.code === "auth/email-already-in-use") {
         setError("Email", {
@@ -116,7 +114,7 @@ const AddMember = () => {
     onSuccess: () => {
       refetch();
       setIsLoading(false); // Stop loading
-      setIsMemberBeingCreated(false)
+      setIsMemberBeingCreated(false);
 
       // router.push({ pathname: "/home" });
       // console.log("data is: ", data)
@@ -134,44 +132,9 @@ const AddMember = () => {
   };
 
   async function onSubmit(data: any) {
-    setIsMemberBeingCreated(true)
+    setIsMemberBeingCreated(true);
     mutationAdd.mutate(data);
   }
-
-  //photo
-  function deletePhoto() {
-    setImage({});
-    setValue("ProfilePicture", { assetInfo: {}, URL: "" });
-    setModalVisible(false);
-  }
-
-  const pickImage = async () => {
-    if (status === null || status.status !== "granted") {
-      const { status } = await requestPermission();
-      if (status !== "granted") {
-        return;
-      }
-    }
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [3, 6],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      console.log(result);
-      const selectedImage = result.assets[0];
-      console.log("selimage is: ", selectedImage);
-      setImage(selectedImage);
-
-      console.log("image is: ", image);
-      setValue("ProfilePicture", { assetInfo: selectedImage, URL: "" });
-      clearErrors("ProfilePicture");
-    }
-    setModalVisible(false);
-  };
 
   if (isLoading) {
     return <Loading></Loading>;
@@ -195,75 +158,22 @@ const AddMember = () => {
               <Text style={styles.backButtonText}>Back</Text>
             </TouchableOpacity>
 
-            <Controller
+            <ImagePickerControl
               name="ProfilePicture"
               control={control}
-              render={({ field }) => (
-                <View style={styles.profilePictureContainer}>
-                  <View style={styles.profilePicture}>
-                    {image?.uri ? (
-                      <Image
-                        source={{ uri: image?.uri }}
-                        style={styles.image}
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <Ionicons
-                        name="person-circle-outline"
-                        size={100}
-                        color="#726d81"
-                      />
-                    )}
-                    <TouchableOpacity
-                      style={styles.editIcon}
-                      onPress={() => setModalVisible(true)}
-                    >
-                      <Ionicons name="pencil-outline" size={24} color="white" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
+              isRequired={false}
+              fallBackIcon={
+                <Ionicons
+                  name="person-circle-outline"
+                  size={100}
+                  color="#726d81"
+                />
+              }
+              imagePreview={styles.profilePicture}
+              imageStyling={styles.image}
+              iconStyle={styles.editIcon}
+              customSize={20}
             />
-            <Modal
-              visible={modalVisible}
-              transparent={true}
-              animationType="fade"
-              onRequestClose={() => setModalVisible(false)}
-            >
-              <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-                <View style={styles.modalOverlay}>
-                  <View style={styles.modalContent}>
-                    {image?.uri && (
-                      <TouchableOpacity
-                        style={styles.modalButton}
-                        onPress={deletePhoto}
-                      >
-                        <Text style={styles.modalButtonText}>Delete Photo</Text>
-                      </TouchableOpacity>
-                    )}
-
-                    <TouchableOpacity
-                      style={styles.modalButton}
-                      onPress={pickImage}
-                    >
-                      <Text style={styles.modalButtonText}>Change Photo</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.modalButton}
-                      onPress={() => setModalVisible(false)}
-                    >
-                      <Text style={styles.modalButtonText}>Cancel</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </TouchableWithoutFeedback>
-            </Modal>
-
-            {errors.ProfilePicture && (
-              <Text style={{ color: "red" }}>
-                {errors?.ProfilePicture.message}
-              </Text>
-            )}
 
             <InputController
               name="Name"
@@ -398,33 +308,22 @@ const AddMember = () => {
               secureTextEntry={true}
             />
 
-            <View style={styles.multiselect}>
-              <MultiSelectController
-                name="Service"
-                control={control}
-                rules={{
-                  required: "Service is required.",
-                  validate: (data: any) => {
-                    console.log("service data is: ", data);
-                    return true;
-                  },
-                }}
-                data={serviceOptions}
-                label="Which Services are you intressted in? "
-              />
-            </View>
-
-            <View style={styles.multiselect}>
-              <MultiSelectController
-                name="Orginization"
-                control={control}
-                rules={{
-                  required: "Please pick at least one church you attend in",
-                }}
-                data={churchNames}
-                label="Which church/churchs are you attending in? "
-              />
-            </View>
+            <MultiSelectController
+              control={control}
+              name="Service"
+              rules={{ required: "Please select at least one service." }}
+              items={serviceOptions}
+              title="Which services are you interested in"
+              disabled={false}
+            />
+            <MultiSelectController
+              control={control}
+              name="Orginization"
+              rules={{ required: "Please select at least one church." }}
+              items={churchNames}
+              title="Which church/churchs do you belong to?"
+              disabled={false}
+            />
             <TouchableOpacity
               style={styles.addButton}
               onPress={handleSubmit(onSubmit)}
@@ -484,6 +383,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 5,
   },
+
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",

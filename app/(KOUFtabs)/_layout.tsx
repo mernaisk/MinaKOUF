@@ -2,7 +2,7 @@ import React from "react";
 import {
   View,
   Text,
-  Image,
+  
   StyleSheet,
   Dimensions,
   TouchableOpacity,
@@ -15,13 +15,14 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useUser } from "@/context/userContext";
-import KOUFindex from "./KOUFindex"; // Update with correct path
-import Events from "./events"; // Replace with actual component
-import Youth from "./youth"; // Replace with actual component
-import Reports from "./reports"; // Replace with actual component
-import Attendance from "./attendence"; // Replace with actual component
+import KOUFindex from "./KOUFindex"; 
+import Events from "./events"; 
+import Youth from "./youth"; 
+import Reports from "./reports"; 
+import Attendance from "./attendence"; 
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types";
+import { Image } from 'expo-image';
 
 const Tab = createBottomTabNavigator();
 

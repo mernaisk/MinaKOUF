@@ -1,11 +1,8 @@
 import {
   Platform,
-  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-  Image,
   Alert,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
@@ -14,11 +11,9 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as ImagePicker from "expo-image-picker";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { Controller, useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
 import InputController from "@/components/InputController";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { addEvent } from "@/firebase/firebaseModel";
 import { Loading } from "@/components/loading";
 import { RootStackParamList } from "@/constants/types";
@@ -93,10 +88,15 @@ const CreateEvent = () => {
             <ImagePickerControl
               name="ImageInfo"
               control={control}
-              rules={{
-                required: "Image is required.",
-              }}
+              isRequired={true}
+              fallBackIcon={<Text style={styles.fallBackIcon}>No Photo</Text>}
+              imagePreview={styles.imagePreview}
+              imageStyling={styles.Picture}
+              iconStyle={styles.editIcon}
+              customSize={30}
+              // defaultValue={{ URL: "", assetInfo: {} }}
             />
+
             <InputController
               name="Title"
               control={control}
@@ -248,5 +248,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#decbc6",
+  },
+  Picture: {
+    width: 300,
+    height: 300,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#726d81",
+    position: "relative",
+  },
+  imagePreview: {
+    width: 300,
+    height: 300,
+    borderRadius: 10,
+    borderWidth: 3,
+    borderColor: "#726d81",
+    // marginBottom: 10,
+  },
+  editIcon: {
+    position: "absolute",
+    bottom: -15,
+    right: -15,
+    backgroundColor: "#decbc6",
+    borderColor: "#726d81",
+    borderWidth: 2,
+    borderRadius: 15,
+    padding: 5,
+  },
+  fallBackIcon: {
+    fontSize: 30,
+    fontWeight: "500",
   },
 });

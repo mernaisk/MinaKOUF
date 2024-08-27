@@ -1,0 +1,34 @@
+[debug] [2024-08-14T12:06:57.474Z] ----------------------------------------------------------------------
+[debug] [2024-08-14T12:06:57.478Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\merna\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions
+[debug] [2024-08-14T12:06:57.478Z] CLI Version:   13.15.1
+[debug] [2024-08-14T12:06:57.478Z] Platform:      win32
+[debug] [2024-08-14T12:06:57.478Z] Node Version:  v20.13.1
+[debug] [2024-08-14T12:06:57.478Z] Time:          Wed Aug 14 2024 14:06:57 GMT+0200 (centraleuropeisk sommartid)
+[debug] [2024-08-14T12:06:57.479Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-08-14T12:06:57.556Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-08-14T12:06:57.557Z] > authorizing via signed-in user (mernanessim35@gmail.com)
+[debug] [2024-08-14T12:06:57.557Z] [iam] checking project stminakouf-6e574 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2024-08-14T12:06:57.559Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/stminakouf-6e574:testIamPermissions [none]
+[debug] [2024-08-14T12:06:57.560Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/stminakouf-6e574:testIamPermissions x-goog-quota-user=projects/stminakouf-6e574
+[debug] [2024-08-14T12:06:57.560Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/stminakouf-6e574:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2024-08-14T12:06:58.342Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/stminakouf-6e574:testIamPermissions 200
+[debug] [2024-08-14T12:06:58.343Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/stminakouf-6e574:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2024-08-14T12:06:58.343Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/stminakouf-6e574/serviceAccounts/stminakouf-6e574@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2024-08-14T12:06:58.343Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/stminakouf-6e574/serviceAccounts/stminakouf-6e574@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2024-08-14T12:06:59.105Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/stminakouf-6e574/serviceAccounts/stminakouf-6e574@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2024-08-14T12:06:59.105Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/stminakouf-6e574/serviceAccounts/stminakouf-6e574@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'stminakouf-6e574'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] +  functions: Finished running predeploy script. 
+[debug] [2024-08-14T12:07:00.473Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/stminakouf-6e574 [none]
+[debug] [2024-08-14T12:07:30.480Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects/stminakouf-6e574, {"headers":{},"method":"GET","signal":{}}): AbortError: The user aborted a request.
+[debug] [2024-08-14T12:07:30.481Z] Timeout reached making request to https://firebase.googleapis.com/v1beta1/projects/stminakouf-6e574 (original: The user aborted a request.)
+[debug] [2024-08-14T12:07:30.574Z] FirebaseError: Timeout reached making request to https://firebase.googleapis.com/v1beta1/projects/stminakouf-6e574
+    at RetryOperation._fn (C:\Users\merna\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:255:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to get Firebase project stminakouf-6e574. Please make sure the project exists and your account has permission to access it.

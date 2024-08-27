@@ -6,14 +6,15 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getOneDocInCollection } from "@/firebase/firebaseModel";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Loading } from "@/components/loading";
 import { RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
@@ -22,6 +23,27 @@ import { useRoute, RouteProp } from "@react-navigation/native";
 type MemberInfosRouteProp = RouteProp<RootStackParamList, "MemberInfo">;
 
 const MemberInfo = () => {
+  // const API_URL = "http://10.58.154.147:5000";
+
+  // const setUserRole = async (uid, role) => {
+  //   try {
+  //     const response = await fetch(`${API_URL}/setUserRole`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ uid, role }),
+  //     });
+
+  //     const result = await response.text();
+  //     console.log(result); // Output the response from the server
+  //   } catch (error) {
+  //     console.error("Error:", error); // Handle any errors
+  //   }
+  // };
+
+  // setUserRole("f4yWkHF6JoP1Nkxv8qf7jKZq4e43", "admin");
+
   const route = useRoute<MemberInfosRouteProp>();
   const { memberId } = route.params; // Extract the sheetId parameter
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -34,7 +56,60 @@ const MemberInfo = () => {
   if (isLoading) {
     return <Loading></Loading>;
   }
+  console.log(memberInfo);
 
+  function renderMembersTitle() {
+    if (memberInfo?.Category?.Name == "Ungdom") {
+      return <Text style={styles.infoText}>Ungdom</Text>;
+    } else if (memberInfo?.Category?.Name === "KOUF") {
+      return (
+        <Text style={styles.infoText}>
+          KOUF-{memberInfo?.LeaderTitle} i {memberInfo?.Title?.ChurchLeader}
+        </Text>
+      );
+    } else if (memberInfo?.Category?.Name == "RiksKOUF") {
+      return (
+        <Text style={styles.infoText}>RiksKOUF-{memberInfo?.LeaderTitle}</Text>
+      );
+    } else {
+    }
+  }
+
+  function server() {
+    // setUserRole("f4yWkHF6JoP1Nkxv8qf7jKZq4e43", "admin");
+  }
+
+  const renderObjects = (object: any, index: number) => {
+    console.log(object);
+    const symbol = () => {
+      if (index !== 0) {
+        return <Text>,</Text>;
+      }
+    };
+
+    if (object.Name) {
+      return (
+        // <View key={index}>
+
+          <Text key={index}>
+            {symbol()} {object.Name}
+          </Text>
+        // </View>
+      );
+    } else {
+      return (<Text>none</Text>);
+    }
+  };
+
+  const renderInvolvments = () => {
+    console.log(memberInfo?.Involvments.length)
+    if(memberInfo?.Involvments.length > 0){
+      return memberInfo?.Involvments.map(renderObjects)
+    }
+    else{
+      return (<Text>None</Text>)
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,6 +120,10 @@ const MemberInfo = () => {
         >
           <Ionicons name="arrow-back-outline" size={24} color="#000" />
           <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={server}>
+          <Text>test</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -91,11 +170,38 @@ const MemberInfo = () => {
           "Password",
           memberInfo?.Password
         )}
-        {renderInfoSection(
+        {/* {renderInfoSection(
           "list-outline",
           "Interested services",
           memberInfo?.Service?.join(", ")
-        )}
+        )} */}
+
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <MaterialCommunityIcons
+              name="hand-heart-outline"
+              size={24}
+              color="black"
+            />
+            <Text style={styles.infoHeaderText}>Areas of Interest</Text>
+          </View>
+          <Text style={styles.infoText}>
+            {memberInfo?.Service?.map(renderObjects)}.
+          </Text>
+          <View style={styles.separator} />
+        </View>
+
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <FontAwesome name="group" size={24} color="black" />
+            <Text style={styles.infoHeaderText}>My Involvements</Text>
+          </View>
+          <Text style={styles.infoText}>
+            {renderInvolvments()}.
+            {/* {memberInfo?.Involvments.map(renderObjects)} */}
+          </Text>
+          <View style={styles.separator} />
+        </View>
 
         <View style={styles.infoSection}>
           <View style={styles.infoHeader}>
@@ -103,7 +209,8 @@ const MemberInfo = () => {
             <Text style={styles.infoHeaderText}>Church</Text>
           </View>
           <Text style={styles.infoText}>
-            {memberInfo?.Orginization?.join(", ")}
+            {memberInfo?.Orginization?.map(renderObjects)}.
+            {/* {memberInfo?.Orginization?.join(", ")} */}
           </Text>
           <View style={styles.separator} />
         </View>
@@ -113,9 +220,7 @@ const MemberInfo = () => {
             <MaterialIcons name="category" size={24} color="black" />
             <Text style={styles.infoHeaderText}>Category</Text>
           </View>
-          <Text style={styles.infoText}>
-            {/* {renderMembersTitle()} */}
-          </Text>
+          {renderMembersTitle()}
           <View style={styles.separator} />
         </View>
       </ScrollView>
@@ -136,14 +241,13 @@ const renderInfoSection = (iconName: any, header: any, info: any) => {
   );
 };
 
-const renderMembersTitle = (member:any) => {
-  if(member.Title.Category == "Ungdom"){
-    return(<Text>Ungdom</Text>)
+const renderMembersTitle = (member: any) => {
+  if (member.Title.Category == "Ungdom") {
+    return <Text>Ungdom</Text>;
+  } else if (member.Title.Category == "KOUF") {
+    return <Text>{member.Title.Title}</Text>;
   }
-  else if(member.Title.Category == "KOUF"){
-    return(<Text>{member.Title.Title}</Text>)
-  }
-}
+};
 
 export default MemberInfo;
 

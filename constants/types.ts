@@ -36,3 +36,27 @@ export type RootStackParamList = {
     Info:String;
     // Add other properties as needed
   }
+
+  export interface MemberInfo {
+    ProfilePicture: object;
+    Name: string;
+    PersonalNumber: string;
+    PhoneNumber: string;
+    StreetName: string;
+    PostNumber: string;
+    City: string;
+    Email: string;
+    Password: string;
+    ConfirmPassword: string;
+    Service:Array<any>; // Depending on how Service is structured
+    Title: string;
+    Involvments:Array<any>;
+    Orginization:Array<any>;
+    Category:{
+      Name:string,
+      Id:string
+    };
+    LeaderTitle:string;
+    ChurchKOUFLeader:object;
+    
+  }

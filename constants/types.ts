@@ -15,7 +15,7 @@ export type RootStackParamList = {
     EditAttendenceSheet:{sheetId:string};
 
     EventInfo:{eventId:string};
-    CreateEvent:undefined;
+    CreateEvent:{EventChurch:string};
     EditEvent:{eventId:string};
 
     EditMember:{memberId:string}
@@ -27,18 +27,30 @@ export type RootStackParamList = {
     Members:undefined,
   };
 
-  export interface EventItem {
+  export interface EventInfo {
     Id: string;
     Title: string;
-    ImageInfo?: {
-      URL: string;
+    ImageInfo: {URL:string,
+      assetInfo:any
     };
-    Info:String;
-    // Add other properties as needed
+    Info:string;
+    Place:string;
+    PriceForNonMembers:string;
+    PriceForMembers:string;
+    MaxAmountOfBookings:string;
+    SwishNumber:string;
+    StartDate:Object;
+    EndDate:Object;
+    Deadline:Object;
+    EventInChurch:string;
+    Bookings:Array<Object>;
   }
 
   export interface MemberInfo {
-    ProfilePicture: object;
+    ProfilePicture: {
+      assetInfo:any,
+      URL:string
+    };
     Name: string;
     PersonalNumber: string;
     PhoneNumber: string;
@@ -57,6 +69,15 @@ export type RootStackParamList = {
       Id:string
     };
     LeaderTitle:string;
-    ChurchKOUFLeader:object;
+    ChurchKOUFLeader:Object;
+    
+  }
+
+  export interface ChurchInfo {
+    Name: string;
+    StreetName: string;
+    PostNumber: string;
+    City: string;
+    SwishNumber:string;
     
   }

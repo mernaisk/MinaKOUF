@@ -13,7 +13,7 @@ import {
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { filterMembers } from "../../scripts/utilities";
-import { getAllDocInCollection } from "../../firebase/firebaseModel.js";
+import { getAllDocInCollection } from "../../firebase/firebaseModel";
 import ScreenWrapper from "../ScreenWrapper";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types";

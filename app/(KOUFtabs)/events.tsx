@@ -9,15 +9,15 @@ import {
 } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllDocInCollection } from "@/firebase/firebaseModel";
 import { sortDate } from "@/scripts/utilities";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { EventItem, RootStackParamList } from "@/constants/types";
-
+import { EventInfo, RootStackParamList } from "@/constants/types";
+import { useChurch } from "@/context/churchContext";
 const Events = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
+  const {churchName} = useChurch()
   const {
     data: allEvents,
     isLoading,
@@ -33,9 +33,9 @@ const Events = () => {
       </View>
     );
   }
-
+  const queryClient = useQueryClient()
   const sortedEvents = sortDate(allEvents);
-  const renderItem = ({ item }: { item: EventItem }) => (
+  const renderItem = ({ item }: { item: EventInfo }) => (
     <View style={styles.eventBox}>
       <TouchableOpacity
         onPress={() => navigation.navigate("EventInfo", { eventId: item.Id })}
@@ -49,11 +49,15 @@ const Events = () => {
       </TouchableOpacity>
     </View>
   );
-
+  function navigateToCreateEvent(){
+    queryClient.invalidateQueries({ queryKey: ["church"] })
+    navigation.navigate("CreateEvent", { EventChurch: churchName })
+  }
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.navigate("CreateEvent")}><Text>Create new event</Text></TouchableOpacity>
-      {/* <Text style={styles.title}>Events</Text> */}
+      <TouchableOpacity style={styles.logoutButton} onPress={ navigateToCreateEvent}>
+        <Text style={styles.logoutButtonText}>Create new event</Text>
+      </TouchableOpacity>
       <FlatList
         data={sortedEvents}
         keyExtractor={(item) => item.Id}
@@ -63,6 +67,7 @@ const Events = () => {
             <Text>No items to display</Text>
           </View>
         )}
+        style={styles.listStyling}
       />
     </SafeAreaView>
   );
@@ -71,10 +76,10 @@ const Events = () => {
 export default Events;
 
 const styles = StyleSheet.create({
+  listStyling:{
+    marginTop:10
+  },
   container: {
-    // flex: 1,
-    // alignItems: "center",
-    // justifyContent: "center",
     padding: 20,
     backgroundColor: "#f8f8f8",
   },
@@ -91,7 +96,6 @@ const styles = StyleSheet.create({
   },
 
   eventBox: {
-    // width: '90%',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#ccc",
@@ -117,5 +121,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#ccc",
+  },
+  logoutButton: {
+    position: "absolute",
+    top: "5%", // Adjust the top position as needed
+    right: "5%", // Adjust the right position as needed
+    backgroundColor: "grey",
+    padding: 10,
+    borderRadius: 10,
+  },
+  logoutButtonText: {
+    color: "white",
+    fontSize: 20,
   },
 });

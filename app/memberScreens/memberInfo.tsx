@@ -165,11 +165,11 @@ const MemberInfo = () => {
           "Address",
           `${memberInfo?.StreetName}, ${memberInfo?.PostNumber} ${memberInfo?.City}`
         )}
-        {renderInfoSection(
+        {/* {renderInfoSection(
           "lock-closed-outline",
           "Password",
           memberInfo?.Password
-        )}
+        )} */}
         {/* {renderInfoSection(
           "list-outline",
           "Interested services",

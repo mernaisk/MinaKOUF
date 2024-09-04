@@ -29,7 +29,7 @@ import {
   getOneDocInCollection,
   updateDocument,
   updateMemberInfo,
-} from "../../firebase/firebaseModel.js";
+} from "../../firebase/firebaseModel";
 import AwesomeAlert from "react-native-awesome-alerts";
 import { Ionicons } from "@expo/vector-icons";
 import { Loading } from "../../components/loading";
@@ -354,7 +354,7 @@ const EditMember = () => {
               control={control}
               rules={{ required: "Please select at least one category." }}
               items={CategoryOptions}
-              title="Which services are you belonging to"
+              title="Choose your category"
               disabled={!checkAccess()}
             />
 

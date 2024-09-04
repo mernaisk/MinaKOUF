@@ -38,7 +38,7 @@ import {
 import {
   AddMemberFirebase,
   getAllDocInCollection,
-} from "../../firebase/firebaseModel.js";
+} from "../../firebase/firebaseModel";
 import * as ImagePicker from "expo-image-picker";
 import ScreenWrapper from "../ScreenWrapper.js";
 import { Loading } from "@/components/loading";

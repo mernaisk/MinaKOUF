@@ -11,33 +11,82 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import InputController from "@/components/InputController";
-import { addEvent } from "@/firebase/firebaseModel";
+import { addEvent, getChurchInfo } from "@/firebase/firebaseModelEvents";
 import { Loading } from "@/components/loading";
-import { RootStackParamList } from "@/constants/types";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { EventInfo, RootStackParamList } from "@/constants/types";
+import {
+  NavigationProp,
+  RouteProp,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import SelectDateControl from "@/components/selectDateControll";
 import ImagePickerControl from "@/components/ImagePickerControl";
 import dayjs from "dayjs";
 import BackButton from "@/components/BackButton";
-// import ImageCropPicker from 'react-native-image-crop-picker';
-const CreateEvent = () => {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+import OneSelectController from "@/components/OneSelectController";
+import { useUser } from "@/context/userContext.js";
+import { ChurchInfo } from "@/constants/types";
+import { getOneDocInCollection } from "@/firebase/firebaseModel";
+import { useChurch } from "@/context/churchContext";
+type MemberInfosRouteProp = RouteProp<RootStackParamList, "CreateEvent">;
 
+const CreateEvent = () => {
+  const { churchName } = useChurch();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute<MemberInfosRouteProp>();
+  const { EventChurch } = route.params;
   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
-      assetInfo: {},
-      URL: "",
+      EventInChurch: "",
+      SwishNumber: "",
+      ImageInfo: { URL: "", assetInfo: {} },
+      StartDate: null, // Use an empty string or a valid date string here
     },
   });
 
   async function refetch() {
     await queryClient.refetchQueries({ queryKey: ["allEvents"] });
   }
+
+  // console.log("EventChurch is", EventChurch);
+
+  // Unconditional call to useQuery
+  const {
+    data: churchInfo,
+    isLoading: isLoading2,
+    error,
+    isSuccess,
+  } = useQuery<ChurchInfo | null>({
+    queryFn: async () => {
+      let churchInfo: ChurchInfo | null = null;
+
+      if (EventChurch === "RiksKOUF") {
+        const churchDoc = await getOneDocInCollection(
+          "RiksKOUFInfo",
+          "QCvAYuSRgRVbpbh3tTkb"
+        );
+        churchInfo = churchDoc ? (churchDoc as ChurchInfo) : null;
+      } else {
+        churchInfo = await getChurchInfo(EventChurch);
+      }
+
+      if (!churchInfo) {
+        throw new Error("Church information not found.");
+      }
+
+      return churchInfo;
+    },
+    queryKey: ["church", EventChurch],
+  });
+
+  console.log("churchInfo", churchInfo);
+
   const mutationCreateEvent = useMutation<any, unknown, any>({
     mutationFn: (data) => addEvent(data),
 
@@ -58,10 +107,25 @@ const CreateEvent = () => {
     setIsUpdating(true);
     mutationCreateEvent.mutate(data);
   }
+
   function handleBackPress() {
     navigation.goBack();
   }
 
+  useEffect(() => {
+    if (churchInfo) {
+      reset({
+        EventInChurch: churchInfo.Name || "",
+        SwishNumber: churchInfo.SwishNumber || "",
+      });
+    }
+  }, [isSuccess]);
+
+  if (isLoading2) {
+    return <Loading />;
+  }
+
+  const watchedstartdate:any = watch("StartDate");
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -180,21 +244,6 @@ const CreateEvent = () => {
               keyboardType="phone-pad"
             />
 
-            <InputController
-              name="SwishNumber"
-              control={control}
-              rules={{
-                required: "Swish number is required.",
-                pattern: {
-                  value: /\d/,
-                  message: "Digits only",
-                },
-              }}
-              placeholder="Swish number"
-              secureTextEntry={false}
-              keyboardType="phone-pad"
-            />
-
             <SelectDateControl
               name="StartDate"
               control={control}
@@ -210,7 +259,21 @@ const CreateEvent = () => {
               name="EndDate"
               control={control}
               rules={{
-                required: " End Date and time is required.",
+                required: "End Date and time is required.",
+                validate: (endDate: any) => {
+                  if (!watchedstartdate || !endDate ) {
+                    return "Both start and end dates are required.";
+                  }
+            
+                  const startDayjs = dayjs(watchedstartdate.dateTime, "YYYY-MM-DD HH:mm");
+                  const endDayjs = dayjs(endDate.dateTime, "YYYY-MM-DD HH:mm");
+            
+                  if (!endDayjs.isAfter(startDayjs)) {
+                    return "End date must be later than start date.";
+                  }
+            
+                  return true; // Return true if validation passes
+                },
               }}
               placeholderDate={"End Date"}
               placeholderTime={"End Time"}
@@ -222,10 +285,40 @@ const CreateEvent = () => {
               control={control}
               rules={{
                 required: " End Date and time is required.",
+                validate: (deadlineDate:any) => {
+                  if (!watchedstartdate || !deadlineDate ) {
+                    return "Both start and end dates are required.";
+                  }
+                  const startDayjs = dayjs(watchedstartdate.dateTime, "YYYY-MM-DD HH:mm");
+                  const deadlineDayjs = dayjs(deadlineDate.dateTime, "YYYY-MM-DD HH:mm");
+            
+                  if (deadlineDayjs.isAfter(startDayjs)) {
+                    return "Deadline must be earlier than start date.";
+                  }
+            
+                  return true; }
               }}
-              placeholderDate={"End Date"}
-              placeholderTime={"End Time"}
+              placeholderDate={"Deadline Date"}
+              placeholderTime={"Deadline Time"}
               minDate={dayjs().toDate()}
+            />
+
+            <InputController
+              name="EventInChurch"
+              control={control}
+              rules={{}}
+              placeholder="Event In Church"
+              secureTextEntry={false}
+              editable={false}
+            />
+
+            <InputController
+              name="SwishNumber"
+              control={control}
+              rules={{}}
+              placeholder="Swish number"
+              secureTextEntry={false}
+              editable={false}
             />
 
             {isUpdating && <Loading></Loading>}

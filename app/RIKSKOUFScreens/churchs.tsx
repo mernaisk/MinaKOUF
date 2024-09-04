@@ -151,6 +151,17 @@ const Churchs = () => {
         placeholder="City"
         secureTextEntry={false}
       />
+
+      <InputController
+        name="SwishNumber"
+        control={control}
+        rules={{
+          required: "Swish number is required.",
+        }}
+        placeholder="Swish number"
+        secureTextEntry={false}
+      />
+
       <TouchableOpacity
         style={styles.memberItem}
         onPress={handleSubmit(onSubmit)}

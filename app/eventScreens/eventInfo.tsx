@@ -1,23 +1,37 @@
-import { Image, ActivityIndicator, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  Image,
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import React from "react";
 import { getOneDocInCollection } from "@/firebase/firebaseModel";
 import { useQuery } from "@tanstack/react-query";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { MaterialIcons } from "@expo/vector-icons";
+import {
+  FontAwesome,
+  FontAwesome6,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import { RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useRoute, RouteProp } from "@react-navigation/native";
-
+import BackButton from "@/components/BackButton";
+import { useUser } from "@/context/userContext";
 type EventsDetailsRouteProp = RouteProp<RootStackParamList, "EventInfo">;
 
 const EventInfo = () => {
   const route = useRoute<EventsDetailsRouteProp>();
   const { eventId } = route.params;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
+  const { userInfo } = useUser();
   console.log(eventId);
   const { data: eventInfo, isLoading } = useQuery({
     queryFn: () => getOneDocInCollection("Events", eventId),
@@ -33,63 +47,178 @@ const EventInfo = () => {
   }
 
   const renderDates = () => {
-    const { StartDate, EndDate } = eventInfo;
+    const { StartDate, EndDate }: any = eventInfo;
     if (StartDate.justDate === EndDate.justDate) {
       return (
-        <View style={styles.item}>
-          <Fontisto name="date" size={24} style={styles.icon} />
-          <Text>{StartDate.justDate}</Text>
-          <Fontisto name="clock" size={24} style={styles.icon} />
-          <Text>{`${StartDate.justTime} - ${EndDate.justTime}`}</Text>
+        <View>
+          <View style={styles.infoSection}>
+            <View style={styles.infoHeader}>
+              <Fontisto name="date" size={24} color="black" />
+              <Text style={styles.infoHeaderText}>Date</Text>
+            </View>
+            <Text style={styles.infoText}>{StartDate.justDate}</Text>
+            <View style={styles.separator} />
+          </View>
+
+          <View style={styles.infoSection}>
+            <View style={styles.infoHeader}>
+              <Fontisto name="clock" size={24} color="black" />
+              <Text style={styles.infoHeaderText}>Time</Text>
+            </View>
+            <Text
+              style={styles.infoText}
+            >{`${StartDate.justTime} - ${EndDate.justTime}`}</Text>
+            <View style={styles.separator} />
+          </View>
         </View>
       );
     } else {
       return (
         <>
-          <View style={styles.item}>
-            <Fontisto name="date" size={24} style={styles.icon} />
-            <Text>{`Start: ${StartDate.dateTime}`}</Text>
+          <View style={styles.infoSection}>
+            <View style={styles.infoHeader}>
+              <MaterialCommunityIcons
+                name="calendar-start"
+                size={24}
+                color="black"
+              />
+              <Text style={styles.infoHeaderText}>Start Date</Text>
+            </View>
+            <Text style={styles.infoText}>{`${StartDate.dateTime}`}</Text>
+            <View style={styles.separator} />
           </View>
-          <View style={styles.item}>
-            <Fontisto name="date" size={24} style={styles.icon} />
-            <Text>{`End: ${EndDate.dateTime}`}</Text>
+
+          <View style={styles.infoSection}>
+            <View style={styles.infoHeader}>
+              <MaterialCommunityIcons
+                name="calendar-end"
+                size={24}
+                color="black"
+              />
+              <Text style={styles.infoHeaderText}>End Date</Text>
+            </View>
+            <Text style={styles.infoText}>{`${EndDate.dateTime}`}</Text>
+            <View style={styles.separator} />
           </View>
         </>
       );
     }
   };
 
+  function handleBackPress() {
+    navigation.goBack();
+  }
+
   return (
-    <SafeAreaView>
-      <TouchableOpacity onPress={() => navigation.navigate("EditEvent", {eventId:eventId})}>
-        <Text>Edit</Text>
-      </TouchableOpacity>
-      <View>
-        <Text style={styles.title}>{eventInfo?.Title}</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        <BackButton handleBackPress={handleBackPress}></BackButton>
+        {userInfo.Category.Name !== "Ungdom" && (
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("EditEvent", { eventId: eventId })
+            }
+            style={styles.editButton}
+          >
+            <FontAwesome name="edit" size={30} color="black" />
+          </TouchableOpacity>
+        )}
 
-      <Image
-        source={{ uri: eventInfo?.ImageInfo?.URL }}
-        style={styles.imagePreview}
-        resizeMode="cover"
-      />
+        <View>
+          <Text style={styles.title}>{eventInfo?.Title}</Text>
+        </View>
 
-      <View style={styles.item}>
-        <MaterialIcons name="place" size={24} style={styles.icon} />
-        <Text style={styles.text}>{eventInfo?.Place}</Text>
-      </View>
+        <Image
+          source={{ uri: eventInfo?.ImageInfo?.URL }}
+          style={styles.imagePreview}
+          resizeMode="cover"
+        />
 
-      <View style={styles.item}>
-        <Ionicons name="pricetag" size={24} style={styles.icon} />
-        <Text>{eventInfo?.Price}</Text>
-      </View>
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <FontAwesome5 name="location-arrow" size={24} color="black" />
+            <Text style={styles.infoHeaderText}>Location</Text>
+          </View>
+          <Text style={styles.infoText}>{eventInfo?.Place}.</Text>
+          <View style={styles.separator} />
+        </View>
 
-      <View style={styles.item}>
-        <FontAwesome5 name="info" size={24} style={styles.icon} />
-        <Text>{eventInfo?.Info}</Text>
-      </View>
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <FontAwesome5 name="info" size={24} color="black" />
+            <Text style={styles.infoHeaderText}>Information</Text>
+          </View>
+          {eventInfo?.Info ? (
+            <Text style={styles.infoText}>{eventInfo?.Info}</Text>
+          ) : (
+            <Text style={styles.infoText}>None</Text>
+          )}
+          <View style={styles.separator} />
+        </View>
 
-      {renderDates()}
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <Ionicons name="pricetags" size={24} color="black" />
+            <Text style={styles.infoHeaderText}>Standard Price</Text>
+          </View>
+          <Text style={styles.infoText}>
+            {eventInfo?.PriceForNonMembers} kr
+          </Text>
+          <View style={styles.separator} />
+        </View>
+
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <Ionicons name="pricetag" size={24} color="black" />
+            <Text style={styles.infoHeaderText}>Price for members</Text>
+          </View>
+          <Text style={styles.infoText}>{eventInfo?.PriceForMembers} kr</Text>
+          <View style={styles.separator} />
+        </View>
+
+        {renderDates()}
+
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <FontAwesome name="calendar-times-o" size={24} color="black" />
+            <Text style={styles.infoHeaderText}>Deadline</Text>
+          </View>
+          <Text style={styles.infoText}>{eventInfo?.Deadline.dateTime} </Text>
+          <View style={styles.separator} />
+        </View>
+
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <MaterialIcons name="church" size={24} color="black" />
+            <Text style={styles.infoHeaderText}>Church</Text>
+          </View>
+          {eventInfo?.EventInChurch === "RiksKOUF" ? (
+            <Text style={styles.infoText}>All churchs </Text>
+          ) : (
+            <Text style={styles.infoText}>{eventInfo?.EventInChurch} </Text>
+          )}
+          <View style={styles.separator} />
+        </View>
+
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+          <FontAwesome6 name="people-pulling" size={24} color="black" />
+          <Text style={styles.infoHeaderText}>Maximum bookings</Text>
+          </View>
+          <Text style={styles.infoText}>{eventInfo?.MaxAmountOfBookings} </Text>
+          <View style={styles.separator} />
+        </View>
+
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+          <FontAwesome5 name="paypal" size={24} color="black" />
+          <Text style={styles.infoHeaderText}>Swish number</Text>
+          </View>
+          <Text style={styles.infoText}>{eventInfo?.SwishNumber} </Text>
+          <View style={styles.separator} />
+        </View>
+
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -97,15 +226,39 @@ const EventInfo = () => {
 export default EventInfo;
 
 const styles = StyleSheet.create({
+  infoSection: {
+    marginBottom: 10,
+    marginHorizontal: 10,
+  },
+  infoHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  infoHeaderText: {
+    marginLeft: 10,
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  infoText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  editButton: {
+    position: "absolute",
+    top: 5,
+    right: 15,
+    zIndex: 1,
+  },
   loading: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   imagePreview: {
-    width: 400,
-    height: 400,
-    marginTop: 20,
+    width: 350,
+    height: 350,
+    marginBottom: 30,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#ccc",
@@ -131,4 +284,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 20,
   },
+  separator: {
+    height: 1,
+    backgroundColor: "#ccc",
+    marginVertical: 5,
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  image:{
+    width:24,
+    height:24
+  }
 });

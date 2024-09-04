@@ -122,9 +122,9 @@ const MemberInfo = () => {
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={server}>
+        {/* <TouchableOpacity onPress={server}>
           <Text>test</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TouchableOpacity
           onPress={() =>
@@ -165,16 +165,6 @@ const MemberInfo = () => {
           "Address",
           `${memberInfo?.StreetName}, ${memberInfo?.PostNumber} ${memberInfo?.City}`
         )}
-        {/* {renderInfoSection(
-          "lock-closed-outline",
-          "Password",
-          memberInfo?.Password
-        )} */}
-        {/* {renderInfoSection(
-          "list-outline",
-          "Interested services",
-          memberInfo?.Service?.join(", ")
-        )} */}
 
         <View style={styles.infoSection}>
           <View style={styles.infoHeader}>

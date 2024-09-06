@@ -32,12 +32,12 @@ import { useUser } from "@/context/userContext.js";
 import { ChurchInfo } from "@/constants/types";
 import { getOneDocInCollection } from "@/firebase/firebaseModel";
 import { useChurch } from "@/context/churchContext";
-type MemberInfosRouteProp = RouteProp<RootStackParamList, "CreateEvent">;
+type EventInfosRouteProp = RouteProp<RootStackParamList, "CreateEvent">;
 
 const CreateEvent = () => {
   const { churchName } = useChurch();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const route = useRoute<MemberInfosRouteProp>();
+  const route = useRoute<EventInfosRouteProp>();
   const { EventChurch } = route.params;
   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);

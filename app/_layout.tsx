@@ -28,6 +28,9 @@ import Churchs from "./RIKSKOUFScreens/churchs";
 import Members from "./RIKSKOUFScreens/members";
 
 import { RootStackParamList } from "@/constants/types";
+import Booking from "./paymentsScreens/booking";
+import PaymentInfo from "./paymentsScreens/paymentInfo";
+import Payments from "./paymentsScreens/payments";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -56,11 +59,9 @@ export default function RootLayout() {
 function AuthChecker({ DefaultOptions }) {
   const { user, userInfo, isUserLoading } = useUser();
 
-
   if (isUserLoading) {
     return <SplashScreen />;
   }
-
 
   return (
     <Stack.Navigator screenOptions={DefaultOptions}>
@@ -107,6 +108,7 @@ function AuthChecker({ DefaultOptions }) {
               component={YOUTHTabLayout}
               options={{ contentStyle: styles.screenContent }}
             />
+
             <Stack.Screen
               name="CreateAttendenceSheet"
               component={CreateAttendenceSheet}
@@ -122,6 +124,7 @@ function AuthChecker({ DefaultOptions }) {
               component={EditAttendenceSheet}
               options={{ contentStyle: styles.screenContent }}
             />
+
             <Stack.Screen
               name="EventInfo"
               component={EventInfo}
@@ -137,6 +140,7 @@ function AuthChecker({ DefaultOptions }) {
               component={EditEvent}
               options={{ contentStyle: styles.screenContent }}
             />
+
             <Stack.Screen
               name="EditMember"
               component={EditMember}
@@ -145,6 +149,22 @@ function AuthChecker({ DefaultOptions }) {
             <Stack.Screen
               name="MemberInfo"
               component={MemberInfo}
+              options={{ contentStyle: styles.screenContent }}
+            />
+
+            <Stack.Screen
+              name="Booking"
+              component={Booking}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="PaymentInfo"
+              component={PaymentInfo}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="Payments"
+              component={Payments}
               options={{ contentStyle: styles.screenContent }}
             />
           </>

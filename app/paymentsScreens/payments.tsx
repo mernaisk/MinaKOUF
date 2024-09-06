@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const payments = () => {
+const Payments = () => {
   return (
     <SafeAreaView>
       <Text>payments</Text>
@@ -10,6 +10,6 @@ const payments = () => {
   )
 }
 
-export default payments
+export default Payments
 
 const styles = StyleSheet.create({})

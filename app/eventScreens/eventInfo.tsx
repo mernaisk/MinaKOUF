@@ -8,7 +8,10 @@ import {
   ScrollView,
 } from "react-native";
 import React from "react";
-import { getOneDocInCollection } from "@/firebase/firebaseModel";
+import {
+  getDocumentIdByName,
+  getOneDocInCollection,
+} from "@/firebase/firebaseModel";
 import { useQuery } from "@tanstack/react-query";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -20,31 +23,66 @@ import {
 } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Fontisto from "@expo/vector-icons/Fontisto";
-import { RootStackParamList } from "@/constants/types";
+import { ChurchInfo, RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import BackButton from "@/components/BackButton";
 import { useUser } from "@/context/userContext";
+import dayjs from "dayjs";
+import { getChurchInfo } from "@/firebase/firebaseModelEvents";
 type EventsDetailsRouteProp = RouteProp<RootStackParamList, "EventInfo">;
 
 const EventInfo = () => {
   const route = useRoute<EventsDetailsRouteProp>();
   const { eventId } = route.params;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { userInfo } = useUser();
+  const { user, userInfo } = useUser();
+  function checkMembership() {}
   console.log(eventId);
   const { data: eventInfo, isLoading } = useQuery({
     queryFn: () => getOneDocInCollection("Events", eventId),
     queryKey: ["EventInfo", eventId],
   });
 
-  if (isLoading) {
+  const {
+    data: OrginizationID,
+    isLoading: isLoading2,
+    error,
+    isSuccess,
+  } = useQuery<string | null>({
+    queryFn: async () => {
+      let OrgId: string | null = null;
+
+      if (eventInfo?.EventInChurch === "RiksKOUF") {
+        OrgId = await getDocumentIdByName(
+          "Churchs",
+          "Name",
+          "RiksKOUF"
+        );
+      } else {
+        OrgId = await getDocumentIdByName(
+          "Churchs",
+          "Name",
+          eventInfo?.EventInChurch
+        );
+      }
+
+      if (!OrgId) {
+        throw new Error("Church information not found.");
+      }
+
+      return OrgId;
+    },
+    queryKey: ["Orginization", eventInfo?.EventInChurch],
+  });
+  if (isLoading || isLoading2) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size="large" color="#00ff00" />
       </View>
     );
   }
+  const Amount = eventInfo?.PriceForNonMembers;
 
   const renderDates = () => {
     const { StartDate, EndDate }: any = eventInfo;
@@ -202,8 +240,8 @@ const EventInfo = () => {
 
         <View style={styles.infoSection}>
           <View style={styles.infoHeader}>
-          <FontAwesome6 name="people-pulling" size={24} color="black" />
-          <Text style={styles.infoHeaderText}>Maximum bookings</Text>
+            <FontAwesome6 name="people-pulling" size={24} color="black" />
+            <Text style={styles.infoHeaderText}>Maximum bookings</Text>
           </View>
           <Text style={styles.infoText}>{eventInfo?.MaxAmountOfBookings} </Text>
           <View style={styles.separator} />
@@ -211,13 +249,45 @@ const EventInfo = () => {
 
         <View style={styles.infoSection}>
           <View style={styles.infoHeader}>
-          <FontAwesome5 name="paypal" size={24} color="black" />
-          <Text style={styles.infoHeaderText}>Swish number</Text>
+            <FontAwesome5 name="paypal" size={24} color="black" />
+            <Text style={styles.infoHeaderText}>Swish number</Text>
           </View>
           <Text style={styles.infoText}>{eventInfo?.SwishNumber} </Text>
           <View style={styles.separator} />
         </View>
 
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("Booking", {
+              BookingInfo: {
+                payerID: user.uid,
+                paymentDetails: {
+                  type: "event",
+                  eventID: eventId,
+                },
+                amount: Amount,
+                method: {
+                  type: null,
+                  swishDetails: {
+                    swishNumber: eventInfo?.SwishNumber,
+                    confirmed: null,
+                    confirmedBy: null,
+                  },
+                  cashDetails: {
+                    receivedBy: null,
+                    confirmed: null,
+                    confirmedBy: null,
+                  },
+                },
+                churchID: OrginizationID,
+                date: null,
+                status: "Pending",
+              },
+            })
+          }
+        >
+          <Text>Book</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -293,8 +363,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  image:{
-    width:24,
-    height:24
-  }
+  image: {
+    width: 24,
+    height: 24,
+  },
 });

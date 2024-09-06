@@ -18,6 +18,10 @@ export type RootStackParamList = {
     CreateEvent:{EventChurch:string};
     EditEvent:{eventId:string};
 
+    Booking:{BookingInfo:object};
+    PaymentInfo:{PaymentId:string};
+    Payments:{PaymentCategory:object}
+
     EditMember:{memberId:string}
     MemberInfo:{memberId:string}
 

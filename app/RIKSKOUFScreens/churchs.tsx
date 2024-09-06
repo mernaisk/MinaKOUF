@@ -1,6 +1,7 @@
 import {
   Alert,
   FlatList,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -67,6 +68,7 @@ const Churchs = () => {
   console.log(churchsNames);
   return (
     <SafeAreaView>
+      <ScrollView>
       <BackButton handleBackPress={handleBackPress}></BackButton>
       <FlatList
         data={churchsNames}
@@ -168,6 +170,7 @@ const Churchs = () => {
       >
         <Text style={styles.buttonText}>add church</Text>
       </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 };

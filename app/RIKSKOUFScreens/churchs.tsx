@@ -16,7 +16,7 @@ import {
   getAllDocInCollection,
 } from "@/firebase/firebaseModel";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { RootStackParamList } from "@/constants/types";
+import { ChurchInfo, RootStackParamList } from "@/constants/types";
 import { useForm } from "react-hook-form";
 import InputController from "@/components/InputController";
 import { useChurch } from "@/context/churchContext";
@@ -28,10 +28,11 @@ const Churchs = () => {
   const queryClient = useQueryClient();
   const { setChurchName } = useChurch();
 
-  const { data: churchsNames, isLoading } = useQuery({
+  const { data: OrginizationsNames, isLoading } = useQuery({
     queryFn: () => getAllDocInCollection("Churchs"),
     queryKey: ["churchs"],
   });
+  // const filteredChurchs = churchNames?.filter((church:ChurchInfo) => {return church?.Name !== "RiksKOUF" })
 
   const {
     control,
@@ -65,13 +66,13 @@ const Churchs = () => {
   function handleBackPress() {
     navigation.goBack();
   }
-  console.log(churchsNames);
+  console.log(OrginizationsNames);
   return (
     <SafeAreaView>
       <ScrollView>
       <BackButton handleBackPress={handleBackPress}></BackButton>
       <FlatList
-        data={churchsNames}
+        data={OrginizationsNames}
         renderItem={({ item }: any) => (
           <TouchableOpacity
             style={styles.memberItem}

@@ -72,8 +72,23 @@ export type RootStackParamList = {
       Name:string,
       Id:string
     };
-    LeaderTitle:string;
+    LeaderTitle:string | null;
     ChurchKOUFLeader:Object;
+    Attendence: {
+      CountAbsenceCurrentYear: string,
+      CountAttendenceCurrentYear: string,
+      LastWeekAttendend: string,
+    };
+    Roles:{
+      KOUF: {
+        Active:Boolean,
+        Orginizations:Array<Object>
+      },
+      RiksKOUF:{
+        Active:Boolean,
+        Title:String
+      }
+    }
     
   }
 
@@ -83,5 +98,7 @@ export type RootStackParamList = {
     PostNumber: string;
     City: string;
     SwishNumber:string;
-    
+    NotAdmin:Array<Object>;
+    Admin:Array<Object>;
+    Id:string
   }

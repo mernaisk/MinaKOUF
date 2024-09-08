@@ -36,7 +36,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import {
-  AddMemberFirebase,
+  
   getAllDocInCollection,
 } from "../../firebase/firebaseModel";
 import * as ImagePicker from "expo-image-picker";
@@ -44,10 +44,10 @@ import ScreenWrapper from "../ScreenWrapper.js";
 import { Loading } from "@/components/loading";
 import { validatePhoneNumber } from "../../scripts/utilities.js";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { RootStackParamList } from "@/constants/types.js";
+import { ChurchInfo, RootStackParamList } from "@/constants/types.js";
 import { useUser } from "@/context/userContext.js";
 import ImagePickerControl from "@/components/ImagePickerControl";
-
+import { AddMemberFirebase } from "@/firebase/firebaseModelMembers";
 const AddMember = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const queryClient = useQueryClient();
@@ -71,7 +71,7 @@ const AddMember = () => {
       Orginization:[]
     },
   });
-
+  // getAllDocInCollection("Churchs")
   const watchPassword = watch("Password", "");
   console.log(watch());
   async function refetch() {
@@ -85,6 +85,7 @@ const AddMember = () => {
     // data.map((item: any) => ({ label: item.name, value: item.Id })), // Assuming item has name and id fields
   });
 
+  const filteredChurchs = churchNames?.filter((church:ChurchInfo) => {return church?.Name !== "RiksKOUF" })
   console.log(churchNames);
   const mutationAdd = useMutation<any, unknown, any>({
     mutationFn: (data) => {
@@ -320,7 +321,7 @@ const AddMember = () => {
               control={control}
               name="Orginization"
               rules={{ required: "Please select at least one church." }}
-              items={churchNames}
+              items={filteredChurchs}
               title="Which church/churchs do you belong to?"
               disabled={false}
             />

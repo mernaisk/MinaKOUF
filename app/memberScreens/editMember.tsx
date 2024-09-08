@@ -7,15 +7,11 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
-  Modal,
-  Image,
   Platform,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import InputController from "../../components/InputController.jsx";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as ImagePicker from "expo-image-picker";
-import { checkAuthForEditingMember } from "@/scripts/authCheck.js";
 import {
   serviceOptions,
   checkEmail,
@@ -24,22 +20,18 @@ import {
 import MultiSelectController from "../../components/MultiSelectController";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
-import {
-  getAllDocInCollection,
-  getOneDocInCollection,
-  updateDocument,
-  updateMemberInfo,
-} from "../../firebase/firebaseModel";
+import { getAllDocInCollection } from "../../firebase/firebaseModel";
 import AwesomeAlert from "react-native-awesome-alerts";
 import { Ionicons } from "@expo/vector-icons";
 import { Loading } from "../../components/loading";
-import { RootStackParamList } from "@/constants/types";
+import { ChurchInfo, RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import ImagePickerControl from "@/components/ImagePickerControl";
 import { MemberInfo } from "@/constants/types";
 import OneSelectController from "@/components/OneSelectController";
 import { useUser } from "@/context/userContext.js";
+import { updateMemberInfo } from "@/firebase/firebaseModelMembers";
 type MemberInfosRouteProp = RouteProp<RootStackParamList, "MemberInfo">;
 
 const EditMember = () => {
@@ -69,7 +61,7 @@ const EditMember = () => {
     reset,
     setValue,
     formState: { isDirty, touchedFields },
-  } = useForm<MemberInfo>({
+  } = useForm<any>({
     defaultValues: {
       ProfilePicture: { URL: "", assetInfo: {} },
       Name: "",
@@ -87,11 +79,12 @@ const EditMember = () => {
       Category: {},
       LeaderTitle: "",
       ChurchKOUFLeader: {},
+      BelongsToRiksKOUF: null,
     },
   });
 
   const watchCategory = watch("Category");
-
+  const watchRiksKOUF = watch("BelongsToRiksKOUF");
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const watchedValues = watch();
   console.log("wateedvalues is : ", watchedValues);
@@ -104,7 +97,10 @@ const EditMember = () => {
     queryKey: ["churchs"],
   });
   console.log("churchNaames is ", churchNames);
-  
+  const filteredChurchs = churchNames?.filter((church: ChurchInfo) => {
+    return church?.Name !== "RiksKOUF";
+  });
+
   const mutationUpdate = useMutation({
     mutationFn: (data: MemberInfo) => {
       setIsUpdating(true);
@@ -141,7 +137,7 @@ const EditMember = () => {
         PostNumber: memberInfo.PostNumber,
         City: memberInfo.City,
         Email: memberInfo.Email,
-        Password: memberInfo.Password ,
+        Password: memberInfo.Password,
         ConfirmPassword: memberInfo.ConfirmPassword,
         Service: memberInfo.Service || [],
         Involvments: memberInfo.Involvments || [],
@@ -149,6 +145,7 @@ const EditMember = () => {
         Category: memberInfo.Category || {},
         LeaderTitle: memberInfo.LeaderTitle,
         ChurchKOUFLeader: memberInfo.ChurchKOUFLeader || {},
+        BelongsToRiksKOUF: null,
       });
     }
   }, [memberInfo, reset]);
@@ -204,7 +201,6 @@ const EditMember = () => {
                 <Text style={styles.saveButtonText}>Save</Text>
               </TouchableOpacity>
             </View>
-
             <ImagePickerControl
               name="ProfilePicture"
               control={control}
@@ -221,7 +217,6 @@ const EditMember = () => {
               iconStyle={styles.editIcon}
               customSize={20}
             />
-
             <InputController
               name="Name"
               control={control}
@@ -242,7 +237,6 @@ const EditMember = () => {
               secureTextEntry={false}
               autoCapitalize="words"
             />
-
             <InputController
               name="PersonalNumber"
               control={control}
@@ -256,7 +250,6 @@ const EditMember = () => {
               placeholder="YYYYMMDD-XXXX"
               secureTextEntry={false}
             />
-
             <InputController
               name="StreetName"
               control={control}
@@ -273,7 +266,6 @@ const EditMember = () => {
               secureTextEntry={false}
               autoCapitalize="words"
             />
-
             <InputController
               name="PostNumber"
               control={control}
@@ -289,7 +281,6 @@ const EditMember = () => {
               keyboardType="phone-pad"
               secureTextEntry={false}
             />
-
             <InputController
               name="PhoneNumber"
               control={control}
@@ -301,7 +292,6 @@ const EditMember = () => {
               keyboardType="phone-pad"
               secureTextEntry={false}
             />
-
             <InputController
               name="City"
               control={control}
@@ -316,7 +306,6 @@ const EditMember = () => {
               secureTextEntry={false}
               autoCapitalize="words"
             />
-
             <InputController
               name="Email"
               control={control}
@@ -329,8 +318,6 @@ const EditMember = () => {
               keyboardType="email-address"
               secureTextEntry={false}
             />
-
-
             <MultiSelectController
               name="Service"
               control={control}
@@ -339,26 +326,68 @@ const EditMember = () => {
               title="Which services are you interested in"
               disabled={false}
             />
-
             <MultiSelectController
               control={control}
               name="Orginization"
               rules={{ required: "Please select at least one church." }}
-              items={churchNames}
+              items={filteredChurchs}
               title="Which church/churchs do you belong to?"
               disabled={false}
             />
 
             <OneSelectController
+              name="BelongsToRiksKOUF"
+              control={control}
+              rules={{
+                validate: (value: any) => {
+                  // console.log(Object.keys(value).length)
+                  if (value) {
+                    if (Object.keys(value).length === 0) {
+                      return "Please select if the member belongs to RiksKOUF.";
+                    }
+                  }
+                  else{
+                    return "Please select if the member belongs to RiksKOUF.";
+
+                  }
+                  return true;
+                },
+              }}
+              items={[
+                { Name: "Yes", Id: "Yes" },
+                { Name: "No", Id: "No" },
+              ]}
+              title={`Is ${
+                memberInfo?.Name || "the member"
+              } belongs to RiksKOUF?`}
+              disabled={undefined}
+            />
+
+            {watchRiksKOUF?.Name === "Yes" && (
+              <InputController
+                name="RiksKoufTitle"
+                control={control}
+                rules={{
+                  required:
+                    "Please enter the title if the member belongs to RiksKOUF.",
+                }}
+                placeholder="RiksKOUF Title"
+                secureTextEntry={false}
+              />
+            )}
+            {/* <OneSelectController
               name="Category"
               control={control}
-              rules={{ required: "Please select at least one category." }}
+              rules={{ required: "Please select at least one category.",
+                validate: (value:any) => {
+                  console.log(Object.keys(value).length)
+                }
+              }}
               items={CategoryOptions}
               title="Choose your category"
               disabled={!checkAccess()}
-            />
-
-            <OneSelectController
+            /> */}
+            {/* <OneSelectController
               name="ChurchKOUFLeader"
               control={control}
               rules={{
@@ -367,11 +396,10 @@ const EditMember = () => {
                     ? "This field is required for KOUF"
                     : false,
               }}
-              items={churchNames}
+              items={filteredChurchs}
               title="Which church are you leader in"
               disabled={watchCategory.Name !== "KOUF" || !checkAccess()}
             />
-
             <InputController
               name="LeaderTitle"
               control={control}
@@ -384,8 +412,9 @@ const EditMember = () => {
               placeholder="Leader Title"
               secureTextEntry={false}
               editable={checkAccess() && watchCategory.Name !== "Ungdom"}
-            />
+            /> */}
 
+            
             <MultiSelectController
               name="Involvments"
               control={control}
@@ -394,7 +423,6 @@ const EditMember = () => {
               title="Which services are you belonging to"
               disabled={!checkAccess()}
             />
-
             <AwesomeAlert
               show={isAlertVisible}
               title="Unsaved Changes"

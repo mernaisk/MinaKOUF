@@ -131,11 +131,11 @@ const titleOptions = [
 ];
 
 const serviceOptions = [
-  { Name: "Teatern", Id: "Teatern" },
-  { Name: "Kören", Id: "Kören" },
-  { Name: "Aktiviteter", Id: "Aktiviteter" },
-  { Name: "Eftekad", Id: "Eftekad" },
-  { Name: "Utbildning", Id: "Utbildning " },
+  { Name: "Teatern", Id: "Teatern" , Disabled:false},
+  { Name: "Kören", Id: "Kören" , Disabled:false},
+  { Name: "Aktiviteter", Id: "Aktiviteter" , Disabled:false},
+  { Name: "Eftekad", Id: "Eftekad" , Disabled:false},
+  { Name: "Utbildning", Id: "Utbildning" , Disabled:false},
 ];
 
 const attendenceOptions = [

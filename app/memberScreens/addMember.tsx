@@ -48,12 +48,18 @@ import { ChurchInfo, RootStackParamList } from "@/constants/types.js";
 import { useUser } from "@/context/userContext.js";
 import ImagePickerControl from "@/components/ImagePickerControl";
 import { AddMemberFirebase } from "@/firebase/firebaseModelMembers";
+import OneSelectController from "@/components/OneSelectController";
 const AddMember = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const queryClient = useQueryClient();
   const [isUpdating, setIsLoading] = useState(false);
   const { setIsMemberBeingCreated } = useUser();
 
+  const testItems =[
+    {Name: "Test1",Id:"Test1",Disabled:true},
+    {Name: "Test2",Id:"Test2",Disabled:false},
+    {Name: "Test3",Id:"Test3",Disabled:true}
+  ]
   const {
     control,
     handleSubmit,
@@ -73,7 +79,7 @@ const AddMember = () => {
   });
   // getAllDocInCollection("Churchs")
   const watchPassword = watch("Password", "");
-  console.log(watch());
+  console.log("watched values are: ",watch());
   async function refetch() {
     await queryClient.refetchQueries();
   }
@@ -85,7 +91,15 @@ const AddMember = () => {
     // data.map((item: any) => ({ label: item.name, value: item.Id })), // Assuming item has name and id fields
   });
 
-  const filteredChurchs = churchNames?.filter((church:ChurchInfo) => {return church?.Name !== "RiksKOUF" })
+  const OrgnizationsWithoutRiksKOUF = churchNames?.filter((church:ChurchInfo) => {return church?.Name !== "RiksKOUF" })
+  let OrgOptions: any[] = [];
+
+  function createOptions(item:any){
+    OrgOptions = [...OrgOptions,{Name:item.Name, Id:item.Name, Disabled:false}]
+    console.log(OrgOptions)
+  }
+
+  OrgnizationsWithoutRiksKOUF?.map(createOptions)
   console.log(churchNames);
   const mutationAdd = useMutation<any, unknown, any>({
     mutationFn: (data) => {
@@ -309,6 +323,8 @@ const AddMember = () => {
               secureTextEntry={true}
             />
 
+
+
             <MultiSelectController
               control={control}
               name="Service"
@@ -317,11 +333,11 @@ const AddMember = () => {
               title="Which services are you interested in"
               disabled={false}
             />
-            <MultiSelectController
+            <OneSelectController
               control={control}
               name="Orginization"
               rules={{ required: "Please select at least one church." }}
-              items={filteredChurchs}
+              items={OrgOptions}
               title="Which church/churchs do you belong to?"
               disabled={false}
             />

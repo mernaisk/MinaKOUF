@@ -57,24 +57,16 @@ const CreateAttendenceSheet = () => {
         <Text>Create</Text>
       </TouchableOpacity>
 
-      <OneSelectController
+      {/* <OneSelectController
               control={control}
               name="Leader"
               rules={{ required: "Please select at least one leader." }}
               items={leaders}
               title="Which leader is creating the attendencesheet"
-      />
+      /> */}
       
-      <SelectDateControl
-        name="Date"
-        control={control}
-        rules={{
-          required: " Date and time is required.",
-        }}
-        placeholderDate={" Date"}
-        placeholderTime={" Time"}
-        // minDate={dayjs().toDate()}
-      />
+
+
     </SafeAreaView>
   );
 };

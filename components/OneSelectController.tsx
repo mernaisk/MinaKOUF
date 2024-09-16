@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import CheckBox from "react-native-check-box";
 import { useController } from "react-hook-form";
 
-const OneSelectController = ({ control, name, rules, items, title, disabled }) => {
+const OneSelectController = ({ control, name, rules, items, title, disabled }:any) => {
   const {
     field,
     fieldState: { error },
@@ -13,18 +13,19 @@ const OneSelectController = ({ control, name, rules, items, title, disabled }) =
     rules,
   });
 
-  const [isSelected, setIsSelected] = useState({});
+  const [isSelected, setIsSelected] = useState("");
 
   useEffect(() => {
     setIsSelected(field.value);
   }, [field.value]);
 
-  const handleSelectItem = (item) => {
-    if (item.Name === isSelected?.Name) {
-      setIsSelected({});
-      field.onChange({});
+  const handleSelectItem = (item:any) => {
+    if (item.Name === isSelected) {
+      setIsSelected("");
+      field.onChange(null);
     } else {
-      field.onChange({ Name: item.Name, Id: item.Name });
+      field.onChange(item.Name);
+      // setIsSelected(item.Name);
     }
   };
 
@@ -36,7 +37,7 @@ const OneSelectController = ({ control, name, rules, items, title, disabled }) =
             {title}
           </Text>
         )}
-        {items.map((item) => (
+        {items.map((item:any) => (
           <View key={item.Id} style={styles.checkboxContainer}>
             <CheckBox
               style={[
@@ -44,7 +45,7 @@ const OneSelectController = ({ control, name, rules, items, title, disabled }) =
                 disabled && styles.disabledCheckbox,
               ]}
               onClick={() => !disabled && handleSelectItem(item)} // Prevent interaction if disabled
-              isChecked={isSelected?.Name === item.Name}
+              isChecked={isSelected === item.Name}
               rightText={item.Name}
               disabled={disabled} // Disable checkbox if disabled prop is true
               rightTextStyle={disabled ? styles.disabledText : undefined}

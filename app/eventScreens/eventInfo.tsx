@@ -151,7 +151,7 @@ const EventInfo = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <BackButton handleBackPress={handleBackPress}></BackButton>
-        {userInfo.Category.Name !== "Ungdom" && (
+        {/* {userInfo.Category.Name !== "Ungdom" && (
           <TouchableOpacity
             onPress={() =>
               navigation.navigate("EditEvent", { eventId: eventId })
@@ -160,8 +160,15 @@ const EventInfo = () => {
           >
             <FontAwesome name="edit" size={30} color="black" />
           </TouchableOpacity>
-        )}
-
+        )} */}
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("EditEvent", { eventId: eventId })
+            }
+            style={styles.editButton}
+          >
+            <FontAwesome name="edit" size={30} color="black" />
+          </TouchableOpacity>
         <View>
           <Text style={styles.title}>{eventInfo?.Title}</Text>
         </View>

@@ -1,177 +1,93 @@
 import {
-  Alert,
   FlatList,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  AddChurchFirebase,
-  getAllDocInCollection,
-} from "@/firebase/firebaseModel";
+import { useQuery } from "@tanstack/react-query";
+import { getAllDocInCollection } from "@/firebase/firebaseModel";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { ChurchInfo, RootStackParamList } from "@/constants/types";
-import { useForm } from "react-hook-form";
-import InputController from "@/components/InputController";
-import { useChurch } from "@/context/churchContext";
+import { RootStackParamList } from "@/constants/types";
 import BackButton from "@/components/BackButton";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const Churchs = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [isUpdating, setIsUpdating] = useState(false);
-  const queryClient = useQueryClient();
-  const { setChurchName } = useChurch();
 
   const { data: OrginizationsNames, isLoading } = useQuery({
     queryFn: () => getAllDocInCollection("Churchs"),
     queryKey: ["churchs"],
   });
-  // const filteredChurchs = churchNames?.filter((church:ChurchInfo) => {return church?.Name !== "RiksKOUF" })
-
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-
-  const addChurch = useMutation<any, unknown, any>({
-    mutationFn: (data) => {
-      setIsUpdating(true); // Start loading
-      return AddChurchFirebase(data);
-    },
-
-    onError: (error: any) => {
-      setIsUpdating(false); // Stop loading
-
-      Alert.alert("Technical wrong, try again");
-    },
-
-    onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: ["churchs"] });
-      setIsUpdating(false); // Stop loading
-    },
-  });
-
-  function onSubmit(data: any) {
-    console.log(data);
-    addChurch.mutate(data);
-  }
 
   function handleBackPress() {
     navigation.goBack();
   }
-  console.log(OrginizationsNames);
+
   return (
-    <SafeAreaView>
-      <ScrollView>
-      <BackButton handleBackPress={handleBackPress}></BackButton>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.headerContainer}>
+        <BackButton handleBackPress={handleBackPress} />
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate("AddChurch")}
+        >
+          <MaterialIcons name="add" size={24} color="#fff" />
+          <Text style={styles.addButtonText}>Add Church</Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={OrginizationsNames}
-        renderItem={({ item }: any) => (
-          <TouchableOpacity
-            style={styles.memberItem}
-            onPress={() => {
-              setChurchName(item?.Name);
-              navigation.navigate("Home");
-            }}
-          >
-            <Text style={styles.buttonText}>{item.Name}</Text>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={() => (
-          <View>
-            <Text>No items to display</Text>
+        keyExtractor={(item) => item.Name}
+        renderItem={({ item }) => (
+          <View style={styles.memberItem}>
+            <View style={styles.headerRow}>
+              <MaterialIcons
+                name="church"
+                size={50}
+                color="#363852"
+                style={styles.churchIcon}
+              />
+              <Text style={styles.nameText}>{item.Name}</Text>
+            </View>
+
+            <View style={styles.infoContainer}>
+              <View style={styles.detailRow}>
+                <View style={styles.iconContainer}>
+                  <FontAwesome name="map-marker" size={20} color="#4a4e69" />
+                </View>
+                <Text style={styles.detailsText}>
+                  {item.StreetName}, {item.PostNumber} {item.City}
+                </Text>
+              </View>
+              <View style={styles.detailRow}>
+                <View style={styles.iconContainer}>
+                  <MaterialIcons name="payment" size={20} color="black" />
+                </View>
+                <Text style={styles.detailsText}>{item.SwishNumber}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <View style={styles.iconContainer}>
+                  <FontAwesome name="bank" size={20} color="#4a4e69" />
+                </View>
+
+                <Text style={styles.detailsText}>{item.BankgiroNumber}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <View style={styles.iconContainer}>
+                  <FontAwesome name="building" size={20} color="#4a4e69" />
+                </View>
+
+                <Text style={styles.detailsText}>{item.OrganisationNr}</Text>
+              </View>
+            </View>
           </View>
         )}
       />
-      <InputController
-        name="Name"
-        control={control}
-        rules={{
-          required: "Name is required.",
-          pattern: {
-            value: /^[a-zA-ZöäåÖÄÅ\s]+$/,
-            message: "This input is letters only.",
-          },
-          maxLength: {
-            value: 20,
-            message: "This input exceed maxLength.",
-          },
-        }}
-        placeholder="Church name"
-        autoCompleteType="name"
-        keyboardType="default"
-        secureTextEntry={false}
-      />
-      <InputController
-        name="StreetName"
-        control={control}
-        rules={{
-          required: "Street name is required.",
-          pattern: {
-            value: /^[a-zA-ZöäåÖÄÅ\s\d]+$/,
-            message: "letters, digits and spaces only. inga symboler",
-          },
-        }}
-        placeholder="Street Name"
-        autoCompleteType="street-address"
-        keyboardType="default"
-        secureTextEntry={false}
-      />
-
-      <InputController
-        name="PostNumber"
-        control={control}
-        rules={{
-          required: "Post number is required.",
-          pattern: {
-            value: /\d{5}/,
-            message: "Invalid post number. It should be 5 digits.",
-          },
-        }}
-        placeholder="Post number"
-        autoCompleteType="postal-code"
-        keyboardType="phone-pad"
-        secureTextEntry={false}
-      />
-
-      <InputController
-        name="City"
-        control={control}
-        rules={{
-          required: "City is required.",
-          pattern: {
-            value: /^[a-zA-ZöäåÖÄÅ\s]+$/,
-            message: "letters only.",
-          },
-        }}
-        placeholder="City"
-        secureTextEntry={false}
-      />
-
-      <InputController
-        name="SwishNumber"
-        control={control}
-        rules={{
-          required: "Swish number is required.",
-        }}
-        placeholder="Swish number"
-        secureTextEntry={false}
-      />
-
-      <TouchableOpacity
-        style={styles.memberItem}
-        onPress={handleSubmit(onSubmit)}
-      >
-        <Text style={styles.buttonText}>add church</Text>
-      </TouchableOpacity>
-      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -179,33 +95,93 @@ const Churchs = () => {
 export default Churchs;
 
 const styles = StyleSheet.create({
-  memberItem: {
+  container: {
+    flex: 1,
+    backgroundColor: "#f0f0f5",
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+    backgroundColor: "#fff",
+  },
+  addButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f2e9e4",
-    marginVertical: 10,
-    padding: 10,
+    backgroundColor: "#4a4e69",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  addButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    marginLeft: 5,
+  },
+  memberItem: {
+    backgroundColor: "#fff",
+    padding: 15,
+    marginVertical: 8,
+    marginHorizontal: 15,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#726d81",
-    width: "70%", // Set the item width to 70% of the screen width
-    alignSelf: "center", // Center the item horizontally
+    borderColor: "#ddd",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+    elevation: 2,
   },
-  buttonText: {
+  headerRow: {
+    flexDirection: "row", // Icon and name in one row
+    alignItems: "center", // Vertically center the name with the icon
+    // justifyContent: "center", // Horizontally center the icon and name
+  },
+
+  churchIcon: {
+    marginRight: 10,
+  },
+
+  infoContainer: {
+    flexDirection: "column", // Ensure details are stacked vertically
+    alignItems: "flex-start", // Align all text to the left
+    marginTop: 10, // Add space between name and details
+  },
+
+  nameText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#363852",
+    textAlign: "center", // Center the name
+  },
+
+  detailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+    marginHorizontal: 10,
+  },
+  iconContainer: {
+    width: 30, // Fixed width for the icon container to ensure alignment
+    alignItems: "center", // Center the icon inside the container
+  },
+  detailsText: {
+    fontSize: 14,
+    color: "#555",
+    marginLeft: 15,
+  },
+  emptyContainer: {
     flex: 1,
-    color: "black",
-    textAlign: "center",
-    fontSize: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
   },
-  input: {
-    backgroundColor: "#f2e9e4",
-    fontSize: 18,
-    paddingVertical: 10,
-    paddingHorizontal: 10, // Add padding to ensure the text doesn't overlap with the icon
-    width: "90%", // Specific width
-    height: 50, // Specific height
-    textAlign: "center", // Center the text
-    borderRadius: 10,
-    color: "#4a4e69", // Change this to your desired text color
+  emptyText: {
+    fontSize: 16,
+    color: "#888",
   },
 });

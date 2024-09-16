@@ -59,19 +59,24 @@ const MemberInfo = () => {
   console.log(memberInfo);
 
   function renderMembersTitle() {
-    if (memberInfo?.Category?.Name == "Ungdom") {
-      return <Text style={styles.infoText}>Ungdom</Text>;
-    } else if (memberInfo?.Category?.Name === "KOUF") {
+    if (memberInfo?.IsActiveInKOUF === "Yes" && memberInfo?.IsActiveInRiksKOUF === "Yes") {
       return (
-        <Text style={styles.infoText}>
-          KOUF-{memberInfo?.LeaderTitle} i {memberInfo?.Title?.ChurchLeader}
-        </Text>
+        <View>
+          <Text style={styles.infoText}>{memberInfo?.TitleKOUF} i {memberInfo?.OrginizationNameKOUF} </Text>
+          <Text style={styles.infoText}>{memberInfo?.TitleRiksKOUF} i RiksKOUF</Text>
+        </View>
       );
-    } else if (memberInfo?.Category?.Name == "RiksKOUF") {
+    } else if (memberInfo?.IsActiveInKOUF === "No" && memberInfo?.IsActiveInRiksKOUF === "Yes") {
       return (
-        <Text style={styles.infoText}>RiksKOUF-{memberInfo?.LeaderTitle}</Text>
+        <Text style={styles.infoText}>{memberInfo?.TitleRiksKOUF} i RiksKOUF</Text>
+
+      );
+    } else if (memberInfo?.IsActiveInKOUF === "Yes" && memberInfo?.IsActiveInRiksKOUF === "No") {
+      return (
+        <Text style={styles.infoText}>{memberInfo?.TitleKOUF} i {memberInfo?.OrginizationNameKOUF} </Text>
       );
     } else {
+      return <Text style={styles.infoText}>Ungdom</Text>
     }
   }
 
@@ -89,27 +94,23 @@ const MemberInfo = () => {
 
     if (object.Name) {
       return (
-        // <View key={index}>
-
-          <Text key={index}>
-            {symbol()} {object.Name}
-          </Text>
-        // </View>
+        <Text key={index}>
+          {symbol()} {object.Name}
+        </Text>
       );
     } else {
-      return (<Text>none</Text>);
+      return <Text>none</Text>;
     }
   };
 
   const renderInvolvments = () => {
-    console.log(memberInfo?.Involvments.length)
-    if(memberInfo?.Involvments.length > 0){
-      return memberInfo?.Involvments.map(renderObjects)
+    console.log(memberInfo?.Involvments.length);
+    if (memberInfo?.Involvments.length > 0) {
+      return memberInfo?.Involvments.map(renderObjects);
+    } else {
+      return <Text>None</Text>;
     }
-    else{
-      return (<Text>None</Text>)
-    }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -121,10 +122,6 @@ const MemberInfo = () => {
           <Ionicons name="arrow-back-outline" size={24} color="#000" />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
-
-        {/* <TouchableOpacity onPress={server}>
-          <Text>test</Text>
-        </TouchableOpacity> */}
 
         <TouchableOpacity
           onPress={() =>
@@ -176,7 +173,7 @@ const MemberInfo = () => {
             <Text style={styles.infoHeaderText}>Areas of Interest</Text>
           </View>
           <Text style={styles.infoText}>
-            {memberInfo?.Service?.map(renderObjects)}.
+            {memberInfo?.Service?.join(",")}.
           </Text>
           <View style={styles.separator} />
         </View>
@@ -188,7 +185,6 @@ const MemberInfo = () => {
           </View>
           <Text style={styles.infoText}>
             {renderInvolvments()}.
-            {/* {memberInfo?.Involvments.map(renderObjects)} */}
           </Text>
           <View style={styles.separator} />
         </View>
@@ -199,8 +195,7 @@ const MemberInfo = () => {
             <Text style={styles.infoHeaderText}>Church</Text>
           </View>
           <Text style={styles.infoText}>
-            {memberInfo?.Orginization?.map(renderObjects)}.
-            {/* {memberInfo?.Orginization?.join(", ")} */}
+            {memberInfo?.Orginization}.
           </Text>
           <View style={styles.separator} />
         </View>

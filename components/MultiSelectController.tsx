@@ -3,9 +3,16 @@ import { View, Text, StyleSheet } from "react-native";
 import CheckBox from "react-native-check-box";
 import { useController } from "react-hook-form";
 
-const MultiSelectController = ({ control, name, rules, items, title, disabled }) => {
+const MultiSelectController = ({
+  control,
+  name,
+  rules,
+  items,
+  title,
+  disabled,
+}) => {
   const {
-    field: { value, onChange },
+    field: { value, onChange }, // Default value to an empty array
     fieldState: { error },
   } = useController({
     control,
@@ -14,19 +21,21 @@ const MultiSelectController = ({ control, name, rules, items, title, disabled })
   });
 
   const [isSelected, setIsSelected] = useState([]);
-
-  const handleSelectItem = (item) => {
-    const isSelectedItems = isSelected.find((it) => it.Id === item.Name);
-    const updatedSelection = isSelectedItems
-      ? isSelected.filter((it) => it.Id !== item.Name)
-      : [...isSelected, { Name: item.Name, Id: item.Name }];
+  useEffect(() => {
+    setIsSelected(value || []);
+  }, [value]);
+  const handleSelectItem = (item: any) => {
+    const isSelectedItem = isSelected?.some((it: any) => it === item.Id);
+    const updatedSelection:any = isSelectedItem
+      ? isSelected.filter((it: any) => it !== item.Id)
+      : [...isSelected, item.Name];
 
     onChange(updatedSelection);
-  };
+    // setIsSelected(updatedSelection); 
 
-  useEffect(() => {
-    setIsSelected(value);
-  }, [value]);
+  };
+  console.log(items)
+
 
   return (
     <View style={styles.container}>
@@ -36,23 +45,20 @@ const MultiSelectController = ({ control, name, rules, items, title, disabled })
             {title}
           </Text>
         )}
-        {items.map((item) => (
+        {items.map((item: any) => (
           <View key={item.Id} style={styles.checkboxContainer}>
             <CheckBox
-              style={[
-                styles.checkbox,
-                disabled && styles.disabledCheckbox,
-              ]}
-              onClick={() => !disabled && handleSelectItem(item)} // Prevent interaction if disabled
-              isChecked={isSelected.some((it) => it.Id === item.Name)}
+              style={[styles.checkbox, item.Disabled && styles.disabledCheckbox]}
+              onClick={() => !disabled && handleSelectItem(item)}
+              isChecked={isSelected?.some((it: any) => it === item.Id)} // Consistent check with item.Id
               rightText={item.Name}
-              disabled={disabled} // Disable checkbox if disabled prop is true
-              rightTextStyle={disabled ? styles.disabledText : undefined}
+              disabled={item.Disabled}
+              rightTextStyle={item.Disabled ? styles.disabledText : undefined}
             />
           </View>
         ))}
         <Text style={styles.selectedText}>
-          Selected Items: {isSelected.map((it) => it.Name).join(", ")}
+          Selected Items: {isSelected?.map((it: any) => it).join(", ")}
         </Text>
       </View>
       {error && <Text style={styles.errorText}>{error.message}</Text>}
@@ -76,8 +82,8 @@ const styles = StyleSheet.create({
     borderColor: "black",
   },
   disabledBox: {
-    backgroundColor: "#f0f0f0", // Light grey background when disabled
-    borderColor: "#d3d3d3", // Grey border when disabled
+    backgroundColor: "#f0f0f0",
+    borderColor: "#d3d3d3",
   },
   selectedText: {
     marginVertical: 15,
@@ -88,7 +94,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   disabledTitle: {
-    color: "#a9a9a9", // Grey text color when disabled
+    color: "#a9a9a9",
   },
   checkboxContainer: {
     flexDirection: "row",
@@ -98,10 +104,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   disabledCheckbox: {
-    opacity: 0.6, // Reduced opacity when disabled
+    opacity: 0.3,
   },
   disabledText: {
-    color: "#a9a9a9", // Grey text color for checkbox label when disabled
+    color: "#a9a9a9",
   },
   errorText: {
     color: "red",

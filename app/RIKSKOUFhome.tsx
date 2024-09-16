@@ -50,12 +50,19 @@ const RIKSKOUFhome = () => {
           <Text style={styles.buttonText}>Events</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.memberItem}
           onPress={() => navigation.navigate("Payments")}
 
         >
           <Text style={styles.buttonText}>Payments</Text>
+        </TouchableOpacity> */}
+        <TouchableOpacity
+          style={styles.memberItem}
+          onPress={() => navigation.navigate("Home")}
+
+        >
+          <Text style={styles.buttonText}>Home</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -11,7 +11,7 @@ import { MemberInfo } from "@/constants/types";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore";
 
-const addToChurchCollection = async (churchId:string, memberId:string) => {
+const addToChurchCollection = async (churchId: string, memberId: string) => {
   const docRef = doc(db, "Churchs", churchId);
 
   try {
@@ -24,11 +24,14 @@ const addToChurchCollection = async (churchId:string, memberId:string) => {
   }
 };
 
-async function addMemberToChurch(churches:any, memberId:string) {
+async function addMemberToChurch(churches: any, memberId: string) {
   try {
-    const allChurches = await getAllDocInCollection("Churchs");
+    const allChurches = await getAllDocInCollection("Churchs") || [];
     console.log("allChurches is: ", allChurches);
 
+    if (!Array.isArray(allChurches)) {
+      throw new Error("Expected allChurches to be an array.");
+    }
     // Iterate over all churches asynchronously
     for (const church of allChurches) {
       // Await the result of getDocumentIdByName to get the ChurchId
@@ -42,7 +45,7 @@ async function addMemberToChurch(churches:any, memberId:string) {
         for (const belongChurch of churches) {
           if (belongChurch.Name === church.Name) {
             console.log("Church ID:", ChurchId);
-            await addToChurchCollection(ChurchId, memberId); 
+            await addToChurchCollection(ChurchId, memberId);
             console.log("Church", belongChurch.Name, "is included");
           }
         }
@@ -63,7 +66,7 @@ async function changeFromAdminToNonAdmin(OrgId: string, memberId: string) {
     await updateDoc(docRef, {
       Admin: arrayRemove(memberId),
     });
-    
+
     console.log("ID changed from admin to not admin successfully");
   } catch (e) {
     console.error("Error removing ID: ", e);
@@ -80,7 +83,7 @@ async function changeFromNonAdminToAdmin(OrgId: string, memberId: string) {
     await updateDoc(docRef, {
       NotAdmin: arrayRemove(memberId),
     });
-    
+
     console.log("ID changed from amin to not admin successfully");
   } catch (e) {
     console.error("Error removing ID: ", e);
@@ -97,15 +100,13 @@ async function AddMemberFirebase(member: MemberInfo) {
     );
     console.log("userCredential", userCredential.user);
     (member.Involvments = []),
-      (member.Roles = {
-        KOUF: {
-          Active: false,
-          Orginizations: [],
-        },
-        RiksKOUF: {
-          Active: false,
-          Title: "",
-        },
+      (member.IsActiveInKOUF = "No"),
+      (member.OrginizationNameKOUF = ""),
+      (member.TitleKOUF = ""),
+      (member.IsActiveInRiksKOUF = "No"),
+      (member.TitleRiksKOUF = ""),
+      (member.Membership = {
+        AmountPaidMonths: "",
       }),
       (member.Attendence = {
         CountAbsenceCurrentYear: "0",
@@ -187,5 +188,4 @@ async function updateMemberInfo(
   }
 }
 
-
-export {updateMemberInfo, AddMemberFirebase};
+export { updateMemberInfo, AddMemberFirebase };

@@ -46,7 +46,7 @@ async function resetPassword(Email:string) {
   // }
 }
 
-async function logInEmailAndPassword({ Email, Password }) {
+async function logInEmailAndPassword({ Email, Password }:any) {
   try {
     const userCredential = await signInWithEmailAndPassword(
       auth,
@@ -173,10 +173,13 @@ async function getKOUFAnsvariga() {
 }
 
 async function deleteIdFromAttendenceSheet(MemberID:string) {
-  const allAttendenceSheet = await getAllDocInCollection("Attendence");
+  const allAttendenceSheet = await getAllDocInCollection("Attendence") || [];
+  if (!Array.isArray(allAttendenceSheet)) {
+    throw new Error("Expected allChurches to be an array.");
+  }
   if(allAttendenceSheet){
     for (const sheet of allAttendenceSheet) {
-      if (sheet.IDS && sheet.IDS.includes(MemberID)) {
+      if (sheet.IDS?.includes(MemberID)) {
         const docRef = doc(db, "Attendence", sheet.Id);
   
         await updateDoc(docRef, {
@@ -192,7 +195,6 @@ async function deleteIdFromAttendenceSheet(MemberID:string) {
 async function AddChurchFirebase(data:ChurchInfo) {
   data.NotAdmin=[];
   data.Admin= [];
-  data.Id=data.Name;
   await addDocoment("Churchs", data);
 }
 

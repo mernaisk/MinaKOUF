@@ -31,6 +31,7 @@ import { RootStackParamList } from "@/constants/types";
 import Booking from "./paymentsScreens/booking";
 import PaymentInfo from "./paymentsScreens/paymentInfo";
 import Payments from "./paymentsScreens/payments";
+import AddChurch from "./RIKSKOUFScreens/addChurch";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -56,7 +57,7 @@ export default function RootLayout() {
   );
 }
 
-function AuthChecker({ DefaultOptions }) {
+function AuthChecker({ DefaultOptions }: any) {
   const { user, userInfo, isUserLoading } = useUser();
 
   if (isUserLoading) {
@@ -67,7 +68,7 @@ function AuthChecker({ DefaultOptions }) {
     <Stack.Navigator screenOptions={DefaultOptions}>
       {userInfo ? (
         <>
-          {userInfo?.Category.Name === "RiksKOUF" && (
+          {userInfo?.IsActiveInRiksKOUF === "No" && (
             <>
               <Stack.Screen
                 name="RIKSKOUFhome"
@@ -83,6 +84,11 @@ function AuthChecker({ DefaultOptions }) {
               <Stack.Screen
                 name="Churchs"
                 component={Churchs}
+                options={{ contentStyle: styles.screenContent }}
+              />
+              <Stack.Screen
+                name="AddChurch"
+                component={AddChurch}
                 options={{ contentStyle: styles.screenContent }}
               />
               <Stack.Screen

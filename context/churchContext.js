@@ -9,15 +9,13 @@ export const ChurchProvider = ({ children }) => {
   const { user, userInfo, isLoading } = useUser();
   
   useEffect(() => {
-    
     if (!isLoading) {
         if(userInfo){
-            if (userInfo?.Title?.Category.Name == "KOUF") {
-                setChurchName(userInfo.Title.ChurchKOUFLeader.Name);
+            if (userInfo?.IsActiveInKOUF) {
+                setChurchName(userInfo.OrginizationNameKOUF);
             }
         }
     }
-
   }, [isLoading]);
 
   return (

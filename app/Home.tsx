@@ -14,7 +14,7 @@ const Home = () => {
   }
 
   function checkAccess() {
-    return userInfo?.Category.Name !== "Ungdom";
+    return userInfo?.IsActiveInKOUF === "Yes";
   }
   // bbhuy
   const handleLogout = async () => {

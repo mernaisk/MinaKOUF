@@ -50,7 +50,13 @@ const EditMember = () => {
   const { user, userInfo } = useUser();
 
   function checkAccess() {
-    return userInfo?.Category.Name !== "Ungdom" && user?.uid !== memberId;
+    if (userInfo?.IsActiveInKOUF || userInfo?.IsActiveInRiksKOUF) {
+      if (user?.uid !== memberId) {
+        return true;
+      }
+      return false;
+    }
+    return false;
   }
 
   const {
@@ -74,17 +80,19 @@ const EditMember = () => {
       Password: "",
       ConfirmPassword: "",
       Service: [],
-      Orginization: [],
+      Orginization: "",
       Involvments: [],
-      Category: {},
-      LeaderTitle: "",
-      ChurchKOUFLeader: {},
-      BelongsToRiksKOUF: null,
+      IsActiveInRiksKOUF: "",
+      TitleRiksKOUF: "",
+      IsActiveInKOUF: "",
+      TitleKOUF: "",
+      OrginizationNameKOUF: "",
     },
   });
 
   const watchCategory = watch("Category");
-  const watchRiksKOUF = watch("BelongsToRiksKOUF");
+  const watchRiksKOUF = watch("IsActiveInRiksKOUF");
+  const watchKOUF = watch("IsActiveInKOUF");
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const watchedValues = watch();
   console.log("wateedvalues is : ", watchedValues);
@@ -97,9 +105,22 @@ const EditMember = () => {
     queryKey: ["churchs"],
   });
   console.log("churchNaames is ", churchNames);
-  const filteredChurchs = churchNames?.filter((church: ChurchInfo) => {
-    return church?.Name !== "RiksKOUF";
-  });
+  const OrgnizationsWithoutRiksKOUF = churchNames?.filter(
+    (church: ChurchInfo) => {
+      return church?.Name !== "RiksKOUF";
+    }
+  );
+  let OrgOptions: any[] = [];
+
+  function createOptions(item: any) {
+    OrgOptions = [
+      ...OrgOptions,
+      { Name: item.Name, Id: item.Name, Disabled: false },
+    ];
+    console.log(OrgOptions);
+  }
+
+  OrgnizationsWithoutRiksKOUF?.map(createOptions);
 
   const mutationUpdate = useMutation({
     mutationFn: (data: MemberInfo) => {
@@ -139,13 +160,14 @@ const EditMember = () => {
         Email: memberInfo.Email,
         Password: memberInfo.Password,
         ConfirmPassword: memberInfo.ConfirmPassword,
-        Service: memberInfo.Service || [],
-        Involvments: memberInfo.Involvments || [],
-        Orginization: memberInfo.Orginization || [],
-        Category: memberInfo.Category || {},
-        LeaderTitle: memberInfo.LeaderTitle,
-        ChurchKOUFLeader: memberInfo.ChurchKOUFLeader || {},
-        BelongsToRiksKOUF: null,
+        Service: memberInfo.Service,
+        Involvments: memberInfo.Involvments,
+        Orginization: memberInfo.Orginization,
+        IsActiveInRiksKOUF: memberInfo.IsActiveInRiksKOUF,
+        TitleRiksKOUF: memberInfo.TitleRiksKOUF,
+        IsActiveInKOUF: memberInfo.IsActiveInKOUF,
+        TitleKOUF: memberInfo.TitleKOUF,
+        OrginizationNameKOUF: memberInfo.OrginizationNameKOUF,
       });
     }
   }, [memberInfo, reset]);
@@ -153,18 +175,6 @@ const EditMember = () => {
   async function onSubmit(data: any) {
     mutationUpdate.mutate(data);
   }
-  useEffect(() => {
-    if (watchCategory.Name != "KOUF") {
-      setValue("ChurchKOUFLeader", null);
-      clearErrors("ChurchKOUFLeader");
-    }
-  }, [watchCategory]);
-
-  const CategoryOptions = [
-    { Name: "Ungdom", Id: "Ungdom" },
-    { Name: "KOUF", Id: "KOUF" },
-    { Name: "RiksKOUF", Id: "RiksKOUF" },
-  ];
 
   if (isLoading) {
     return <Loading></Loading>;
@@ -318,6 +328,7 @@ const EditMember = () => {
               keyboardType="email-address"
               secureTextEntry={false}
             />
+
             <MultiSelectController
               name="Service"
               control={control}
@@ -326,17 +337,17 @@ const EditMember = () => {
               title="Which services are you interested in"
               disabled={false}
             />
-            <MultiSelectController
+            <OneSelectController
               control={control}
               name="Orginization"
               rules={{ required: "Please select at least one church." }}
-              items={filteredChurchs}
+              items={OrgOptions}
               title="Which church/churchs do you belong to?"
               disabled={false}
             />
 
             <OneSelectController
-              name="BelongsToRiksKOUF"
+              name="IsActiveInRiksKOUF"
               control={control}
               rules={{
                 validate: (value: any) => {
@@ -345,27 +356,25 @@ const EditMember = () => {
                     if (Object.keys(value).length === 0) {
                       return "Please select if the member belongs to RiksKOUF.";
                     }
-                  }
-                  else{
+                  } else {
                     return "Please select if the member belongs to RiksKOUF.";
-
                   }
                   return true;
                 },
               }}
               items={[
-                { Name: "Yes", Id: "Yes" },
-                { Name: "No", Id: "No" },
+                { Name: "Yes", Id: "Yes", Disabled: false },
+                { Name: "No", Id: "No", Disabled: false },
               ]}
               title={`Is ${
                 memberInfo?.Name || "the member"
               } belongs to RiksKOUF?`}
-              disabled={undefined}
+              disabled={!checkAccess()}
             />
 
-            {watchRiksKOUF?.Name === "Yes" && (
+            {watchRiksKOUF === "Yes" && (
               <InputController
-                name="RiksKoufTitle"
+                name="TitleRiksKOUF"
                 control={control}
                 rules={{
                   required:
@@ -373,48 +382,59 @@ const EditMember = () => {
                 }}
                 placeholder="RiksKOUF Title"
                 secureTextEntry={false}
+                editable={checkAccess()}
               />
             )}
-            {/* <OneSelectController
-              name="Category"
-              control={control}
-              rules={{ required: "Please select at least one category.",
-                validate: (value:any) => {
-                  console.log(Object.keys(value).length)
-                }
-              }}
-              items={CategoryOptions}
-              title="Choose your category"
-              disabled={!checkAccess()}
-            /> */}
-            {/* <OneSelectController
-              name="ChurchKOUFLeader"
-              control={control}
-              rules={{
-                required:
-                  watchCategory.Name === "KOUF"
-                    ? "This field is required for KOUF"
-                    : false,
-              }}
-              items={filteredChurchs}
-              title="Which church are you leader in"
-              disabled={watchCategory.Name !== "KOUF" || !checkAccess()}
-            />
-            <InputController
-              name="LeaderTitle"
-              control={control}
-              rules={{
-                required:
-                  watchCategory.Name !== "Ungdom"
-                    ? "Please write your title if you belong to KOUF or RIKSKOUF"
-                    : false,
-              }}
-              placeholder="Leader Title"
-              secureTextEntry={false}
-              editable={checkAccess() && watchCategory.Name !== "Ungdom"}
-            /> */}
 
-            
+            <OneSelectController
+              name="IsActiveInKOUF"
+              control={control}
+              rules={{
+                validate: (value: any) => {
+                  if (value) {
+                    if (Object.keys(value).length === 0) {
+                      return "Please answer if the member belongs to KOUF.";
+                    }
+                  } else {
+                    return "Please answer if the member belongs to KOUF.";
+                  }
+                  return true;
+                },
+              }}
+              items={[
+                { Name: "Yes", Id: "Yes", Disabled: false },
+                { Name: "No", Id: "No", Disabled: false },
+              ]}
+              title={`Is ${
+                memberInfo?.Name || "the member"
+              } belongs to any KOUF?`}
+              disabled={!checkAccess()}
+            />
+
+            {watchKOUF === "Yes" && (
+              <InputController
+                name="TitleKOUF"
+                control={control}
+                rules={{
+                  required:
+                    "Please enter the title if the member belongs to KOUF.",
+                }}
+                placeholder="KOUF Title"
+                secureTextEntry={false}
+                editable={checkAccess()}
+              />
+            )}
+            {watchKOUF === "Yes" && (
+              <OneSelectController
+                control={control}
+                name="OrginizationNameKOUF"
+                rules={{ required: "Please select at least one church." }}
+                items={OrgOptions}
+                title="Which church are you KOUF in?"
+                disabled={!checkAccess()}
+              />
+            )}
+
             <MultiSelectController
               name="Involvments"
               control={control}
@@ -423,6 +443,7 @@ const EditMember = () => {
               title="Which services are you belonging to"
               disabled={!checkAccess()}
             />
+
             <AwesomeAlert
               show={isAlertVisible}
               title="Unsaved Changes"

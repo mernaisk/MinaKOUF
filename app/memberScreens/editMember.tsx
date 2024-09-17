@@ -50,7 +50,7 @@ const EditMember = () => {
   const { user, userInfo } = useUser();
 
   function checkAccess() {
-    if (userInfo?.IsActiveInKOUF || userInfo?.IsActiveInRiksKOUF) {
+    if (userInfo?.IsActiveInKOUF === "Yes" || userInfo?.IsActiveInRiksKOUF === "Yes") {
       if (user?.uid !== memberId) {
         return true;
       }
@@ -125,7 +125,11 @@ const EditMember = () => {
   const mutationUpdate = useMutation({
     mutationFn: (data: MemberInfo) => {
       setIsUpdating(true);
-      return updateMemberInfo(memberId, data, memberInfo?.ProfilePicture);
+      if(!memberInfo){
+        throw new Error("Error in updating memeber info");
+        
+      }
+      return updateMemberInfo(memberId, data, memberInfo );
     },
 
     onError: (error) => {

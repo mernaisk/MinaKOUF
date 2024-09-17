@@ -79,7 +79,7 @@ const AddMember = () => {
   });
   // getAllDocInCollection("Churchs")
   const watchPassword = watch("Password", "");
-  console.log("watched values are: ",watch());
+  // console.log("watched values are: ",watch());
   async function refetch() {
     await queryClient.refetchQueries();
   }
@@ -96,11 +96,11 @@ const AddMember = () => {
 
   function createOptions(item:any){
     OrgOptions = [...OrgOptions,{Name:item.Name, Id:item.Name, Disabled:false}]
-    console.log(OrgOptions)
+    // console.log(OrgOptions)
   }
 
   OrgnizationsWithoutRiksKOUF?.map(createOptions)
-  console.log(churchNames);
+  // console.log(churchNames);
   const mutationAdd = useMutation<any, unknown, any>({
     mutationFn: (data) => {
       setIsLoading(true); // Start loading
@@ -147,6 +147,7 @@ const AddMember = () => {
   };
 
   async function onSubmit(data: any) {
+    console.log("data is: ", data)
     setIsMemberBeingCreated(true);
     mutationAdd.mutate(data);
   }

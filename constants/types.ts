@@ -66,7 +66,8 @@ export interface MemberInfo {
   Service: Array<string>; 
   Title: string;
   Involvments: Array<any>;
-  Orginization: Array<any>;
+  Orginization: string;
+  OrginizationId:string;
   Attendence: {
     CountAbsenceCurrentYear: string;
     CountAttendenceCurrentYear: string;
@@ -78,6 +79,7 @@ export interface MemberInfo {
   IsActiveInKOUF:string,
   OrginizationNameKOUF:string,
   TitleKOUF:string,
+  OrginizationIdKOUF:string,
   IsActiveInRiksKOUF:string,
   TitleRiksKOUF:string,
 

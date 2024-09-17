@@ -68,7 +68,7 @@ function AuthChecker({ DefaultOptions }: any) {
     <Stack.Navigator screenOptions={DefaultOptions}>
       {userInfo ? (
         <>
-          {userInfo?.IsActiveInRiksKOUF === "No" && (
+          {userInfo?.IsActiveInRiksKOUF === "Yes" && (
             <>
               <Stack.Screen
                 name="RIKSKOUFhome"

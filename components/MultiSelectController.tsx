@@ -10,7 +10,7 @@ const MultiSelectController = ({
   items,
   title,
   disabled,
-}) => {
+}:any) => {
   const {
     field: { value, onChange }, // Default value to an empty array
     fieldState: { error },
@@ -34,7 +34,7 @@ const MultiSelectController = ({
     // setIsSelected(updatedSelection); 
 
   };
-  console.log(items)
+  // console.log(items)
 
 
   return (

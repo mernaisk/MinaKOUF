@@ -84,29 +84,11 @@ const MemberInfo = () => {
     // setUserRole("f4yWkHF6JoP1Nkxv8qf7jKZq4e43", "admin");
   }
 
-  const renderObjects = (object: any, index: number) => {
-    console.log(object);
-    const symbol = () => {
-      if (index !== 0) {
-        return <Text>,</Text>;
-      }
-    };
-
-    if (object.Name) {
-      return (
-        <Text key={index}>
-          {symbol()} {object.Name}
-        </Text>
-      );
-    } else {
-      return <Text>none</Text>;
-    }
-  };
 
   const renderInvolvments = () => {
     console.log(memberInfo?.Involvments.length);
     if (memberInfo?.Involvments.length > 0) {
-      return memberInfo?.Involvments.map(renderObjects);
+      return <Text>{memberInfo?.Involvments.join(",")}</Text>
     } else {
       return <Text>None</Text>;
     }

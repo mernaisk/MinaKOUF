@@ -1,22 +1,17 @@
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, Image, View } from "react-native";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { addDocoment, getKOUFAnsvariga } from "@/firebase/firebaseModel";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addDocoment } from "@/firebase/firebaseModel";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types";
-import OneSelectController from "@/components/OneSelectController";
 import SelectDateControl from "@/components/selectDateControll";
-import { Loading } from "@/components/loading";
+
 
 const CreateAttendenceSheet = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const { data: leaders, isLoading } = useQuery({
-    queryFn: () => getKOUFAnsvariga(),
-    queryKey: ["leaders"],
-  });
   const queryClient = useQueryClient();
   const mutationAdd = useMutation<any, unknown, any>({
     mutationFn: (data) => addDocoment("Attendence", data),
@@ -30,43 +25,37 @@ const CreateAttendenceSheet = () => {
     },
   });
 
-  console.log("leaders are", leaders);
-
   const onSubmit = (data: { [key: string]: any }) => {
-    data.IDS = [];
-    console.log(data);
+    data.AttendedIDS = [];
+    data.IsSubmitted= false;
     mutationAdd.mutate(data);
   };
 
-  const { control, handleSubmit, watch } = useForm({
-    defaultValues:{
-      Leader: ""
-    }
-  });
+  const { control, handleSubmit } = useForm();
 
-  //select date
-  if(isLoading){
-    return <Loading></Loading>
-  }
-
-  console.log(watch())
   return (
-    <SafeAreaView>
-      <Text>createAttendenceSheet</Text>
-      <TouchableOpacity onPress={handleSubmit(onSubmit)}>
-        <Text>Create</Text>
-      </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
 
-      {/* <OneSelectController
-              control={control}
-              name="Leader"
-              rules={{ required: "Please select at least one leader." }}
-              items={leaders}
-              title="Which leader is creating the attendencesheet"
-      /> */}
-      
+      <View style={styles.headerContainer}>
+      <Text style={styles.headerText}>Create Attendance Sheet</Text>
+        <Image source={require("../../assets/images/attendence.png")} style={styles.headerImage} />
+      </View>
 
+      <View style={styles.formContainer}>
+        <SelectDateControl
+          name={"Date"}
+          control={control}
+          rules={{
+            required: "Select date and time",
+          }}
+          placeholderDate={"Select Date"}
+          placeholderTime={"Select Time"}
+        />
 
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit(onSubmit)}>
+          <Text style={styles.submitButtonText}>Create</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -74,24 +63,44 @@ const CreateAttendenceSheet = () => {
 export default CreateAttendenceSheet;
 
 const styles = StyleSheet.create({
-  buttonsView: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+  container: {
+    flex: 1,
   },
-  pickerButtons: {
-    height: 50,
-    justifyContent: "center",
+  headerContainer: {
     alignItems: "center",
-    borderRadius: 50,
-    marginTop: 10,
-    marginBottom: 15,
-    paddingHorizontal: 20,
-    backgroundColor: "#11182711",
+    marginTop: 70,
   },
-
-  buttonText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#075985",
+  headerImage: {
+    width: 200, 
+    height: 300,
+    resizeMode: "contain", 
+    
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#1F2937",
+  },
+  formContainer: {
+    flex: 1,
+  },
+  submitButton: {
+    backgroundColor: "#1F2937", 
+    paddingVertical: 15, 
+    borderRadius: 8, 
+    alignItems: "center", 
+    marginTop: 20, 
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84, 
+    elevation: 5, 
+    width: "90%",
+    alignSelf: "center", 
+      },
+  submitButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF", 
   },
 });

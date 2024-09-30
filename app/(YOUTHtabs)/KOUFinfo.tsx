@@ -9,23 +9,13 @@ import {
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
-import { getKOUFAnsvariga } from "@/firebase/firebaseModel";
 
 const KOUFinfo = () => {
-  const { data: leaders, isLoading } = useQuery({
-    queryFn: () => getKOUFAnsvariga(),
-    queryKey: ["leaders"],
-  });
 
-  if (isLoading) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#00ff00" />
-      </View>
-    );
-  }
 
-  const renderItem = ({ item }) => (
+
+
+  const renderItem = ({ item }:any) => (
     <View>
       <Image
         source={{ uri: item?.ProfilePicture?.URL }}
@@ -43,10 +33,10 @@ const KOUFinfo = () => {
       </View>
     </View>
   );
-  console.log(leaders);
+  // console.log(leaders);
   return (
     <SafeAreaView>
-      <FlatList
+      {/* <FlatList
         data={leaders}
         keyExtractor={(item) => item.Id}
         renderItem={renderItem}
@@ -55,7 +45,7 @@ const KOUFinfo = () => {
             <Text>No items to display</Text>
           </View>
         )}
-      />
+      /> */}
     </SafeAreaView>
   );
 };

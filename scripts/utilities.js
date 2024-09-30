@@ -1,9 +1,7 @@
-import validator from 'validator'
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import validator from "validator";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
-
-function filterMembers(allMembers, searchString, churchName) {
-
+function filterMembers(allMembers, searchString) {
   const modifiedSearchString =
     searchString.charAt(0).toUpperCase() + searchString.slice(1).toLowerCase();
 
@@ -11,33 +9,15 @@ function filterMembers(allMembers, searchString, churchName) {
     const filteredMembers = allMembers.filter((member) => {
       return member.Name.startsWith(modifiedSearchString);
     });
-    if(churchName != ""){
-      const churchFilteredMembers = filteredMembers.filter((member) => {
-        return member.Orginization.some((church) => church.Name === churchName);
-      })
-      console.log("imhere222222",churchFilteredMembers)
-      return sortAlphapidically(churchFilteredMembers);
-    }
-    else{
-      return sortAlphapidically(filteredMembers);
-    }
+    return sortAlphapidically(filteredMembers);
+    // }
   } else {
-    console.log("imhere",allMembers)
-
-    if(churchName != ""){
-      const churchFilteredMembers = allMembers.filter((member) => {
-        return member.Orginization.some((church) => church.Name === churchName);
-      })
-      console.log("imhere222222",churchFilteredMembers)
-      return sortAlphapidically(churchFilteredMembers);
-    }
-    else{
-      return sortAlphapidically(allMembers);
-    }  }
+    return sortAlphapidically(allMembers);
+  }
 }
 
 function sortAlphapidically(filteredMembers) {
-  if(filteredMembers){
+  if (filteredMembers) {
     const sortedMembers = filteredMembers.sort(function (a, b) {
       if (a.Name < b.Name) {
         return -1;
@@ -48,26 +28,22 @@ function sortAlphapidically(filteredMembers) {
       return 0;
     });
     return sortedMembers;
-  }
-  else{
+  } else {
     return filteredMembers;
   }
-
 }
 
-
-
-function sortDate(sheets){
+function sortDate(sheets) {
   return sheets.sort((a, b) => a?.date - b?.date);
 }
 
 const validatePhoneNumber = (value) => {
   const phoneNumber = parsePhoneNumberFromString(value);
   if (!phoneNumber) {
-    return 'Invalid phone number';
+    return "Invalid phone number";
   }
   if (!phoneNumber.isValid()) {
-    return 'Phone number is not valid';
+    return "Phone number is not valid";
   }
   return true;
 };
@@ -106,14 +82,14 @@ function checkEmail(email) {
   return validator.isEmail(email);
 }
 
-function getLeadersNames(leaders){
-  const leadersOptions= []
+function getLeadersNames(leaders) {
+  const leadersOptions = [];
   const addLeaderOption = (object) => {
-    let leader = {label:object.Name, value:object}
-    leadersOptions.push(leader)
-  }
-  leaders?.map(addLeaderOption)
-  return leadersOptions
+    let leader = { label: object.Name, value: object };
+    leadersOptions.push(leader);
+  };
+  leaders?.map(addLeaderOption);
+  return leadersOptions;
 }
 
 const titleOptions = [
@@ -131,27 +107,14 @@ const titleOptions = [
 ];
 
 const serviceOptions = [
-  { Name: "Teatern", Id: "Teatern" , Disabled:false},
-  { Name: "Kören", Id: "Kören" , Disabled:false},
-  { Name: "Aktiviteter", Id: "Aktiviteter" , Disabled:false},
-  { Name: "Eftekad", Id: "Eftekad" , Disabled:false},
-  { Name: "Utbildning", Id: "Utbildning" , Disabled:false},
+  { Name: "Teatern", Id: "Teatern", Disabled: false },
+  { Name: "Kören", Id: "Kören", Disabled: false },
+  { Name: "Aktiviteter", Id: "Aktiviteter", Disabled: false },
+  { Name: "Eftekad", Id: "Eftekad", Disabled: false },
+  { Name: "Utbildning", Id: "Utbildning", Disabled: false },
 ];
-
-const attendenceOptions = [
-  { label: "Meeting", value: "Meeting" },
-  { label: "Activity", value: "Activity" },
-  { label: "Conference", value: "Conference" },
-  { label: "Koral", value: "Koral" },
-  { label: "Teater", value: "Teater" },
-];
-
-
-
-
 
 export {
-
   sortDate,
   checkServiceOptions,
   serviceOptions,
@@ -161,6 +124,5 @@ export {
   checkPersonalNumber,
   checkEmail,
   getLeadersNames,
-  attendenceOptions,
-  validatePhoneNumber
+  validatePhoneNumber,
 };

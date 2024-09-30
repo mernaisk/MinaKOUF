@@ -13,20 +13,20 @@ import {
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { filterMembers } from "../../scripts/utilities";
-import { getAllDocInCollection } from "../../firebase/firebaseModel";
 import ScreenWrapper from "../ScreenWrapper";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types";
-import { useChurch } from "@/context/churchContext";
+import { useUser } from "@/context/userContext";
+import { getMembersInOneChurch } from "@/firebase/firebaseModelMembers";
 
 export default function Youth() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
+  const {userInfo} = useUser();
   const [nameToSearch, setNameToSearch] = useState("");
-  const { churchName } = useChurch();
-  console.log("churchName",churchName)
+  // const { churchName } = useChurch();
+  // console.log("churchName",churchName)
   const { data: allMembers, isLoading } = useQuery({
-    queryFn: () => getAllDocInCollection("Members"),
+    queryFn: () => getMembersInOneChurch(userInfo.OrginizationIdKOUF),
     queryKey: ["allMembers"],
   });
   if (isLoading) {
@@ -36,7 +36,7 @@ export default function Youth() {
     if (!name) return "";
     return name.charAt(0).toUpperCase();
   };
-  const filteredMembers = filterMembers(allMembers, nameToSearch, churchName);
+  const filteredMembers = filterMembers(allMembers, nameToSearch);
   console.log(filteredMembers);
   return (
     <ScreenWrapper>

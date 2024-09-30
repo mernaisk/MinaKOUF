@@ -107,32 +107,6 @@ async function updateDocument(type:string, docId:string, updateObject:object) {
 
 
 
-const addIDToAttendence = async (documentId:string, newId:string) => {
-  const docRef = doc(db, "Attendence", documentId);
-
-  try {
-    await updateDoc(docRef, {
-      IDS: arrayUnion(newId),
-    });
-    console.log("ID added successfully");
-  } catch (e) {
-    console.error("Error adding ID: ", e);
-  }
-};
-
-// Function to remove an ID from the IDS array
-const removeIDFromAttendence = async (documentId:string, idToRemove:string) => {
-  const docRef = doc(db, "Attendence", documentId);
-
-  try {
-    await updateDoc(docRef, {
-      IDS: arrayRemove(idToRemove),
-    });
-    console.log("ID removed successfully");
-  } catch (e) {
-    console.error("Error removing ID: ", e);
-  }
-};
 
 //the name of the collection, the documentation ID that  want to delete
 async function deleteDocument(type:string, docId:string) {
@@ -152,16 +126,6 @@ async function getFieldFromDocument(collectionName:string, docID:string, fieldNa
   }
 }
 
-async function getAttendedMembers(sheetID:string) {
-  const attendedIDS = await getFieldFromDocument("Attendence", sheetID, "IDS");
-  const allMembers = await getAllDocInCollection("Members");
-  // console.log("attendedIDS: ", attendedIDS)
-  // console.log("allMembers", allMembers)
-  const attendedMembersInfo = allMembers?.filter((member:any) =>
-    attendedIDS.includes(member.Id)
-  );
-  return attendedMembersInfo;
-}
 
 async function getKOUFAnsvariga() {
   const allMembers = await getAllDocInCollection("Members");
@@ -171,27 +135,6 @@ async function getKOUFAnsvariga() {
   console.log("KOUFLeaders", KOUFLeaders);
   return KOUFLeaders;
 }
-
-async function deleteIdFromAttendenceSheet(MemberID:string) {
-  const allAttendenceSheet = await getAllDocInCollection("Attendence") || [];
-  if (!Array.isArray(allAttendenceSheet)) {
-    throw new Error("Expected allChurches to be an array.");
-  }
-  if(allAttendenceSheet){
-    for (const sheet of allAttendenceSheet) {
-      if (sheet.IDS?.includes(MemberID)) {
-        const docRef = doc(db, "Attendence", sheet.Id);
-  
-        await updateDoc(docRef, {
-          IDS: arrayRemove(MemberID),
-        });
-      }
-    }
-  }
-
-}
-
-
 async function AddChurchFirebase(data:ChurchInfo) {
   data.NotAdmin=[];
   data.Admin= [];
@@ -254,11 +197,9 @@ export const signOut = async () => {
 
 
 export {
-  addIDToAttendence,
-  removeIDFromAttendence,
+
   getKOUFAnsvariga,
-  deleteIdFromAttendenceSheet,
-  getAttendedMembers,
+
   getFieldFromDocument,
   getAllDocInCollection,
   getOneDocInCollection,

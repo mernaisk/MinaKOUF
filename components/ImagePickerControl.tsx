@@ -23,7 +23,7 @@ const ImagePickerControl = ({
   iconStyle,
   customSize,
   
-}) => {
+}:any) => {
   const {
     field,
     fieldState: { error },

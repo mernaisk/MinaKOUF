@@ -14,18 +14,36 @@ import { RootStackParamList } from "@/constants/types";
 import BackButton from "@/components/BackButton";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Loading } from "@/components/loading";
 
 const Churchs = () => {
+
+  let allOrg: any= [];
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const { data: OrginizationsNames, isLoading } = useQuery({
+  const { data: AllChurchs, isLoading: isLoading} = useQuery({
     queryFn: () => getAllDocInCollection("Churchs"),
     queryKey: ["churchs"],
+  });
+  const { data: RiksKOUFInfo, isLoading: isLoading2 } = useQuery({
+    queryFn: () => getAllDocInCollection("RiksKOUFInfo"),
+    queryKey: ["RiksKOUFInfo"],
   });
 
   function handleBackPress() {
     navigation.goBack();
   }
+
+  if (isLoading || isLoading2) {
+    return <Loading />;
+  }
+  const allChurchesData = Array.isArray(AllChurchs) ? AllChurchs : [];
+  const riksKOUFData = Array.isArray(RiksKOUFInfo) ? RiksKOUFInfo : [];
+
+  allOrg = [...allChurchesData, ...riksKOUFData];
+
+  console.log(allOrg)
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -41,9 +59,9 @@ const Churchs = () => {
       </View>
 
       <FlatList
-        data={OrginizationsNames}
-        keyExtractor={(item) => item.Name}
-        renderItem={({ item }) => (
+        data={allOrg}
+        keyExtractor={(item:any) => item.Name}
+        renderItem={({ item }:any) => (
           <View style={styles.memberItem}>
             <View style={styles.headerRow}>
               <MaterialIcons

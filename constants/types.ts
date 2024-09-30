@@ -82,7 +82,7 @@ export interface MemberInfo {
   OrginizationIdKOUF:string,
   IsActiveInRiksKOUF:string,
   TitleRiksKOUF:string,
-
+  Id:string
 }
 
 export interface ChurchInfo {

@@ -5,6 +5,8 @@ import {
   deletePhoto,
   updateDocument,
   addDocomentWithId,
+  getFieldFromDocument,
+  getOneDocInCollection,
 } from "./firebaseModel";
 import { auth, db, storage } from "./firebaseConfig";
 import { ChurchInfo, MemberInfo } from "@/constants/types";
@@ -63,6 +65,32 @@ const removeAdminFromOrg = async (churchId: string, memberId: string) => {
   }
 };
 
+const addAdminToRiksKOUF = async (Id: string, memberId: string) => {
+  const docRef = doc(db, "RiksKOUFInfo", Id);
+
+  try {
+    await updateDoc(docRef, {
+      Admin: arrayUnion(memberId),
+    });
+    console.log("ID added successfully");
+  } catch (e) {
+    console.error("Error adding ID: ", e);
+  }
+};
+
+const removeAdminFromRiksKOUF = async (Id: string, memberId: string) => {
+  const docRef = doc(db, "RiksKOUFInfo", Id);
+
+  try {
+    await updateDoc(docRef, {
+      Admin: arrayRemove(memberId),
+    });
+    console.log("ID removed successfully");
+  } catch (e) {
+    console.error("Error adding ID: ", e);
+  }
+};
+
 async function AddMemberFirebase(member: MemberInfo) {
   try {
     // Step 1: Create the user
@@ -72,12 +100,13 @@ async function AddMemberFirebase(member: MemberInfo) {
       member.Password
     );
 
-    const OrgId= await getDocumentIdByName("Churchs", "Name", member.Orginization) || "";
+    const OrgId =
+      (await getDocumentIdByName("Churchs", "Name", member.Orginization)) || "";
     (member.Involvments = []),
       (member.IsActiveInKOUF = "No"),
       (member.OrginizationNameKOUF = ""),
       (member.OrginizationIdKOUF = ""),
-      (member.OrginizationId=OrgId),
+      (member.OrginizationId = OrgId),
       (member.TitleKOUF = ""),
       (member.IsActiveInRiksKOUF = "No"),
       (member.TitleRiksKOUF = ""),
@@ -149,6 +178,17 @@ async function uploadProfilePictureImage(uri: string) {
   }
 }
 
+async function getMembersInOneChurch(churchId:string){
+  const MembersIDs = await getFieldFromDocument("Churchs", churchId, "NotAdmin");
+  const MembersInfo = await Promise.all(MembersIDs.map(async (memberId:string)  => {
+    const MemberInfo = await getOneDocInCollection("Members",memberId);
+    console.log("MemberInfo: ",MemberInfo)
+    return {Id:memberId , ...MemberInfo}
+  }))
+  console.log("here::", MembersInfo)
+  return MembersInfo
+}
+
 async function updateMemberInfo(
   memberId: string,
   member: MemberInfo,
@@ -169,7 +209,7 @@ async function updateMemberInfo(
     if (newChurchId && oldChurchId) {
       await addMemberToOrg(newChurchId, memberId);
       await removeMemberFromOrg(oldChurchId, memberId);
-      member.OrginizationId=newChurchId;
+      member.OrginizationId = newChurchId;
     }
   }
 
@@ -178,70 +218,66 @@ async function updateMemberInfo(
     member.IsActiveInRiksKOUF === "No" &&
     oldMember.IsActiveInRiksKOUF === "Yes"
   ) {
-    const allChurchs = await getAllDocInCollection("Churchs") || [];
-    allChurchs.map(async (org: ChurchInfo) => {
-      const orgId = await getDocumentIdByName("Churchs", "Name", org.Name);
-      if (orgId) {
-        removeAdminFromOrg(orgId, memberId);
-        member.TitleRiksKOUF="";
-      }
-    });
+    await removeAdminFromRiksKOUF("QCvAYuSRgRVbpbh3tTkb", memberId);
+    member.TitleRiksKOUF = "";
   } else if (
     member.IsActiveInRiksKOUF === "Yes" &&
     oldMember.IsActiveInRiksKOUF === "No"
   ) {
-    const allChurchs = await getAllDocInCollection("Churchs") || [];
-
-    allChurchs.map(async (org: ChurchInfo) => {
-      const orgId = await getDocumentIdByName("Churchs", "Name", org.Name);
-      if (orgId) {
-        addAdminToOrg(orgId, memberId);
-      }
-    });
+    addAdminToRiksKOUF("QCvAYuSRgRVbpbh3tTkb", memberId);
   }
 
   if (member.IsActiveInKOUF === "No" && oldMember.IsActiveInKOUF === "Yes") {
-    removeAdminFromOrg(member.OrginizationIdKOUF,memberId)
+    await removeAdminFromOrg(oldMember.OrginizationIdKOUF, memberId);
     member.OrginizationIdKOUF = "";
+    member.OrginizationNameKOUF = "";
     member.TitleKOUF = "";
   } else if (
     member.IsActiveInKOUF === "Yes" &&
     oldMember.IsActiveInKOUF === "No"
   ) {
-    const orgId= await getDocumentIdByName("Churchs", "Name",member.OrginizationNameKOUF) || "";
+    const orgId =
+      (await getDocumentIdByName(
+        "Churchs",
+        "Name",
+        member.OrginizationNameKOUF
+      )) || "";
     member.OrginizationIdKOUF = orgId;
-    addAdminToOrg(orgId,memberId)
-  } else if(
+    await addAdminToOrg(orgId, memberId);
+  } else if (
     member.IsActiveInKOUF === "Yes" &&
-    oldMember.IsActiveInKOUF === "Yes" && 
+    oldMember.IsActiveInKOUF === "Yes" &&
     member.OrginizationNameKOUF !== oldMember.OrginizationNameKOUF
-  ){
-    const orgId= await getDocumentIdByName("Churchs", "Name",member.OrginizationNameKOUF) || "";
+  ) {
+    const orgId =
+      (await getDocumentIdByName(
+        "Churchs",
+        "Name",
+        member.OrginizationNameKOUF
+      )) || "";
     member.OrginizationIdKOUF = orgId;
   }
 
   //handle change in profile picture
-  if (member.ProfilePicture.assetInfo.uri) {
-    if (
-      oldMember.ProfilePicture.assetInfo.assetId ==
-      member.ProfilePicture.assetInfo.assetID
-    ) {
-      member.ProfilePicture.URL = oldMember.ProfilePicture.URL;
-    } else {
+  if (member.ProfilePicture.assetInfo != oldMember.ProfilePicture.assetInfo) {
+    if (member.ProfilePicture.assetInfo.uri) {
       const downloadURL = await uploadProfilePictureImage(
         member.ProfilePicture.assetInfo.uri
       );
       member.ProfilePicture.URL = downloadURL;
+      if (oldMember.ProfilePicture.URL) {
+        deletePhoto(oldMember.ProfilePicture.URL);
+      }
+    } else if (
+      !member.ProfilePicture.assetInfo.uri &&
+      oldMember.ProfilePicture.URL
+    ) {
       deletePhoto(oldMember.ProfilePicture.URL);
     }
-    await updateDocument("Members", memberId, member);
-  } else {
-    if (oldMember.ProfilePicture.URL) {
-      deletePhoto(oldMember.ProfilePicture.URL);
-    }
-    await updateDocument("Members", memberId, member);
   }
+
+  await updateDocument("Members", memberId, member);
+
 }
 
-
-export { updateMemberInfo, AddMemberFirebase };
+export { updateMemberInfo, AddMemberFirebase,getMembersInOneChurch };

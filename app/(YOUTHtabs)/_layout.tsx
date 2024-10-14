@@ -10,7 +10,6 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig";

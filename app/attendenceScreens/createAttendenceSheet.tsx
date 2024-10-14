@@ -7,11 +7,12 @@ import { addDocoment } from "@/firebase/firebaseModel";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types";
 import SelectDateControl from "@/components/selectDateControll";
+import { useUser } from "@/context/userContext";
 
 
 const CreateAttendenceSheet = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
+  const {userInfo} = useUser()
   const queryClient = useQueryClient();
   const mutationAdd = useMutation<any, unknown, any>({
     mutationFn: (data) => addDocoment("Attendence", data),
@@ -28,6 +29,7 @@ const CreateAttendenceSheet = () => {
   const onSubmit = (data: { [key: string]: any }) => {
     data.AttendedIDS = [];
     data.IsSubmitted= false;
+    data.OrginizationId = userInfo.OrginizationIdKOUF;
     mutationAdd.mutate(data);
   };
 

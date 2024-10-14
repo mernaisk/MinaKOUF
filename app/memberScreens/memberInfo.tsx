@@ -19,6 +19,7 @@ import { Loading } from "@/components/loading";
 import { RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useRoute, RouteProp } from "@react-navigation/native";
+import { OneMemberInfo } from "@/hooks/OneMemberInfo";
 
 type MemberInfosRouteProp = RouteProp<RootStackParamList, "MemberInfo">;
 
@@ -41,17 +42,14 @@ const MemberInfo = () => {
   //     console.error("Error:", error); // Handle any errors
   //   }
   // };
-
+ 
   // setUserRole("f4yWkHF6JoP1Nkxv8qf7jKZq4e43", "admin");
 
   const route = useRoute<MemberInfosRouteProp>();
   const { memberId } = route.params; // Extract the sheetId parameter
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const { data: memberInfo, isLoading } = useQuery({
-    queryFn: () => getOneDocInCollection("Members", memberId),
-    queryKey: ["memberInfo", memberId],
-  });
+  const { data: memberInfo, isLoading } = OneMemberInfo(memberId);
 
   if (isLoading) {
     return <Loading></Loading>;

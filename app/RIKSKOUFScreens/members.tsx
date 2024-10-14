@@ -1,29 +1,33 @@
-import { ActivityIndicator, FlatList, StyleSheet, Text,Image, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
-import { RootStackParamList } from '@/constants/types';
-import { useChurch } from '@/context/churchContext';
-import { getAllDocInCollection } from '@/firebase/firebaseModel';
-import { filterMembers } from '@/scripts/utilities';
-import { NavigationProp,useNavigation } from '@react-navigation/native';
-import { useQuery } from '@tanstack/react-query';
-import ScreenWrapper from '../ScreenWrapper';
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React, { useState } from "react";
+import { RootStackParamList } from "@/constants/types";
+import { filterMembers } from "@/scripts/utilities";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import ScreenWrapper from "../ScreenWrapper";
+import { Loading } from "@/components/loading";
+import { AllMembers } from "@/hooks/AllMembers";
 
 const Members = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [nameToSearch, setNameToSearch] = useState("");
-  const { data: allMembers, isLoading } = useQuery({
-    queryFn: () => getAllDocInCollection("Members"),
-    queryKey: ["allMembers"],
-  });
+  const { data: allMembers, isLoading } = AllMembers();
   if (isLoading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return <Loading />;
   }
   const getInitials = (name: string) => {
     if (!name) return "";
     return name.charAt(0).toUpperCase();
   };
-  const filteredMembers = filterMembers(allMembers, nameToSearch, "");
+  const filteredMembers = filterMembers(allMembers, nameToSearch);
   console.log(filteredMembers);
   return (
     <ScreenWrapper>
@@ -75,10 +79,10 @@ const Members = () => {
         style={styles.list}
       />
     </ScreenWrapper>
-  )
-}
+  );
+};
 
-export default Members
+export default Members;
 
 const styles = StyleSheet.create({
   list: {
@@ -156,4 +160,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 10,
   },
-})
+});

@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import InputController from "@/components/InputController";
 import { addEvent, getChurchInfo } from "@/firebase/firebaseModelEvents";
 import { Loading } from "@/components/loading";
-import { EventInfo, RootStackParamList } from "@/constants/types";
+import { RootStackParamList } from "@/constants/types";
 import {
   NavigationProp,
   RouteProp,
@@ -27,15 +27,11 @@ import SelectDateControl from "@/components/selectDateControll";
 import ImagePickerControl from "@/components/ImagePickerControl";
 import dayjs from "dayjs";
 import BackButton from "@/components/BackButton";
-import OneSelectController from "@/components/OneSelectController";
-import { useUser } from "@/context/userContext.js";
 import { ChurchInfo } from "@/constants/types";
 import { getOneDocInCollection } from "@/firebase/firebaseModel";
-import { useChurch } from "@/context/churchContext";
 type EventInfosRouteProp = RouteProp<RootStackParamList, "CreateEvent">;
 
 const CreateEvent = () => {
-  const { churchName } = useChurch();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<EventInfosRouteProp>();
   const { EventChurch } = route.params;
@@ -46,7 +42,7 @@ const CreateEvent = () => {
       EventInChurch: "",
       SwishNumber: "",
       ImageInfo: { URL: "", assetInfo: {} },
-      StartDate: null, // Use an empty string or a valid date string here
+      StartDate: null, 
     },
   });
 
@@ -54,13 +50,9 @@ const CreateEvent = () => {
     await queryClient.refetchQueries({ queryKey: ["allEvents"] });
   }
 
-  // console.log("EventChurch is", EventChurch);
-
-  // Unconditional call to useQuery
   const {
     data: churchInfo,
     isLoading: isLoading2,
-    error,
     isSuccess,
   } = useQuery<ChurchInfo | null>({
     queryFn: async () => {
@@ -85,8 +77,7 @@ const CreateEvent = () => {
     queryKey: ["church", EventChurch],
   });
 
-  console.log("churchInfo", churchInfo);
-
+  console.log(churchInfo)
   const mutationCreateEvent = useMutation<any, unknown, any>({
     mutationFn: (data) => addEvent(data),
 
@@ -121,7 +112,7 @@ const CreateEvent = () => {
     }
   }, [isSuccess]);
 
-  if (isLoading2) {
+  if (isLoading2 || isUpdating) {
     return <Loading />;
   }
 

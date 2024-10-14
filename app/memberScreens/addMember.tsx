@@ -1,48 +1,34 @@
 import {
-  ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
   Text,
-  View,
   KeyboardAvoidingView,
   ScrollView,
   Platform,
-  TextInput,
   TouchableWithoutFeedback,
   Keyboard,
-  Image,
-  Modal,
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Controller, useForm, FormProvider } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import InputController from "../../components/InputController.jsx";
 import {
   serviceOptions,
-  titleOptions,
-  checkEmail,
   checkPersonalNumber,
-} from "../../scripts/utilities.js";
+} from "../../scripts/utilities";
 import MultiSelectController from "../../components/MultiSelectController";
 
 import {
   useMutation,
   useQueryClient,
-  InvalidateQueryFilters,
-  QueryCache,
   useQuery,
 } from "@tanstack/react-query";
-import {
-  
-  getAllDocInCollection,
-} from "../../firebase/firebaseModel";
-import * as ImagePicker from "expo-image-picker";
-import ScreenWrapper from "../ScreenWrapper.js";
+import { getAllDocInCollection } from "../../firebase/firebaseModel";
 import { Loading } from "@/components/loading";
-import { validatePhoneNumber } from "../../scripts/utilities.js";
+import { validatePhoneNumber } from "../../scripts/utilities";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { ChurchInfo, RootStackParamList } from "@/constants/types.js";
 import { useUser } from "@/context/userContext.js";
@@ -55,11 +41,11 @@ const AddMember = () => {
   const [isUpdating, setIsLoading] = useState(false);
   const { setIsMemberBeingCreated } = useUser();
 
-  const testItems =[
-    {Name: "Test1",Id:"Test1",Disabled:true},
-    {Name: "Test2",Id:"Test2",Disabled:false},
-    {Name: "Test3",Id:"Test3",Disabled:true}
-  ]
+  const testItems = [
+    { Name: "Test1", Id: "Test1", Disabled: true },
+    { Name: "Test2", Id: "Test2", Disabled: false },
+    { Name: "Test3", Id: "Test3", Disabled: true },
+  ];
   const {
     control,
     handleSubmit,
@@ -73,8 +59,8 @@ const AddMember = () => {
       ProfilePicture: { assetInfo: {}, URL: "" },
       Email: "",
       Password: "",
-      Service:[],
-      Orginization:[]
+      Service: [],
+      Orginization: [],
     },
   });
   // getAllDocInCollection("Churchs")
@@ -87,19 +73,24 @@ const AddMember = () => {
   const { data: churchNames, isLoading } = useQuery({
     queryFn: () => getAllDocInCollection("Churchs"),
     queryKey: ["churchs"],
-    // select: (data) =>
-    // data.map((item: any) => ({ label: item.name, value: item.Id })), // Assuming item has name and id fields
   });
 
-  const OrgnizationsWithoutRiksKOUF = churchNames?.filter((church:ChurchInfo) => {return church?.Name !== "RiksKOUF" })
+  const OrgnizationsWithoutRiksKOUF = churchNames?.filter(
+    (church: ChurchInfo) => {
+      return church?.Name !== "RiksKOUF";
+    }
+  );
   let OrgOptions: any[] = [];
 
-  function createOptions(item:any){
-    OrgOptions = [...OrgOptions,{Name:item.Name, Id:item.Name, Disabled:false}]
+  function createOptions(item: any) {
+    OrgOptions = [
+      ...OrgOptions,
+      { Name: item.Name, Id: item.Name, Disabled: false },
+    ];
     // console.log(OrgOptions)
   }
 
-  OrgnizationsWithoutRiksKOUF?.map(createOptions)
+  OrgnizationsWithoutRiksKOUF?.map(createOptions);
   // console.log(churchNames);
   const mutationAdd = useMutation<any, unknown, any>({
     mutationFn: (data) => {
@@ -147,7 +138,7 @@ const AddMember = () => {
   };
 
   async function onSubmit(data: any) {
-    console.log("data is: ", data)
+    console.log("data is: ", data);
     setIsMemberBeingCreated(true);
     mutationAdd.mutate(data);
   }
@@ -323,8 +314,6 @@ const AddMember = () => {
               placeholder="Confirm Password"
               secureTextEntry={true}
             />
-
-
 
             <MultiSelectController
               control={control}

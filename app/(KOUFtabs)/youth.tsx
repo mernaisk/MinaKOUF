@@ -1,36 +1,27 @@
 import {
   StyleSheet,
   Text,
-  ActivityIndicator,
-  Button,
   TextInput,
   FlatList,
   View,
-  Alert,
   TouchableOpacity,
   Image,
 } from "react-native";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { filterMembers } from "../../scripts/utilities";
 import ScreenWrapper from "../ScreenWrapper";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types";
-import { useUser } from "@/context/userContext";
-import { getMembersInOneChurch } from "@/firebase/firebaseModelMembers";
+import { MembersInOneChurch } from "@/hooks/MembersInOneChurch";
+import { Loading } from "@/components/loading";
 
 export default function Youth() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const {userInfo} = useUser();
   const [nameToSearch, setNameToSearch] = useState("");
-  // const { churchName } = useChurch();
-  // console.log("churchName",churchName)
-  const { data: allMembers, isLoading } = useQuery({
-    queryFn: () => getMembersInOneChurch(userInfo.OrginizationIdKOUF),
-    queryKey: ["allMembers"],
-  });
+
+  const { data: allMembers, isLoading } = MembersInOneChurch();
   if (isLoading) {
-    return <ActivityIndicator size="large" color="#00ff00" />;
+    return <Loading/>;
   }
   const getInitials = (name: string) => {
     if (!name) return "";

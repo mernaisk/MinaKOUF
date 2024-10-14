@@ -3,7 +3,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator,
   FlatList,
   Image,
 } from "react-native";
@@ -14,6 +13,7 @@ import { getAllDocInCollection } from "@/firebase/firebaseModel";
 import { sortDate } from "@/scripts/utilities";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { EventInfo, RootStackParamList } from "@/constants/types";
+import { Loading } from "@/components/loading";
 
 const Events = () => {
 
@@ -27,11 +27,7 @@ const Events = () => {
     queryKey: ["allEvents"],
   });
   if (isLoading) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#00ff00" />
-      </View>
-    );
+    return <Loading/>
   }
 
   const sortedEvents = sortDate(allEvents);
@@ -83,9 +79,6 @@ const styles = StyleSheet.create({
     marginTop:60
   },
   container: {
-    // flex: 1,
-    // alignItems: "center",
-    // justifyContent: "center",
     padding: 20,
     backgroundColor: "#f8f8f8",
   },
@@ -102,7 +95,6 @@ const styles = StyleSheet.create({
   },
 
   eventBox: {
-    // width: '90%',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#ccc",
@@ -131,8 +123,8 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     position: "absolute",
-    top: "10%", // Adjust the top position as needed
-    right: "5%", // Adjust the right position as needed
+    top: "50%", 
+    right: "5%", 
     backgroundColor: "black",
     padding: 10,
     borderRadius: 10,

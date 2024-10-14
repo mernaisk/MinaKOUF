@@ -106,12 +106,16 @@ async function updateDocument(type:string, docId:string, updateObject:object) {
 }
 
 
-
-
-//the name of the collection, the documentation ID that  want to delete
-async function deleteDocument(type:string, docId:string) {
-  await deleteDoc(doc(db, type, docId));
+async function deleteDocument(collectionName: string, documentId: string) {
+  try {
+    await deleteDoc(doc(db, collectionName, documentId));
+    console.log("Document successfully deleted!");
+  } catch (error) {
+    console.error("Error deleting document: ", error);
+  }
 }
+
+
 
 async function getFieldFromDocument(collectionName:string, docID:string, fieldName:string) {
   const docRef = doc(db, collectionName, docID);
@@ -152,21 +156,36 @@ async function getDocumentIdByName(collectionName:string, fieldName:string, insi
 
     if (!querySnapshot.empty) {
       const doc = querySnapshot.docs[0]; // Get the first document
-      console.log("coc is: ", doc)
-      console.log("Document ID:", doc.id);
-      return doc.id; // Return the document ID
+
+      return doc.id; 
     } else {
-      console.log("No matching documents found.");
       return null; // Return null if no document is found
     }
   } catch (error) {
-    console.error("Error getting document:", error);
-    throw error; // Throw the error to handle it outside the function if needed
+    throw error; 
   }
 }
 
 
+async function getAllDocumentsByName(
+  collectionName: string,
+  fieldName: string,
+  insideField: string
+): Promise<DocumentData[]> {
+  const collectionRef = collection(db, collectionName);
+  const q = query(collectionRef, where(fieldName, "==", insideField));
 
+  try {
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      return querySnapshot.docs.map((doc) => ({ Id: doc.id, ...doc.data() })); // Map all matching documents
+    } else {
+      return []; // Return an empty array if no documents match
+    }
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function doesDocumentExist(collectionName:string, docID:string) {
   const docRef = doc(db, collectionName, docID);
@@ -213,4 +232,5 @@ export {
   getDocumentIdByName,
   deletePhoto,
   addDocomentWithId, 
+  getAllDocumentsByName
 };

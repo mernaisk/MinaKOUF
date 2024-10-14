@@ -29,7 +29,9 @@ export type RootStackParamList = {
   Churchs: undefined;
   Events: undefined;
   Members: undefined;
-  AddChurch: undefined
+  AddChurch: undefined;
+  CreateQuestion:undefined;
+  EditQuestion:undefined
 };
 
 export interface EventInfo {
@@ -46,6 +48,7 @@ export interface EventInfo {
   EndDate: Object;
   Deadline: Object;
   EventInChurch: string;
+  EventInChurchId: string;
   Bookings: Array<Object>;
 }
 
@@ -63,11 +66,11 @@ export interface MemberInfo {
   Email: string;
   Password: string;
   ConfirmPassword: string;
-  Service: Array<string>; 
+  Service: Array<string>;
   Title: string;
   Involvments: Array<any>;
   Orginization: string;
-  OrginizationId:string;
+  OrginizationId: string;
   Attendence: {
     CountAbsenceCurrentYear: string;
     CountAttendenceCurrentYear: string;
@@ -76,13 +79,13 @@ export interface MemberInfo {
   Membership: {
     AmountPaidMonths: string;
   };
-  IsActiveInKOUF:string,
-  OrginizationNameKOUF:string,
-  TitleKOUF:string,
-  OrginizationIdKOUF:string,
-  IsActiveInRiksKOUF:string,
-  TitleRiksKOUF:string,
-  Id:string
+  IsActiveInKOUF: string;
+  OrginizationNameKOUF: string;
+  TitleKOUF: string;
+  OrginizationIdKOUF: string;
+  IsActiveInRiksKOUF: string;
+  TitleRiksKOUF: string;
+  Id: string;
 }
 
 export interface ChurchInfo {
@@ -94,4 +97,19 @@ export interface ChurchInfo {
   NotAdmin: Array<Object>;
   Admin: Array<Object>;
   Id: string;
+}
+
+export interface QuestionInfo {
+  Question: string;
+  Choices: Array<{choiceText:string, answer:boolean}>;
+  AnswerdCorrect: Array<string>;
+  AnswerdWrong: Array<string>;
+  OrgnizationId:string;
+}
+
+export interface SheetInfo {
+  AttendedIDS: Array<string>;
+  Date: { dateTime: string; justDate: string; justTime: string };
+  IsSubmitted: boolean;
+  Id:string;
 }

@@ -4,11 +4,9 @@ import {
   Text,
   View,
   Image,
-  ActivityIndicator,
 } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useQuery } from "@tanstack/react-query";
 
 const KOUFinfo = () => {
 

@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ActivityIndicator } from "react-native";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import React, { useEffect } from "react";
+import { StyleSheet } from "react-native";
+import {
+  QueryClientProvider,
+  QueryClient,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { UserProvider, useUser } from "../context/userContext";
-import { ChurchProvider, useChurch } from "../context/churchContext";
-import SplashScreen from "../components/SplashScreen";
 import AddMember from "./memberScreens/addMember";
 import Home from "./home";
 import LogIn from "./logIn";
@@ -32,11 +34,21 @@ import Booking from "./paymentsScreens/booking";
 import PaymentInfo from "./paymentsScreens/paymentInfo";
 import Payments from "./paymentsScreens/payments";
 import AddChurch from "./RIKSKOUFScreens/addChurch";
+import {
+  getLeadersInOneChurch,
+  getMembersInOneChurch,
+} from "@/firebase/firebaseModelMembers";
+import { getAllDocInCollection } from "@/firebase/firebaseModel";
+import CreateQuestion from "./challenge/createQuestion";
+import EditQuestion from "./challenge/editQuestion";
+import { getAllSheetsForOneChurch } from "@/firebase/firebaseModelAttendence";
+import { getChallengeInOneChurch } from "@/firebase/firebaseModelChallenge";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootLayout() {
   const queryClient = new QueryClient();
+
   const DefaultOptions = {
     headerShown: false,
     gestureEnabled: true,
@@ -48,9 +60,7 @@ export default function RootLayout() {
     <NavigationContainer independent={true}>
       <QueryClientProvider client={queryClient}>
         <UserProvider>
-          <ChurchProvider>
-            <AuthChecker DefaultOptions={DefaultOptions} />
-          </ChurchProvider>
+          <AuthChecker DefaultOptions={DefaultOptions} />
         </UserProvider>
       </QueryClientProvider>
     </NavigationContainer>
@@ -58,10 +68,58 @@ export default function RootLayout() {
 }
 
 function AuthChecker({ DefaultOptions }: any) {
-  const { user, userInfo, isUserLoading } = useUser();
+  const { userInfo, isUserLoading } = useUser();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (userInfo?.IsActiveInKOUF === "Yes") {
+      queryClient.prefetchQuery({
+        queryKey: ["MembersInOneChurch", userInfo.OrginizationIdKOUF],
+        queryFn: () => getMembersInOneChurch(userInfo.OrginizationIdKOUF),
+      });
+      queryClient.prefetchQuery({
+        queryFn: () => getAllSheetsForOneChurch(userInfo.OrginizationIdKOUF),
+        queryKey: ["allAttendenceSheets", userInfo.OrginizationIdKOUF],
+      });
+      queryClient.prefetchQuery({
+        queryKey: ["LeadersInOneChurch", userInfo.OrginizationIdKOUF],
+        queryFn: () => getLeadersInOneChurch(userInfo.OrginizationIdKOUF),
+      });
+      queryClient.prefetchQuery({
+        queryFn: async () => {
+          const result = await getChallengeInOneChurch(
+            userInfo.OrginizationIdKOUF
+          );
+          return result ?? null; 
+        },
+        queryKey: ["Question", userInfo.OrginizationIdKOUF],
+      });
+    }
+
+    if (userInfo?.IsActiveInRiksKOUF === "Yes") {
+      queryClient.prefetchQuery({
+        queryFn: () => getAllDocInCollection("Members"),
+        queryKey: ["allMembers"],
+      });
+      queryClient.prefetchQuery({
+        queryFn: () => getAllDocInCollection("Churchs"),
+        queryKey: ["churchs"],
+      });
+      queryClient.prefetchQuery({
+        queryFn: () => getAllDocInCollection("RiksKOUFInfo"),
+        queryKey: ["RiksKOUFInfo"],
+      });
+    }
+
+    queryClient.prefetchQuery({
+      queryFn: () => getAllDocInCollection("Events"),
+      queryKey: ["allEvents"],
+    });
+
+  }, [userInfo, queryClient]);
 
   if (isUserLoading) {
-    return <SplashScreen />;
+    return <Loading />;
   }
 
   return (
@@ -173,6 +231,17 @@ function AuthChecker({ DefaultOptions }: any) {
               component={Payments}
               options={{ contentStyle: styles.screenContent }}
             />
+
+            <Stack.Screen
+              name="CreateQuestion"
+              component={CreateQuestion}
+              options={{ contentStyle: styles.screenContent }}
+            />
+            <Stack.Screen
+              name="EditQuestion"
+              component={EditQuestion}
+              options={{ contentStyle: styles.screenContent }}
+            />
           </>
         </>
       ) : (
@@ -218,49 +287,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#9a8c98",
   },
 });
-
-{
-  /* </Stack.Screen> */
-}
-{
-  /* <Stack.Screen
-              name="memberScreens/editMember"
-              options={{ cardStyle: styles.screenContent }}
-            >
-            </Stack.Screen>
-            <Stack.Screen
-              name="memberScreens/memberInfo"
-              options={{ cardStyle: styles.screenContent }}
-            >
-            </Stack.Screen>
-            <Stack.Screen
-              name="attendenceScreens/sheetDetails"
-              options={{ cardStyle: styles.screenContent }}
-            >
-            </Stack.Screen>
-            <Stack.Screen
-              name="attendenceScreens/createAttendenceSheet"
-              options={{ cardStyle: styles.screenContent }}
-            >
-            </Stack.Screen>
-            <Stack.Screen
-              name="attendenceScreens/editAttendenceSheet"
-              options={{ cardStyle: styles.screenContent }}
-            >
-            </Stack.Screen>
-            <Stack.Screen
-              name="eventScreens/createEvent"
-              options={{ cardStyle: styles.screenContent }}
-            >
-            </Stack.Screen>
-            <Stack.Screen
-              name="eventScreens/editEvent"
-              options={{ cardStyle: styles.screenContent }}
-            >
-            </Stack.Screen>
-            <Stack.Screen
-              name="eventScreens/eventInfo"
-              options={{ cardStyle: styles.screenContent }}
-            >
-            </Stack.Screen> */
-}

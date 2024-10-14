@@ -1,5 +1,4 @@
 import {
-  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
@@ -14,11 +13,13 @@ import { DocumentData } from "firebase/firestore";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { useUser } from "@/context/userContext";
-import { getMembersInOneChurch } from "@/firebase/firebaseModelMembers";
-import { FontAwesome5, Ionicons } from "@expo/vector-icons"; 
-import CircularProgress from "react-native-circular-progress-indicator"; 
+
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import CircularProgress from "react-native-circular-progress-indicator";
 import BackButton from "@/components/BackButton";
+import { MembersInOneChurch } from "@/hooks/MembersInOneChurch";
+import { Loading } from "@/components/loading";
+import { OneSheetInfo } from "@/hooks/OneSheetInfo";
 
 type SheetDetailsRouteProp = RouteProp<RootStackParamList, "SheetDetails">;
 
@@ -26,29 +27,15 @@ const SheetDetails = () => {
   const route = useRoute<SheetDetailsRouteProp>();
   const { sheetId } = route.params;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { userInfo } = useUser();
 
-  const { data: allMembers, isLoading: allMembersLoading } = useQuery({
-    queryFn: () => getMembersInOneChurch(userInfo.OrginizationIdKOUF),
-    queryKey: ["allMembers"],
-  });
+  const { data: allMembers, isLoading: MembersIsLoading } =
+    MembersInOneChurch();
 
-  const {
-    data: sheetDetails,
-    isLoading: isSheetLoading,
-    isError: isSheetError,
-  } = useQuery<DocumentData | undefined>({
-    queryFn: () => getOneDocInCollection("Attendence", sheetId),
-    queryKey: ["sheetDetails", sheetId],
-    enabled: !!sheetId,
-  });
+  const { data: sheetDetails, isLoading: isSheetLoading } =
+    OneSheetInfo(sheetId);
 
-  if (isSheetLoading || allMembersLoading) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#00ff00" />
-      </View>
-    );
+  if (isSheetLoading || MembersIsLoading) {
+    return <Loading />;
   }
 
   const attendedIdsCount = sheetDetails?.AttendedIDS
@@ -58,7 +45,7 @@ const SheetDetails = () => {
   const attendancePercentage = (
     (attendedIdsCount / totalMembersCount) *
     100
-  ).toFixed(2); 
+  ).toFixed(2);
 
   const handleBackPress = () => {
     navigation.goBack();
@@ -67,7 +54,7 @@ const SheetDetails = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.bar}>
         <BackButton handleBackPress={handleBackPress} />
-        {sheetDetails?.IsSubmitted && (
+        {!sheetDetails?.IsSubmitted && (
           <TouchableOpacity
             style={styles.editButton}
             onPress={() =>

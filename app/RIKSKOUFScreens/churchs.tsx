@@ -7,28 +7,22 @@ import {
 } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useQuery } from "@tanstack/react-query";
-import { getAllDocInCollection } from "@/firebase/firebaseModel";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types";
 import BackButton from "@/components/BackButton";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Loading } from "@/components/loading";
+import { RiksKOUFInfo } from "@/hooks/RiksKOUFInfo";
+import { AllChurchs } from "@/hooks/AllChurchs";
 
 const Churchs = () => {
 
   let allOrg: any= [];
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const { data: AllChurchs, isLoading: isLoading} = useQuery({
-    queryFn: () => getAllDocInCollection("Churchs"),
-    queryKey: ["churchs"],
-  });
-  const { data: RiksKOUFInfo, isLoading: isLoading2 } = useQuery({
-    queryFn: () => getAllDocInCollection("RiksKOUFInfo"),
-    queryKey: ["RiksKOUFInfo"],
-  });
+  const { data: allChurchs, isLoading: isLoading} = AllChurchs();
+  const { data: RiksKOUF, isLoading: isLoading2 } = RiksKOUFInfo();
 
   function handleBackPress() {
     navigation.goBack();
@@ -37,8 +31,8 @@ const Churchs = () => {
   if (isLoading || isLoading2) {
     return <Loading />;
   }
-  const allChurchesData = Array.isArray(AllChurchs) ? AllChurchs : [];
-  const riksKOUFData = Array.isArray(RiksKOUFInfo) ? RiksKOUFInfo : [];
+  const allChurchesData = Array.isArray(allChurchs) ? allChurchs : [];
+  const riksKOUFData = Array.isArray(RiksKOUF) ? RiksKOUF : [];
 
   allOrg = [...allChurchesData, ...riksKOUFData];
 

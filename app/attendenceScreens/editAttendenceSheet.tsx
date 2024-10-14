@@ -1,5 +1,4 @@
 import {
-  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
@@ -11,25 +10,22 @@ import {
 import CheckBox from "react-native-check-box";
 
 import React, { useState, useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  getAllDocInCollection,
-  getOneDocInCollection,
   updateDocument,
 } from "@/firebase/firebaseModel";
 import AwesomeAlert from "react-native-awesome-alerts";
 import { useRoute, RouteProp } from "@react-navigation/native";
-import { RootStackParamList } from "@/constants/types";
+import { RootStackParamList, SheetInfo } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useForm } from "react-hook-form";
 import SelectDateControl from "@/components/selectDateControll";
 import BackButton from "@/components/BackButton";
 import { filterMembers } from "@/scripts/utilities";
-import { useChurch } from "@/context/churchContext";
-import { useUser } from "@/context/userContext";
-import { getMembersInOneChurch } from "@/firebase/firebaseModelMembers";
 import { updateAttendenceForMembers } from "@/firebase/firebaseModelAttendence";
+import { MembersInOneChurch } from "@/hooks/MembersInOneChurch";
+import { Loading } from "@/components/loading";
 
 type SheetDetailsRouteProp = RouteProp<RootStackParamList, "SheetDetails">;
 
@@ -58,17 +54,15 @@ const EditAttendenceSheet = () => {
   const [isAlertVisible1, setIsAlertVisible1] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [sheetIDS, setSheetIDS] = useState<string[]>([]);
-  const { userInfo } = useUser();
 
-  const { data: allMembers, isLoading: allMembersLoading } = useQuery({
-    queryFn: () => getMembersInOneChurch(userInfo.OrginizationIdKOUF),
-    queryKey: ["allMembers"],
-  });
+  const { data: allMembers, isLoading: MembersIsLoading } =
+    MembersInOneChurch();
 
-  const { data: sheetDetails, isLoading: sheetDetailsLoading } = useQuery({
-    queryFn: () => getOneDocInCollection("Attendence", sheetId),
-    queryKey: ["sheetDetails", sheetId],
-  });
+  const sheetDetails = queryClient.getQueryData<SheetInfo>([
+    "sheetDetails",
+    sheetId,
+  ]);
+
 
   useEffect(() => {
     if (sheetDetails) {
@@ -136,12 +130,8 @@ const EditAttendenceSheet = () => {
     },
   });
 
-  if (allMembersLoading || sheetDetailsLoading || isUpdating) {
-    return (
-      <SafeAreaView style={styles.overlay}>
-        <ActivityIndicator size="large" color="black" />
-      </SafeAreaView>
-    );
+  if (MembersIsLoading || isUpdating) {
+    return <Loading />;
   }
 
   const toggleMember = (member: any) => {
@@ -279,23 +269,23 @@ export default EditAttendenceSheet;
 
 const styles = StyleSheet.create({
   submitButton: {
-    backgroundColor: "#1F2937", 
-    paddingVertical: 15, 
-    borderRadius: 8, 
-    alignItems: "center", 
-    marginTop: 20, 
+    backgroundColor: "#1F2937",
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84, 
-    elevation: 5, 
+    shadowRadius: 3.84,
+    elevation: 5,
     width: "90%",
-    alignSelf: "center", 
-      },
+    alignSelf: "center",
+  },
   submitButtonText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#FFFFFF", 
+    color: "#FFFFFF",
   },
   list: {
     marginTop: 20,

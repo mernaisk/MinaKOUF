@@ -3,7 +3,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator,
   FlatList,
   Image,
 } from "react-native";
@@ -13,7 +12,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllDocInCollection } from "@/firebase/firebaseModel";
 import { sortDate } from "@/scripts/utilities";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { EventItem, RootStackParamList } from "@/constants/types";
+import { EventInfo, RootStackParamList } from "@/constants/types";
+import { Loading } from "@/components/loading";
 
 const Events = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -27,15 +27,11 @@ const Events = () => {
   });
 
   if (isLoading) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#00ff00" />
-      </View>
-    );
+    return <Loading/>;
   }
 
   const sortedEvents = sortDate(allEvents);
-  const renderItem = ({ item }: { item: EventItem }) => (
+  const renderItem = ({ item }: { item: EventInfo }) => (
     <View style={styles.eventBox}>
       <TouchableOpacity
         onPress={() => navigation.navigate("EventInfo", { eventId: item.Id })}

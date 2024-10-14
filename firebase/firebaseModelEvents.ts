@@ -1,9 +1,15 @@
-import { addDocoment,getDocumentIdByName, getOneDocInCollection } from "./firebaseModel";
+import {
+  addDocoment,
+  deletePhoto,
+  getDocumentIdByName,
+  getOneDocInCollection,
+  updateDocument,
+} from "./firebaseModel";
 import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import { ChurchInfo, EventInfo } from "@/constants/types";
 import { storage } from "./firebaseConfig";
 
-async function uploadEventImage(uri:string) {
+async function uploadEventImage(uri: string) {
   try {
     // Fetch the image
     const response = await fetch(uri);
@@ -33,12 +39,14 @@ async function uploadEventImage(uri:string) {
   }
 }
 
-async function addEvent(event:EventInfo) {
+async function addEvent(event: EventInfo) {
   console.log("Adding event:", event);
   try {
     const downloadURL = await uploadEventImage(event.ImageInfo.assetInfo.uri);
     event.ImageInfo.URL = downloadURL;
     event.Bookings = [];
+    event.EventInChurchId =
+      (await getDocumentIdByName("Churchs", "Name", event.EventInChurch)) || "";
     await addDocoment("Events", event);
     console.log("Event successfully added.");
   } catch (error) {
@@ -69,8 +77,30 @@ async function getChurchInfo(churchName: string): Promise<ChurchInfo | null> {
     PostNumber: churchData.PostNumber,
     City: churchData.City,
     SwishNumber: churchData.SwishNumber,
+    NotAdmin: [],
+    Admin: [],
+    Id: "",
   };
 
   return churchInfo;
 }
-export { addEvent, getChurchInfo};
+
+async function updateEvent(
+  EventId: string,
+  OldEvent: EventInfo,
+  NewEvent: EventInfo
+) {
+  //handle change in profile picture
+  if (OldEvent.ImageInfo.assetInfo != NewEvent.ImageInfo.assetInfo) {
+    const downloadURL = await uploadEventImage(
+      NewEvent.ImageInfo.assetInfo.uri
+    );
+    NewEvent.ImageInfo.URL = downloadURL;
+
+    await deletePhoto(OldEvent.ImageInfo.URL);
+  }
+
+  await updateDocument("Events", EventId, NewEvent);
+}
+
+export { addEvent, getChurchInfo, updateEvent };

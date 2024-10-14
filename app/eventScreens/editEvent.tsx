@@ -3,27 +3,18 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Image,
-  ActivityIndicator,
   Platform,
-  Pressable,
   KeyboardAvoidingView,
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Controller, set, useForm } from "react-hook-form";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  getAllDocInCollection,
-  getOneDocInCollection,
-  updateDocument,
-} from "@/firebase/firebaseModel";
-import * as ImagePicker from "expo-image-picker";
+import {useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateDocument } from "@/firebase/firebaseModel";
 import { SafeAreaView } from "react-native-safe-area-context";
 import InputController from "@/components/InputController";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import AwesomeAlert from "react-native-awesome-alerts";
 import { Loading } from "@/components/loading";
 import { EventInfo, RootStackParamList } from "@/constants/types";
@@ -33,6 +24,7 @@ import BackButton from "@/components/BackButton";
 import SelectDateControl from "@/components/selectDateControll";
 import dayjs from "dayjs";
 import ImagePickerControl from "@/components/ImagePickerControl";
+import { updateEvent } from "@/firebase/firebaseModelEvents";
 
 type EventsDetailsRouteProp = RouteProp<RootStackParamList, "EventInfo">;
 
@@ -56,9 +48,13 @@ const EditEvent = () => {
   }
 
   const updateEventInfoMutation = useMutation({
-    mutationFn: async (data:EventInfo) => {
+    mutationFn: async (data: EventInfo) => {
+      if(!eventInfo){
+        throw new Error("Event info doesnt exist");
+        
+      }
       setIsUpdating(true);
-      await updateDocument("Events", eventId, data);
+      await updateEvent(eventId, eventInfo, data);
     },
     onError: (error) => {
       setIsUpdating(false);
@@ -69,6 +65,7 @@ const EditEvent = () => {
       setIsUpdating(false);
       navigation.goBack();
     },
+    
   });
 
   const {
@@ -141,10 +138,9 @@ const EditEvent = () => {
             style={{ flex: 1 }}
             automaticallyAdjustKeyboardInsets={true}
           >
-                        <View style={styles.buttonContainer}>
-
-            <BackButton handleBackPress={handleBackPress}></BackButton>
-            <TouchableOpacity
+            <View style={styles.buttonContainer}>
+              <BackButton handleBackPress={handleBackPress}></BackButton>
+              <TouchableOpacity
                 disabled={!isDirty}
                 onPress={handleSubmit(onSubmit)}
                 style={[
@@ -154,7 +150,7 @@ const EditEvent = () => {
               >
                 <Text style={styles.saveButtonText}>Save</Text>
               </TouchableOpacity>
-              </View>
+            </View>
 
             <ImagePickerControl
               name="ImageInfo"
@@ -361,8 +357,7 @@ const EditEvent = () => {
               closeOnTouchOutside={false}
               closeOnHardwareBackPress={false}
             />
-                        {isUpdating && <Loading></Loading>}
-
+            {isUpdating && <Loading></Loading>}
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>

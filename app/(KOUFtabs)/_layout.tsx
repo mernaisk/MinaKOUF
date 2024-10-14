@@ -2,11 +2,9 @@ import React from "react";
 import {
   View,
   Text,
-  
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,6 +21,8 @@ import Attendance from "./attendence";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/types";
 import { Image } from 'expo-image';
+import { Loading } from "@/components/loading";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Tab = createBottomTabNavigator();
 
@@ -36,7 +36,7 @@ function CustomHeader() {
   };
 
   return (
-    <View style={headerStyles.container}>
+    <SafeAreaView style={headerStyles.container}>
       <TouchableOpacity
         onPress={() => navigation.navigate("Home")} // Change to your home screen
       >
@@ -51,7 +51,7 @@ function CustomHeader() {
       <TouchableOpacity
       onPress={() => navigation.navigate('MemberInfo', { memberId: user?.uid })}
       >
-        {isLoading && <ActivityIndicator size="small" color="#726d81" />}
+        {isLoading && <Loading/>}
         {!isLoading && userInfo?.ProfilePicture?.URL ? (
           <Image
             source={{ uri: userInfo?.ProfilePicture?.URL }}
@@ -65,7 +65,7 @@ function CustomHeader() {
           </View>
         )}
       </TouchableOpacity>
-    </View>
+      </SafeAreaView>
   );
 }
 
@@ -190,8 +190,7 @@ const headerStyles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: "#c9ada7",
     paddingHorizontal: 10,
-    paddingTop: 60,
-    paddingBottom: 10,
+    paddingBottom: -20,
     borderBottomColor: "#726d81",
   },
   icon: {

@@ -7,9 +7,11 @@ import {
   addDocomentWithId,
   getFieldFromDocument,
   getOneDocInCollection,
+  deleteDocument,
+  addDocoment
 } from "./firebaseModel";
 import { auth, db, storage } from "./firebaseConfig";
-import { ChurchInfo, MemberInfo } from "@/constants/types";
+import { ChurchInfo, MemberInfo, QuestionInfo } from "@/constants/types";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore";
 
@@ -182,11 +184,20 @@ async function getMembersInOneChurch(churchId:string){
   const MembersIDs = await getFieldFromDocument("Churchs", churchId, "NotAdmin");
   const MembersInfo = await Promise.all(MembersIDs.map(async (memberId:string)  => {
     const MemberInfo = await getOneDocInCollection("Members",memberId);
-    console.log("MemberInfo: ",MemberInfo)
     return {Id:memberId , ...MemberInfo}
   }))
-  console.log("here::", MembersInfo)
   return MembersInfo
+}
+
+
+
+async function getLeadersInOneChurch(churchId:string){
+  const LeadersIDs = await getFieldFromDocument("Churchs", churchId, "Admin");
+  const LeadersInfo = await Promise.all(LeadersIDs.map(async (memberId:string)  => {
+    const MemberInfo = await getOneDocInCollection("Members",memberId);
+    return {Id:memberId , ...MemberInfo}
+  }))
+  return LeadersInfo
 }
 
 async function updateMemberInfo(
@@ -280,4 +291,4 @@ async function updateMemberInfo(
 
 }
 
-export { updateMemberInfo, AddMemberFirebase,getMembersInOneChurch };
+export { updateMemberInfo, AddMemberFirebase,getMembersInOneChurch,getLeadersInOneChurch};

@@ -1,6 +1,5 @@
 import {
   Image,
-  ActivityIndicator,
   StyleSheet,
   Text,
   View,
@@ -8,10 +7,7 @@ import {
   ScrollView,
 } from "react-native";
 import React from "react";
-import {
-  getDocumentIdByName,
-  getOneDocInCollection,
-} from "@/firebase/firebaseModel";
+import { getOneDocInCollection } from "@/firebase/firebaseModel";
 import { useQuery } from "@tanstack/react-query";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -23,64 +19,24 @@ import {
 } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Fontisto from "@expo/vector-icons/Fontisto";
-import { ChurchInfo, RootStackParamList } from "@/constants/types";
+import { RootStackParamList } from "@/constants/types";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import BackButton from "@/components/BackButton";
 import { useUser } from "@/context/userContext";
-import dayjs from "dayjs";
-import { getChurchInfo } from "@/firebase/firebaseModelEvents";
+import { Loading } from "@/components/loading";
+import { OneEventInfo } from "@/hooks/OneEventInfo";
 type EventsDetailsRouteProp = RouteProp<RootStackParamList, "EventInfo">;
 
 const EventInfo = () => {
   const route = useRoute<EventsDetailsRouteProp>();
   const { eventId } = route.params;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { user, userInfo } = useUser();
-  function checkMembership() {}
-  console.log(eventId);
-  const { data: eventInfo, isLoading } = useQuery({
-    queryFn: () => getOneDocInCollection("Events", eventId),
-    queryKey: ["EventInfo", eventId],
-  });
+  const { user } = useUser();
+  const { data: eventInfo, isLoading } = OneEventInfo(eventId)
 
-  const {
-    data: OrginizationID,
-    isLoading: isLoading2,
-    error,
-    isSuccess,
-  } = useQuery<string | null>({
-    queryFn: async () => {
-      let OrgId: string | null = null;
-
-      if (eventInfo?.EventInChurch === "RiksKOUF") {
-        OrgId = await getDocumentIdByName(
-          "Churchs",
-          "Name",
-          "RiksKOUF"
-        );
-      } else {
-        OrgId = await getDocumentIdByName(
-          "Churchs",
-          "Name",
-          eventInfo?.EventInChurch
-        );
-      }
-
-      if (!OrgId) {
-        throw new Error("Church information not found.");
-      }
-
-      return OrgId;
-    },
-    queryKey: ["Orginization", eventInfo?.EventInChurch],
-  });
-  if (isLoading || isLoading2) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#00ff00" />
-      </View>
-    );
+  if (isLoading) {
+    return <Loading />;
   }
   const Amount = eventInfo?.PriceForNonMembers;
 
@@ -151,24 +107,13 @@ const EventInfo = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <BackButton handleBackPress={handleBackPress}></BackButton>
-        {/* {userInfo.Category.Name !== "Ungdom" && (
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("EditEvent", { eventId: eventId })
-            }
-            style={styles.editButton}
-          >
-            <FontAwesome name="edit" size={30} color="black" />
-          </TouchableOpacity>
-        )} */}
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("EditEvent", { eventId: eventId })
-            }
-            style={styles.editButton}
-          >
-            <FontAwesome name="edit" size={30} color="black" />
-          </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate("EditEvent", { eventId: eventId })}
+          style={styles.editButton}
+        >
+          <FontAwesome name="edit" size={30} color="black" />
+        </TouchableOpacity>
         <View>
           <Text style={styles.title}>{eventInfo?.Title}</Text>
         </View>
@@ -286,7 +231,7 @@ const EventInfo = () => {
                     confirmedBy: null,
                   },
                 },
-                churchID: OrginizationID,
+                churchID: eventInfo?.EventInChurchId,
                 date: null,
                 status: "Pending",
               },

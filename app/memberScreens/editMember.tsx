@@ -16,7 +16,7 @@ import {
   serviceOptions,
   checkEmail,
   checkPersonalNumber,
-} from "../../scripts/utilities.js";
+} from "../../scripts/utilities";
 import MultiSelectController from "../../components/MultiSelectController";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
@@ -32,11 +32,12 @@ import { MemberInfo } from "@/constants/types";
 import OneSelectController from "@/components/OneSelectController";
 import { useUser } from "@/context/userContext.js";
 import { updateMemberInfo } from "@/firebase/firebaseModelMembers";
+import BackButton from "@/components/BackButton.jsx";
 type MemberInfosRouteProp = RouteProp<RootStackParamList, "MemberInfo">;
 
 const EditMember = () => {
   const route = useRoute<MemberInfosRouteProp>();
-  const { memberId } = route.params; // Extract the sheetId parameter
+  const { memberId } = route.params;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const queryClient = useQueryClient();
@@ -90,7 +91,6 @@ const EditMember = () => {
     },
   });
 
-  const watchCategory = watch("Category");
   const watchRiksKOUF = watch("IsActiveInRiksKOUF");
   const watchKOUF = watch("IsActiveInKOUF");
   const [isAlertVisible, setIsAlertVisible] = useState(false);
@@ -196,13 +196,8 @@ const EditMember = () => {
             automaticallyAdjustKeyboardInsets={true}
           >
             <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                onPress={handleBackPress}
-                style={styles.backButton}
-              >
-                <Ionicons name="arrow-back-outline" size={24} color="#000" />
-                <Text style={styles.backButtonText}>Back</Text>
-              </TouchableOpacity>
+
+              <BackButton handleBackPress={handleBackPress}/>
 
               <TouchableOpacity
                 disabled={!isDirty}

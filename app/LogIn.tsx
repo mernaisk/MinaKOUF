@@ -1,12 +1,10 @@
 import {
-  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  TextInput,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
   Platform,
@@ -14,16 +12,13 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import ScreenWrapper from "./ScreenWrapper";
 import InputController from "@/components/InputController";
 import { useMutation } from "@tanstack/react-query";
 import {
   logInEmailAndPassword,
-  resetPassword,
 } from "../firebase/firebaseModel";
 import { Loading } from "@/components/loading";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import AwesomeAlert from "react-native-awesome-alerts";
 import BackButton from "@/components/BackButton";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RootStackParamList } from "@/constants/types";
